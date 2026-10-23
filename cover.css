@@ -84,7 +84,7 @@ body.cover-view:before{display:none}
 .cover-title-assets{display:none}
 .cover-view h1>.title-anatomia,.cover-view h1>.title-bridge,.cover-view h1>.title-generation{display:none}
 .cover-view h1{font-size:0;line-height:0}
-.cover-view .cover-title-assets{display:block;width:100%;max-width:650px}
+.cover-view .cover-title-assets{display:block;width:80%;max-width:500px;margin-left:2%}
 .cover-view .cover-title-assets img{display:block;height:auto;object-fit:contain}
 .cover-view .asset-anatomia{width:82%;margin:0}
 .cover-view .asset-de-una{width:33%;margin:8px 0 6px 55%}
@@ -93,4 +93,13 @@ body.cover-view:before{display:none}
  .cover-view .asset-anatomia{width:84%}
  .cover-view .asset-de-una{width:34%;margin:5px 0 5px 55%}
  .cover-view .asset-generacion{width:94%;margin-left:5%}
+}
+
+/* El título respira sin perder el acomodo de los SVG. */
+@media(min-width:851px){
+ .cover-view .editorial{padding-top:42px}
+ .cover-view h1{margin-bottom:45px}
+}
+@media(max-width:560px){
+ .cover-view .cover-title-assets{width:88%;margin-left:1%}
 }
