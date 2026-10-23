@@ -36,15 +36,26 @@
       <div class="wash wash-blue" aria-hidden="true"></div><div class="wash wash-coral" aria-hidden="true"></div><div class="wash wash-green" aria-hidden="true"></div>
       <div class="orbit-sketch" aria-hidden="true"><svg viewBox="0 0 500 650"><path d="M250 57C58 59 40 517 222 581C421 648 472 169 313 78"/><path d="m305 68 9 11-14 4"/><path class="sketch-dash" d="M67 392c42-42 279-65 372 8"/></svg></div>
       <span class="stage-number" aria-hidden="true">FIG. 01 — UN CUERPO EN EXPLORACIÓN</span>
+      <div class="interaction-switch" role="group" aria-label="Modo de interacción"><button id="mode-data" aria-pressed="true">Explorar datos</button><button id="mode-pose" aria-pressed="false" disabled>Mover el cuerpo <span aria-hidden="true">✧</span></button></div>
       <canvas id="body-canvas" tabindex="0" aria-label="Títere 3D. Arrastra para girar o usa las flechas izquierda y derecha del teclado."></canvas>
       <svg id="connection-overlay" class="connection-overlay" aria-hidden="true"><path id="panel-connection"/></svg>
       <div id="hotspots" class="hotspots" aria-label="Zonas del cuerpo"></div>
+      <div id="joint-handles" class="joint-handles" aria-label="Partes que puedes mover" hidden></div>
       <div id="factors" class="factors" aria-hidden="true"></div>
       <div class="stage-status" id="stage-status" role="status">El cuerpo está por despertar…</div>
       <div class="rotation-controls"><button id="rotate-left" class="round-button" aria-label="Girar el cuerpo a la izquierda">↶</button><div><span class="degrees">360°</span><span class="drag-hint">Arrastra para girar</span></div><button id="rotate-right" class="round-button" aria-label="Girar el cuerpo a la derecha">↷</button></div>
       <button class="reset-view" id="reset-view" aria-label="Volver a la vista frontal">↺ <span>Vista inicial</span></button>
     </section>
     <aside class="context-area" aria-label="Información de la zona seleccionada">
+      <section id="articulation-panel" class="articulation-panel" aria-labelledby="pose-title" hidden>
+        <p class="small-label">EL CUERPO TAMBIÉN RESPONDE</p><h2 id="pose-title">Dale tu<br><em>propio movimiento.</em></h2>
+        <p>Elige una parte y arrástrala sobre el cuerpo, o ajusta los controles. Arrastra el fondo para girar la vista.</p>
+        <label class="part-picker" for="body-part">Parte del cuerpo<select id="body-part" aria-label="Parte del cuerpo"></select></label>
+        <div id="joint-controls"></div>
+        <p class="pose-side-note">Izquierda y derecha corresponden al cuerpo del títere.</p>
+        <button class="pose-reset" id="reset-pose">↺ Restablecer postura</button>
+        <p class="source-note">Tu postura se conserva al volver a explorar los datos.</p>
+      </section>
       <div id="welcome-panel" class="welcome-panel"><span class="handwritten">¿Dónde se siente<br>una decisión?</span><svg class="drawn-arrow" viewBox="0 0 120 80" aria-hidden="true"><path d="M111 8C67-4 65 62 9 51m0 0 14-9M9 51l12 12"/></svg><p class="small-label">DESEAR. DUDAR. DECIDIR.</p><h2>No es solo<br>una pregunta<br>sobre tener hijos.</h2><p>También es una pregunta sobre el mundo en el que queremos vivir.</p><div class="color-key"><span><i style="--c:var(--ochre)"></i>Ilusión</span><span><i style="--c:var(--blue)"></i>Incertidumbre</span><span><i style="--c:var(--coral)"></i>Presión</span><span><i style="--c:var(--green)"></i>Cuidados</span><span><i style="--c:var(--violet)"></i>Decisión de no tener</span></div><p class="sample-note">27 personas.<br>Distintas formas de imaginar su futuro.</p></div>
       <div id="zone-panel" class="zone-panel" hidden></div>
       <div id="closing-panel" class="closing-panel" hidden><p class="small-label">LOS HILOS QUE DESCUBRISTE</p><h2>Distintas partes,<br><em>una misma decisión.</em></h2><p>Tener, postergar o no tener hijos no depende de una sola razón. Las emociones, experiencias, proyectos y condiciones de vida se conectan entre sí y construyen diferentes formas de imaginar el futuro.</p><div class="postures"><p><strong>33.3 %</strong><span>quiere tener hijos</span></p><p><strong>29.6 %</strong><span>aún no lo sabe</span></p><p><strong>37.0 %</strong><span>no quiere tener hijos</span></p></div><p class="source-note">Postura actual · encuesta, n = 27</p><button class="text-button" id="continue">Seguir explorando ↗</button></div>
