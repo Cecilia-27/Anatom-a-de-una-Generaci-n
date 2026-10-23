@@ -62,7 +62,7 @@ try {
   controls=new OrbitControls(camera,canvas);controls.target.copy(target);controls.enableDamping=!reduced;controls.dampingFactor=.075;controls.enablePan=false;controls.rotateSpeed=.52;controls.minPolarAngle=Math.PI/2-.025;controls.maxPolarAngle=Math.PI/2-.025;controls.minDistance=11.65;controls.maxDistance=13.1;controls.zoomSpeed=.35;controls.mouseButtons={LEFT:THREE.MOUSE.ROTATE,MIDDLE:THREE.MOUSE.DOLLY,RIGHT:THREE.MOUSE.ROTATE};controls.touches={ONE:THREE.TOUCH.ROTATE,TWO:THREE.TOUCH.DOLLY_ROTATE};controls.update();
   controls.addEventListener('start',()=>{canvas.classList.add('dragging');rotating=0;});
   controls.addEventListener('end',()=>canvas.classList.remove('dragging'));
-  const resize=()=>{const w=stage.clientWidth,h=stage.clientHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();};
+  const resize=()=>{const w=stage.clientWidth,h=stage.clientHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.fov=document.body.classList.contains('cover-view')&&innerWidth>850?28:32;camera.updateProjectionMatrix();};
   new ResizeObserver(resize).observe(stage);resize();
   new GLTFLoader().load('./assets/titere-articulado.glb',initModel,undefined,onModelError);
   canvas.addEventListener('webglcontextlost',(e)=>{e.preventDefault();onModelError(new Error('Se perdió el contexto WebGL'));});
@@ -102,6 +102,7 @@ function makeHotspots(){
 
 function begin(){
   if(motionMode)setMotionMode(false);
+  document.body.classList.remove('cover-view');
   if(state.started){if(state.closing)resume();else $('#hotspots').querySelector('button')?.focus();return;}
   state.started=true;document.body.classList.add('exploring');$('#intro-copy').hidden=true;$('#explore-copy').hidden=false;$('#start').hidden=true;$('#journey').hidden=false;$('#chapter-number').textContent='02 / 03';$('#chapter-label').textContent='Descubrir lo que nos atraviesa';
   if(failed)makeFallback();
@@ -181,7 +182,7 @@ function initArticulation(){
 }
 function setMotionMode(enabled){
   if(enabled&&!ready)return;
-  endPartDrag();motionMode=enabled;document.body.classList.toggle('moving-body',enabled);
+  endPartDrag();motionMode=enabled;document.body.classList.toggle('moving-body',enabled);document.body.classList.toggle('cover-view',!enabled&&!state.started);
   $('#mode-data').setAttribute('aria-pressed',String(!enabled));$('#mode-pose').setAttribute('aria-pressed',String(enabled));
   $('#articulation-panel').hidden=!enabled;$('#joint-handles').hidden=!enabled;
   $('#welcome-panel').hidden=enabled||state.started&&(!!state.selected||state.closing);
