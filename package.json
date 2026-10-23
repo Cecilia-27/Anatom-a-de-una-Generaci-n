@@ -1,0 +1,11 @@
+{
+  "name": "anatomia-de-una-generacion",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node scripts/serve.mjs",
+    "start": "node scripts/serve.mjs",
+    "check": "node --check dist/app.js && node --check dist/data.js && node scripts/check.mjs"
+  }
+}
