@@ -38,3 +38,7 @@ Arrastrar horizontalmente, botones ↶/↷ o flechas al enfocar el canvas. Seis 
 El selector sobre el modelo cambia entre explorar datos y articular. Hay ocho grupos: cabeza, torso, ambos brazos, ambas manos y ambas piernas. Se puede arrastrar una pieza directamente (selección por Raycaster), arrastrar su marcador o seleccionar el grupo y usar sliders accesibles con teclado. Codos, dedos, rodillas y tobillos tienen controles propios dentro del grupo correspondiente. Los ángulos son relativos a la postura original, con límites moderados.
 
 Los movimientos manuales detienen la introducción y el idle para evitar que sobrescriban la postura. Los hilos, hotspots y recorridos siguen las articulaciones. La postura se conserva al cambiar de modo; «Restablecer postura» vuelve a la original. No se alteran vértices ni geometría del GLB. Los pies solo tienen articulación visual dentro de las piernas, sin datos adicionales. `dist/pose.js` contiene los límites y la correspondencia con los nodos reales.
+
+## Portada visual
+
+`dist/cover.css` aplica únicamente a la pantalla inicial mediante `cover-view`: tipografía fucsia, fondo blanco, manchas e indicadores proporcionados en `assets-interaccion`. Los tres SVG originales se incluyen en `dist/assets/portada-*.svg`. El recorrido, sus datos y el modo de articulación mantienen su apariencia. Al comenzar o entrar en el modo de movimiento, se restaura el encuadre original de la escena.
