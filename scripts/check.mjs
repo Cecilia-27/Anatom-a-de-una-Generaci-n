@@ -15,3 +15,22 @@ const expected={cabeza:[44.4,14.8,7.4,7.4,7.4,7.4,3.7],pecho:[44.4,29.6,11.1,3.7
 for(const [id,z] of Object.entries(zones)){assert.deepEqual(z.sensations.map(s=>s[1]),expected[id]);for(const linked of z.route)assert.ok(zones[linked]);assert.ok(voices[z.quote]);}
 assert.equal(new Set(Object.values(zones).flatMap(z=>z.factors)).size,10);
 console.log('Verificado: GLB original intacto; articulaciones y animación existentes; seis zonas y todos sus porcentajes; diez factores; recorridos válidos.');
+
+// Verifica que cada control mueva articulaciones reales y respete sus límites.
+const {bodyParts,partOrder,createPose,setPoseValue,jointAngles,partForMesh}=await import('../dist/pose.js');
+const pose=createPose();assert.equal(partOrder.length,8);
+for(const [id,part] of Object.entries(bodyParts)){
+ assert.ok(gltf.nodes.some(n=>n.name===part.anchor[0]));
+ for(const f of part.fields){
+  for(const [name] of f.bindings)assert.ok(gltf.nodes.some(n=>n.name===name),`Pivote real: ${name}`);
+  setPoseValue(pose,id,f.id,1e6);assert.equal(pose[id][f.id],f.max);
+  setPoseValue(pose,id,f.id,-1e6);assert.equal(pose[id][f.id],f.min);
+  assert.equal(setPoseValue(pose,id,f.id,NaN),false);
+  setPoseValue(pose,id,f.id,0);
+ }
+}
+assert.ok(Object.values(jointAngles(pose)).every(a=>a.x===0&&a.y===0&&a.z===0));
+setPoseValue(pose,'brazo_I','codo',45);assert.ok(jointAngles(pose).Codo_I.x<0);assert.equal(jointAngles(pose).Codo_D.x,0);
+setPoseValue(pose,'mano_D','dedos',80);assert.ok(jointAngles(pose).Dedo_D_0.x>0);assert.ok(jointAngles(pose).Punta_D_3.x>0);
+assert.equal(partForMesh('Antebrazo_I'),'brazo_I');assert.equal(partForMesh('Falange_distal_D_0'),'mano_D');assert.equal(partForMesh('Hilo_0'),null);
+console.log('Verificado: 8 partes articulables, límites de giro, selección de piezas, dedos y control independiente de ambos lados.');

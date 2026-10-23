@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { GLTFLoader } from './vendor/GLTFLoader.js';
 import { OrbitControls } from './vendor/OrbitControls.js';
 import { zones, voices, factorPositions } from './data.js';
+import { bodyParts, partOrder, createPose, setPoseValue, jointAngles, partForMesh } from './pose.js';
 
 const $ = (s) => document.querySelector(s);
 const zoneIds = Object.keys(zones);
@@ -19,7 +20,7 @@ dialog.addEventListener('cancel',()=>{requestAnimationFrame(()=>lastFocus?.focus
 
 function showSources(){openDialog(`<p class="dialog-eyebrow">ACERCA DE LOS DATOS</p><h2>Escuchar lo que<br>el cuerpo cuenta.</h2><p>Esta experiencia presenta los resultados proporcionados de una encuesta de <strong>27 personas</strong> sobre la decisión de tener, postergar o no tener hijos.</p><h3>Cómo leer los porcentajes</h3><p>Los factores, preocupaciones y emociones corresponden a las opciones reportadas en la encuesta. Se presentan de forma independiente y no deben sumarse como una distribución de la población. La muestra describe a las personas participantes; no representa a toda la Generación Z.</p><h3>Sensaciones, sin interpretaciones médicas</h3><p>Los porcentajes corporales son <strong>sensaciones reportadas en la encuesta</strong>. No prueban que una emoción cause un síntoma en una parte del cuerpo. «Vacío» se conserva como categoría original, sin asignarle una interpretación adicional. Se muestran únicamente las categorías y porcentajes proporcionados, sin completar las distribuciones.</p><p>Las líneas que conectan zonas son recorridos narrativos de exploración, no relaciones estadísticas ni mecanismos fisiológicos. Los pies no tienen un dato independiente.</p><h3>Las voces</h3><p>Los cuatro comentarios están identificados como <strong>ejemplos conceptuales proporcionados</strong>. No se presentan como transcripciones verificadas de entrevistas.</p>`);}
 $('#sources').addEventListener('click',showSources);
-$('#nav-about').addEventListener('click',()=>openDialog(`<p class="dialog-eyebrow">SOBRE EL PROYECTO</p><h2>Anatomía de<br>una Generación.</h2><p>Una decisión que atraviesa el cuerpo.</p><p>Una exploración interactiva sobre cómo la Generación Z vive la decisión de tener, postergar o no tener hijos. Emociones, presiones sociales, economía y proyectos personales se encuentran alrededor de un mismo cuerpo.</p><div class="about-marks"><span>Visualización de datos</span><span>Narrativa generacional</span><span>Exploración 3D</span></div><h3>Cómo explorar</h3><p>Comienza el recorrido y elige una de las seis zonas. Arrastra el títere horizontalmente para girarlo, usa los botones ↶ / ↷ o las flechas del teclado al enfocar el modelo. Con Tab puedes recorrer los puntos; con Enter o espacio abrir sus datos.</p><p>Tras descubrir tres zonas podrás ver una vista conjunta y continuar explorando. El movimiento se reduce automáticamente si tu dispositivo así lo solicita.</p><p class="source-note">Modelo original: titere-articulado.glb · encuesta, n = 27.</p>`));
+$('#nav-about').addEventListener('click',()=>openDialog(`<p class="dialog-eyebrow">SOBRE EL PROYECTO</p><h2>Anatomía de<br>una Generación.</h2><p>Una decisión que atraviesa el cuerpo.</p><p>Una exploración interactiva sobre cómo la Generación Z vive la decisión de tener, postergar o no tener hijos. Emociones, presiones sociales, economía y proyectos personales se encuentran alrededor de un mismo cuerpo.</p><div class="about-marks"><span>Visualización de datos</span><span>Narrativa generacional</span><span>Exploración 3D</span></div><h3>Cómo explorar</h3><p>Comienza el recorrido y elige una de las seis zonas. Arrastra el títere horizontalmente para girarlo, usa los botones ↶ / ↷ o las flechas del teclado al enfocar el modelo. Con Tab puedes recorrer los puntos; con Enter o espacio abrir sus datos.</p><p>En «Mover el cuerpo», selecciona una parte y arrástrala o ajusta sus controles. Puedes flexionar codos, muñecas, dedos, rodillas y tobillos. La postura se conserva al regresar a los datos y puedes restablecerla en cualquier momento.</p><p>Tras descubrir tres zonas podrás ver una vista conjunta y continuar explorando. El movimiento se reduce automáticamente si tu dispositivo así lo solicita.</p><p class="source-note">Modelo original: titere-articulado.glb · encuesta, n = 27.</p>`));
 function voiceContent(){const v=voices[state.voice];return `<p class="dialog-eyebrow">LAS VOCES · ${v.stance.toUpperCase()}</p><h2 id="dialog-title">Hay muchas formas<br>de imaginarlo.</h2><blockquote class="voice-quote">“${v.text}”</blockquote><div class="voice-name" style="--voice-color:${v.color}">${v.name}</div><div class="voice-controls"><button class="round-button" data-voice-step="-1" aria-label="Voz anterior">←</button><span>${state.voice+1} / ${voices.length}</span><button class="round-button" data-voice-step="1" aria-label="Siguiente voz">→</button></div><p class="voice-disclaimer">Ejemplo conceptual proporcionado para el prototipo. No es una transcripción verificada de entrevista.</p>`;}
 function showVoices(index=state.voice){state.voice=index;openDialog(voiceContent());}
 $('#nav-voices').addEventListener('click',()=>showVoices());
@@ -36,6 +37,8 @@ const world = new THREE.Vector3(), projected = new THREE.Vector3();
 const helperQ = new THREE.Quaternion(), helperE = new THREE.Euler();
 const zAxis = new THREE.Vector3(0,1,0);
 const target = new THREE.Vector3(0,2.65,0);
+const pose = createPose(), displayedPose = createPose(), jointHandles = new Map();
+let motionMode=false, selectedPart='cabeza', poseChanged=false, poseDrag=null;
 const anchorDefinitions = {
   cabeza:['Cabeza',[0,.45,.275]], boca:['Cabeza',[0,.12,.28]],
   pecho:['Torso',[0,.64,.29]], estomago:['Torso',[0,.18,.23]],
@@ -71,6 +74,7 @@ function initModel(gltf){
   const bones=[];model.traverse(o=>{if(o.isBone)bones.push(o.name);});
   console.info('GLB inspeccionado',{bones,clips:gltf.animations.map(c=>c.name),articulaciones:[...joints.keys()].filter(n=>/^(Cabeza|Torso|Cintura|Hombro|Codo|Muneca|Dedo|Pierna|Rodilla)/.test(n))});
   makeHotspots();createIntro(gltf.animations);ready=true;introStart=performance.now()/1000;startTime=introStart;
+  initArticulation();$('#mode-pose').disabled=false;
   $('#stage-status').hidden=true;document.body.classList.add('model-ready');$('#start').disabled=false;$('#start').innerHTML='Comenzar <span aria-hidden="true">→</span>';
   requestAnimationFrame(frame);
 }
@@ -97,6 +101,7 @@ function makeHotspots(){
 }
 
 function begin(){
+  if(motionMode)setMotionMode(false);
   if(state.started){if(state.closing)resume();else $('#hotspots').querySelector('button')?.focus();return;}
   state.started=true;document.body.classList.add('exploring');$('#intro-copy').hidden=true;$('#explore-copy').hidden=false;$('#start').hidden=true;$('#journey').hidden=false;$('#chapter-number').textContent='02 / 03';$('#chapter-label').textContent='Descubrir lo que nos atraviesa';
   if(failed)makeFallback();
@@ -108,6 +113,7 @@ function begin(){
 $('#start').addEventListener('click',begin);$('#nav-explore').addEventListener('click',()=>{if(!state.started)$('#start').focus();else{resume();hotspotObjects.get(state.selected||'cabeza')?.el.focus({preventScroll:true});}});
 
 function selectZone(id){
+  if(motionMode)setMotionMode(false);
   if(!state.started)begin();state.closing=false;state.selected=id;state.visited.add(id);state.quoteExpanded=false;
   const z=zones[id];document.documentElement.style.setProperty('--selected-color',z.color);
   $('#welcome-panel').hidden=true;$('#closing-panel').hidden=true;$('#zone-panel').hidden=false;
@@ -142,19 +148,112 @@ function discoverRoute(route,color){
 }
 function updateEdges(time){
   for(const edge of state.edges.values()){
+    edge.line.visible=!motionMode;edge.glow.visible=!motionMode;
     const a=hotspotObjects.get(edge.from)?.position,b=hotspotObjects.get(edge.to)?.position;if(!a||!b)continue;
     const mid=a.clone().lerp(b,.5);mid.z+=.22;mid.x+=.07;const curve=new THREE.QuadraticBezierCurve3(a,mid,b);const positions=edge.line.geometry.attributes.position;
     for(let i=0;i<49;i++){const p=curve.getPoint(i/48);positions.setXYZ(i,p.x,p.y,p.z);const tangent=curve.getTangent(i/48),view=camera.position.clone().sub(p).normalize(),side=new THREE.Vector3().crossVectors(tangent,view).normalize().multiplyScalar(.016);const g=edge.glow.geometry.attributes.position;g.setXYZ(i*2,p.x+side.x,p.y+side.y,p.z+side.z);g.setXYZ(i*2+1,p.x-side.x,p.y-side.y,p.z-side.z);}positions.needsUpdate=true;edge.glow.geometry.attributes.position.needsUpdate=true;
     const elapsed=time-edge.started,progress=reduced?1:THREE.MathUtils.clamp(elapsed/1.3,0,1);edge.line.geometry.setDrawRange(0,Math.max(0,Math.floor(progress*49)));
     edge.glow.geometry.setDrawRange(0,Math.floor(progress*48)*6);edge.glow.material.opacity=state.closing?.32:.18;edge.line.material.opacity=state.closing?.95:edge.active?.85:.55;
-    edge.light.visible=!reduced&&elapsed>0&&elapsed<2.4&&!state.closing;
+    edge.light.visible=!motionMode&&!reduced&&elapsed>0&&elapsed<2.4&&!state.closing;
     if(edge.light.visible)edge.light.position.copy(curve.getPoint(THREE.MathUtils.clamp(elapsed/2.4,0,1)));
     if(elapsed>2.4)edge.active=false;
   }
 }
-function showConclusion(){if(state.visited.size<3)return;state.closing=true;$('#zone-panel').hidden=true;$('#welcome-panel').hidden=true;$('#closing-panel').hidden=false;$('#chapter-number').textContent='03 / 03';$('#chapter-label').textContent='Distintas partes, una misma decisión';hotspotObjects.forEach(({el})=>el.classList.remove('dim'));highlightZone(null);announce('Vista general. Distintas partes, una misma decisión. Tus conexiones permanecen visibles.');if(innerWidth<=850)$('#closing-panel').scrollIntoView({behavior:reduced?'instant':'smooth',block:'start'});}
-function resume(){state.closing=false;$('#chapter-number').textContent=state.started?'02 / 03':'01 / 03';$('#chapter-label').textContent='Descubrir lo que nos atraviesa';$('#closing-panel').hidden=true;if(state.selected)selectZone(state.selected);else $('#welcome-panel').hidden=false;}
+function showConclusion(){if(state.visited.size<3)return;if(motionMode)setMotionMode(false);state.closing=true;$('#zone-panel').hidden=true;$('#welcome-panel').hidden=true;$('#closing-panel').hidden=false;$('#chapter-number').textContent='03 / 03';$('#chapter-label').textContent='Distintas partes, una misma decisión';hotspotObjects.forEach(({el})=>el.classList.remove('dim'));highlightZone(null);announce('Vista general. Distintas partes, una misma decisión. Tus conexiones permanecen visibles.');if(innerWidth<=850)$('#closing-panel').scrollIntoView({behavior:reduced?'instant':'smooth',block:'start'});}
+function resume(){if(motionMode)setMotionMode(false);state.closing=false;$('#chapter-number').textContent=state.started?'02 / 03':'01 / 03';$('#chapter-label').textContent='Descubrir lo que nos atraviesa';$('#closing-panel').hidden=true;if(state.selected)selectZone(state.selected);else $('#welcome-panel').hidden=false;}
 $('#conclusion').onclick=showConclusion;$('#continue').onclick=resume;
+
+function initArticulation(){
+  $('#body-part').innerHTML=partOrder.map(id=>`<option value="${id}">${bodyParts[id].name}</option>`).join('');
+  for(const id of partOrder){
+    const part=bodyParts[id],[name,offset]=part.anchor,joint=joints.get(name);if(!joint)continue;
+    const anchor=new THREE.Object3D();anchor.position.fromArray(offset);joint.add(anchor);
+    const el=document.createElement('button');el.className='joint-handle';el.type='button';el.dataset.part=id;el.setAttribute('aria-label',`Mover ${part.name.toLowerCase()}`);el.setAttribute('aria-pressed',String(id===selectedPart));el.innerHTML=`<span aria-hidden="true">${part.symbol}</span><span class="joint-name">${part.name}</span>`;
+    el.addEventListener('pointerdown',e=>startPartDrag(e,id,el));
+    el.addEventListener('pointermove',movePartDrag);
+    el.addEventListener('pointerup',endPartDrag);
+    el.addEventListener('pointercancel',endPartDrag);
+    el.addEventListener('lostpointercapture',endPartDrag);
+    el.addEventListener('click',()=>selectPart(id));
+    $('#joint-handles').append(el);jointHandles.set(id,{anchor,el,position:new THREE.Vector3()});
+  }
+  renderJointControls();
+}
+function setMotionMode(enabled){
+  if(enabled&&!ready)return;
+  endPartDrag();motionMode=enabled;document.body.classList.toggle('moving-body',enabled);
+  $('#mode-data').setAttribute('aria-pressed',String(!enabled));$('#mode-pose').setAttribute('aria-pressed',String(enabled));
+  $('#articulation-panel').hidden=!enabled;$('#joint-handles').hidden=!enabled;
+  $('#welcome-panel').hidden=enabled||state.started&&(!!state.selected||state.closing);
+  $('#zone-panel').hidden=enabled||!state.selected||state.closing;
+  $('#closing-panel').hidden=enabled||!state.closing;
+  hotspotObjects.forEach(({el})=>el.hidden=enabled||!state.started);
+  if(enabled){
+    introAction?.stop();rotating=0;selectPart(selectedPart);canvas.setAttribute('aria-label','Títere articulado. Arrastra una parte para moverla o arrastra el fondo para girar. Usa los controles para ajustar cada articulación.');
+    announce('Modo mover el cuerpo. Elige una parte y arrastra, o ajusta sus controles.');
+  }else{
+    highlightZone(state.closing?null:state.selected);canvas.setAttribute('aria-label','Títere 3D. Arrastra para girar o usa las flechas izquierda y derecha del teclado.');
+    announce('Modo explorar datos. Tu postura se conserva.');
+  }
+}
+$('#mode-pose').onclick=()=>setMotionMode(true);$('#mode-data').onclick=()=>setMotionMode(false);
+function selectPart(id){
+  if(!bodyParts[id])return;const changed=id!==selectedPart;selectedPart=id;$('#body-part').value=id;
+  jointHandles.forEach(({el},key)=>el.setAttribute('aria-pressed',String(id===key)));
+  if(changed||!$('#joint-controls').children.length)renderJointControls();
+  highlightZone(null);model?.traverse(o=>{if(o.isMesh&&o.material.emissive&&partForMesh(o.name)===id){o.material.emissive.set('#7d8867');o.material.emissiveIntensity=.16;}});
+  announce(`${bodyParts[id].name}. Arrastra o usa los controles de movimiento.`);
+}
+$('#body-part').onchange=e=>selectPart(e.target.value);
+function renderJointControls(){
+  const part=bodyParts[selectedPart];$('#joint-controls').innerHTML=part.fields.map(f=>`<label class="joint-control" for="pose-${f.id}"><span>${f.label}</span><output id="value-${f.id}" for="pose-${f.id}">${Math.round(pose[selectedPart][f.id])}${f.unit}</output><input id="pose-${f.id}" data-pose-field="${f.id}" type="range" min="${f.min}" max="${f.max}" step="1" value="${pose[selectedPart][f.id]}" aria-label="${part.name}: ${f.label.toLowerCase()}"></label>`).join('');
+}
+$('#joint-controls').addEventListener('input',e=>{if(!e.target.matches('[data-pose-field]'))return;changePose(selectedPart,e.target.dataset.poseField,Number(e.target.value));});
+function changePose(part,fieldId,value){
+  if(!setPoseValue(pose,part,fieldId,value))return;poseChanged=true;
+  if(part===selectedPart){const f=bodyParts[part].fields.find(f=>f.id===fieldId),input=$(`#pose-${fieldId}`),output=$(`#value-${fieldId}`);if(input)input.value=String(pose[part][fieldId]);if(output)output.textContent=`${Math.round(pose[part][fieldId])}${f.unit}`;}
+}
+$('#reset-pose').onclick=()=>{endPartDrag();const neutral=createPose();for(const id of partOrder)Object.assign(pose[id],neutral[id]);poseChanged=false;renderJointControls();announce('Postura original restaurada.');};
+function updateManualPose(dt){
+  let changing=false,offset=false;
+  for(const id of partOrder)for(const f of bodyParts[id].fields){const current=displayedPose[id][f.id],value=pose[id][f.id],difference=value-current;displayedPose[id][f.id]=reduced||Math.abs(difference)<.02?value:current+difference*(1-Math.exp(-dt*16));if(Math.abs(displayedPose[id][f.id])>.001)offset=true;if(Math.abs(difference)>.02)changing=true;}
+  const active=motionMode||poseChanged||offset||changing;
+  if(active){for(const [name,a] of Object.entries(jointAngles(displayedPose))){const node=joints.get(name);if(!node)continue;helperE.set(a.x,a.y,a.z);helperQ.setFromEuler(helperE);node.quaternion.copy(baseRotations.get(name)).multiply(helperQ);}}
+  return active;
+}
+function startPartDrag(e,id,element){
+  if(!motionMode||!ready||e.button!==0)return;
+  e.preventDefault();e.stopImmediatePropagation();selectPart(id);introAction?.stop();rotating=0;
+  controls.enabled=false;controls.enableDamping=false;
+  poseDrag={id,element,pointerId:e.pointerId,x:e.clientX,y:e.clientY,values:{...pose[id]}};
+  element.setPointerCapture(e.pointerId);element.classList.add('is-dragging');canvas.classList.add('dragging');document.body.classList.add('articulating');
+}
+function movePartDrag(e){
+  if(!poseDrag||e.pointerId!==poseDrag.pointerId)return;e.preventDefault();e.stopImmediatePropagation();
+  const d=poseDrag,[horizontal,vertical]=bodyParts[d.id].drag,dx=e.clientX-d.x,dy=d.y-e.clientY;
+  if(Math.hypot(dx,dy)<3)return;
+  changePose(d.id,horizontal,d.values[horizontal]+dx*.35);changePose(d.id,vertical,d.values[vertical]+dy*.45);
+}
+function endPartDrag(e){
+  if(!poseDrag||e?.pointerId!==undefined&&e.pointerId!==poseDrag.pointerId)return;
+  e?.preventDefault();e?.stopImmediatePropagation();const d=poseDrag;poseDrag=null;
+  if(d.element.hasPointerCapture(d.pointerId))d.element.releasePointerCapture(d.pointerId);
+  d.element.classList.remove('is-dragging');canvas.classList.remove('dragging');document.body.classList.remove('articulating');
+  if(controls){controls.enabled=true;controls.enableDamping=!reduced;}
+}
+// Capturamos las piezas antes de que OrbitControls interprete el arrastre como giro.
+canvas.addEventListener('pointerdown',e=>{
+  if(!motionMode||!ready||e.button!==0)return;
+  const rect=canvas.getBoundingClientRect();pointer.set((e.clientX-rect.left)/rect.width*2-1,-(e.clientY-rect.top)/rect.height*2+1);raycaster.setFromCamera(pointer,camera);
+  const hit=raycaster.intersectObject(model,true).find(h=>h.object.isMesh&&partForMesh(h.object.name));
+  if(hit)startPartDrag(e,partForMesh(hit.object.name),canvas);
+},true);
+canvas.addEventListener('pointermove',movePartDrag,true);canvas.addEventListener('pointerup',endPartDrag,true);canvas.addEventListener('pointercancel',endPartDrag,true);canvas.addEventListener('lostpointercapture',endPartDrag,true);
+window.addEventListener('blur',()=>endPartDrag());
+function updateJointHandles(){
+  if(!motionMode)return;const width=stage.clientWidth,height=stage.clientHeight;
+  for(const h of jointHandles.values()){h.anchor.getWorldPosition(h.position);projected.copy(h.position).project(camera);h.el.style.left=`${(projected.x*.5+.5)*width}px`;h.el.style.top=`${(-projected.y*.5+.5)*height}px`;h.el.style.visibility=projected.z>1||projected.z< -1?'hidden':'visible';}
+}
 
 function rotate(amount){if(!controls)return;rotating+=amount;announce(amount<0?'Girando a la izquierda.':'Girando a la derecha.');}
 $('#rotate-left').onclick=()=>rotate(-Math.PI/6);$('#rotate-right').onclick=()=>rotate(Math.PI/6);
@@ -180,12 +279,12 @@ function updateHotspots(){
 function frame(ms){
   if(!ready)return;requestAnimationFrame(frame);const time=ms/1000,dt=Math.min(time-(lastTime||time),.05);lastTime=time;
   if(document.hidden)return;
-  if(!reduced&&introAction?.isRunning())mixer.setTime(Math.min(time-introStart,10));
-  idle(time);updateStrings();
+  if(!reduced&&!motionMode&&!poseChanged&&introAction?.isRunning())mixer.setTime(Math.min(time-introStart,10));
+  if(!updateManualPose(dt))idle(time);updateStrings();
   if(Math.abs(rotating)>.0001){const step=reduced?rotating:rotating*Math.min(dt*8,1);camera.position.sub(target).applyAxisAngle(zAxis,step).add(target);rotating-=step;}
-  controls.update();updateHotspots();updateEdges(time);renderer.render(scene,camera);
+  controls.update();updateHotspots();updateJointHandles();updateEdges(time);renderer.render(scene,camera);
 }
-media.addEventListener('change',e=>{reduced=e.matches;if(controls)controls.enableDamping=!reduced;if(reduced){introAction?.stop();for(const [name,q] of baseRotations)joints.get(name)?.quaternion.copy(q);}else{introStart=performance.now()/1000-11;startTime=introStart;}});
+media.addEventListener('change',e=>{reduced=e.matches;if(controls)controls.enableDamping=!reduced;if(reduced){introAction?.stop();if(!motionMode&&!poseChanged)for(const [name,q] of baseRotations)joints.get(name)?.quaternion.copy(q);}else{introStart=performance.now()/1000-11;startTime=introStart;}});
 function makeFallback(){for(const [i,id] of zoneIds.entries()){const el=document.createElement('button');el.className='quote-bubble';el.style.cssText=`position:absolute;left:15%;top:${12+i*11}%;width:70%;pointer-events:auto`;el.textContent=`${zones[id].symbol} ${zones[id].name}`;el.onclick=()=>selectZone(id);$('#hotspots').append(el);}$('#stage-status').hidden=true;}
 
 // Diagnóstico de la experiencia sin datos personales.
