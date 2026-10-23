@@ -4,7 +4,7 @@
 body.cover-view{--cover-red:#f50046;background:#fff;color:var(--cover-red)}
 body.cover-view:before{display:none}
 .cover-view .site-header{height:62px;margin:0 4%;border:0;position:relative;z-index:4;gap:20px}
-.cover-view .cover-step{display:block;font-size:14px;font-weight:400;letter-spacing:-.2px;color:#373737}
+.cover-view .cover-step{display:block;font-size:14px;font-weight:400;letter-spacing:-.2px;color:var(--cover-red)}
 .cover-view .brand,.cover-view .header-note{display:none}
 .cover-view nav{gap:27px}
 .cover-view .nav-link{color:var(--cover-red);font-size:11px}
@@ -78,4 +78,19 @@ body.cover-view:before{display:none}
 @media(max-width:560px){
  .cover-view .experience{overflow-x:clip}
  .cover-view .cover-art{mask-image:linear-gradient(to bottom,transparent,#000 14%)}
+}
+
+/* Título trazado con los tres SVG originales proporcionados. */
+.cover-title-assets{display:none}
+.cover-view h1>.title-anatomia,.cover-view h1>.title-bridge,.cover-view h1>.title-generation{display:none}
+.cover-view h1{font-size:0;line-height:0}
+.cover-view .cover-title-assets{display:block;width:100%;max-width:650px}
+.cover-view .cover-title-assets img{display:block;height:auto;object-fit:contain}
+.cover-view .asset-anatomia{width:82%;margin:0}
+.cover-view .asset-de-una{width:33%;margin:8px 0 6px 55%}
+.cover-view .asset-generacion{width:91%;margin-left:8%}
+@media(max-width:560px){
+ .cover-view .asset-anatomia{width:84%}
+ .cover-view .asset-de-una{width:34%;margin:5px 0 5px 55%}
+ .cover-view .asset-generacion{width:94%;margin-left:5%}
 }
