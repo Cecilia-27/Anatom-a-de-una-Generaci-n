@@ -41,4 +41,8 @@ Los movimientos manuales detienen la introducción y el idle para evitar que sob
 
 ## Portada visual
 
-`dist/cover.css` aplica únicamente a la pantalla inicial mediante `cover-view`: tipografía fucsia, fondo blanco, manchas e indicadores proporcionados en `assets-interaccion`. Los tres SVG originales se incluyen en `dist/assets/portada-*.svg`. El recorrido, sus datos y el modo de articulación mantienen su apariencia. Al comenzar o entrar en el modo de movimiento, se restaura el encuadre original de la escena.
+`dist/cover.css` aplica únicamente a la pantalla inicial mediante `cover-view`: tipografía fucsia, fondo blanco, manchas e indicadores proporcionados en `assets-interaccion`. Los tres SVG originales se incluyen en `dist/assets/portada-*.svg`. Su aplicación se limita a la portada; el estilo de la exploración se define en `dist/explore.css`. Al comenzar o entrar en el modo de movimiento, se restaura el encuadre original de la escena.
+
+## Estilo de la exploración
+
+`dist/explore.css` aplica la identidad blanca y rosa de la portada a la exploración, sus paneles y el modo de movimiento. El título reutiliza los SVG originales a una escala más compacta; las manchas quedan difuminadas detrás del cuerpo. Los colores de zonas, datos y recorridos se conservan. La escena se mantiene visible durante la lectura de paneles largos en desktop. No cambia la lógica ni el contenido de la investigación.
