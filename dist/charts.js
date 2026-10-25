@@ -20,13 +20,13 @@ export function contextGroups(zoneId){
   return [...groups.values()];
 }
 function escape(text){return String(text).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
-export function sensationsChart(zoneId){
+export function sensationsChart(zoneId,{offset=0,limit=Infinity}={}){
   const zone=zones[zoneId];
   return `<figure class="sensations-chart" aria-labelledby="sensations-title">
     <figcaption class="chart-heading"><div><span class="chart-eyebrow">SENSACIONES REPORTADAS</span><h3 id="sensations-title">Lo que se siente en esta zona</h3></div><span class="sample-badge">n = 27</span></figcaption>
     <table class="bar-chart"><caption class="sr-only">Sensaciones reportadas en ${escape(zone.name)}. Porcentaje de las 27 personas de la encuesta. Escala de 0 a 100 por ciento.</caption>
       <thead><tr><th scope="col">Sensación</th><th scope="col">Porcentaje reportado</th></tr></thead>
-      <tbody>${zone.sensations.map(([label,value],index)=>`<tr class="${index===0?'leading-row':''}"><th scope="row">${escape(label)}</th><td><div class="bar-cell"><span class="chart-track" aria-hidden="true"><span class="chart-fill" style="--bar-value:${value}%"></span></span><strong class="bar-value">${value}<small> %</small></strong></div></td></tr>`).join('')}</tbody>
+      <tbody>${zone.sensations.slice(offset,offset+limit).map(([label,value],index)=>`<tr class="${offset+index===0?'leading-row':''}"><th scope="row">${escape(label)}</th><td><div class="bar-cell"><span class="chart-track" aria-hidden="true"><span class="chart-fill" style="--bar-value:${value}%"></span></span><strong class="bar-value">${value}<small> %</small></strong></div></td></tr>`).join('')}</tbody>
       <tfoot><tr><th scope="row">Escala</th><td><div class="chart-scale" aria-hidden="true"><span>0</span><span>25</span><span>50</span><span>75</span><span>100 %</span></div></td></tr></tfoot>
     </table>
     <p class="chart-coverage">Se muestran las categorías proporcionadas; no se completa el 100 % con valores supuestos.</p>

@@ -1,0 +1,148 @@
+/* Cuerpo, pigmento y cristal. La portada conserva su diseño. */
+body.exploring:not(.cover-view) .experience,
+body.exploring:not(.cover-view):has(#zone-panel:not([hidden])) .experience{grid-template-columns:16% 52% 32%;min-height:calc(100svh - 138px)}
+body.exploring:not(.cover-view) .editorial{padding-top:43px}
+body.exploring:not(.cover-view) .cover-title-assets{width:100%;max-width:205px}
+body.exploring:not(.cover-view) .editorial>.eyebrow{font-size:7px;letter-spacing:.9px;line-height:1.7;flex-wrap:wrap;gap:5px}
+body.exploring:not(.cover-view) .subtitle{font-size:21px;line-height:1.3;letter-spacing:-.5px}
+body.exploring:not(.cover-view) .description{font-size:14px;line-height:1.75;max-width:210px}
+body.exploring:not(.cover-view) .journey{margin-top:23px}
+body.exploring:not(.cover-view) .journey .eyebrow{font-size:8px;gap:6px}
+body.exploring:not(.cover-view) .journey .eyebrow span{font-size:9px}
+body.exploring:not(.cover-view) .editorial-footnote{font-size:9px}
+body.exploring:not(.cover-view) .context-area{padding-left:25px}
+body.exploring:not(.cover-view) .body-stage{overflow:clip;min-height:640px;height:calc(100svh - 138px)}
+body.exploring:not(.cover-view) .cover-art{inset:2% 7% 5% 12%;opacity:.40}
+body.exploring:not(.cover-view) .orbit-sketch{opacity:.15}
+body.exploring:not(.cover-view) .factor{font-size:14px;font-style:normal;color:#a35173;white-space:nowrap;padding:3px 7px;background:#ffffff40;border-radius:14px;transition:opacity .8s,transform .8s;pointer-events:none}
+body.exploring:not(.cover-view) .factor:before{inset:-24px -31px;background:radial-gradient(ellipse,color-mix(in srgb,var(--factor-color) 45%,transparent),transparent 70%)}
+body.exploring:not(.cover-view) .factor:after{left:-8px;top:-7px}
+body.exploring:not(.cover-view) #connection-overlay{display:none}
+.hotspot{cursor:pointer}
+.hotspot-core{transition:transform .35s,box-shadow .35s,background .35s}
+.hotspot:not(:disabled):hover .hotspot-core{transform:scale(1.2)}
+.hotspot-core:after{animation-duration:2.8s}
+.focus-status{position:absolute;bottom:75px;left:50%;transform:translateX(-50%);z-index:8;white-space:nowrap;border:1px solid #f3d9e4;background:#ffffffce;backdrop-filter:blur(12px);border-radius:24px;padding:9px 16px;font-size:11px;color:#a84f70;pointer-events:none}
+body.focus-active{overflow:hidden}
+body.focus-active .editorial{opacity:.14;filter:blur(1px);transition:opacity .4s,filter .4s;pointer-events:none}
+body.focus-active .site-header{opacity:.55;transition:opacity .4s}
+body.focus-active .site-footer{opacity:.18}
+body.focus-active .editorial>.eyebrow:before{content:'03'}
+body.focus-active .interaction-switch,body.focus-active .stage-number,body.focus-active .rotation-controls,body.focus-active .reset-view{opacity:0;pointer-events:none;transition:opacity .3s}
+body.focus-active .hotspot{opacity:.13!important;pointer-events:none;cursor:default}
+body.focus-active .hotspot[aria-pressed=true]{opacity:1!important}
+body.focus-active .hotspot[aria-pressed=true] .hotspot-core{transform:scale(1.16)}
+body.focus-active .hotspot-label{display:none}
+body.focus-active #body-canvas{cursor:default}
+body.focus-active .context-area{position:fixed;z-index:21;top:105px;bottom:26px;right:4vw;width:32vw;max-width:470px;padding:0!important;align-self:auto;pointer-events:none}
+body.focus-active.panel-left .context-area{right:auto;left:4vw}
+#zone-panel.glass-panel{pointer-events:none;width:100%;max-width:none;max-height:calc(100svh - 138px);overflow:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#eeb8cc transparent;background:rgba(255,255,255,.74);backdrop-filter:blur(20px) saturate(110%);-webkit-backdrop-filter:blur(20px) saturate(110%);border:1px solid #ffffffd9;box-shadow:0 10px 55px #9e3d6610,0 0 0 1px #f4d9e438;outline:0;border-radius:25px;padding:24px 25px 21px;margin:0;opacity:0;transform:translateY(12px);animation:none;transition:opacity .4s ease,transform .4s ease}
+body.panel-ready #zone-panel.glass-panel{opacity:1;transform:none;pointer-events:auto}
+body.focus-exit #zone-panel.glass-panel{opacity:0;transform:translateY(10px);pointer-events:none}
+#zone-panel.glass-panel .glass-topline{display:flex;align-items:center;justify-content:space-between;gap:12px;color:#865168;font-size:10px;letter-spacing:1.2px;margin-bottom:22px}
+#zone-panel.glass-panel .glass-close{display:flex;align-items:center;gap:9px;color:#c93868;background:#fff8fb80;border:1px solid #efd5e080;border-radius:25px;min-height:34px;padding:6px 10px;font-size:12px;letter-spacing:0;flex-shrink:0}
+#zone-panel.glass-panel .glass-close span{font-size:23px;line-height:1}
+#zone-panel.glass-panel .glass-close:hover{background:#fff2f7}
+#zone-panel.glass-panel .zone-heading{align-items:flex-start;gap:12px;padding-bottom:16px;margin-bottom:18px;border-color:#eddae38a}
+#zone-panel.glass-panel .zone-symbol{width:33px;height:33px;font-size:23px;flex-shrink:0;margin-top:2px}
+#zone-panel.glass-panel .zone-heading h2{font-size:25px;letter-spacing:.4px;font-weight:550;text-transform:uppercase;line-height:1.15;color:#d62058}
+#zone-panel.glass-panel p.glass-concepts{font-size:14px;line-height:1.65;letter-spacing:0;color:#795167;margin:10px 0 0}
+#zone-panel.glass-panel .data-tabs{padding:3px;margin-bottom:20px;background:#fff6fa7a;border-color:#edcfde70;grid-template-columns:1fr 1.4fr}
+#zone-panel.glass-panel .data-tabs button{font-size:12px;min-height:35px;padding:8px 5px}
+#zone-panel.glass-panel .data-tabs button[aria-selected=true]{background:#ffffffce;box-shadow:0 2px 8px #af4b6b0a}
+#zone-panel.glass-panel .chart-heading{align-items:flex-start;margin-bottom:16px;gap:9px}
+#zone-panel.glass-panel .chart-heading h3{font-size:17px;line-height:1.4;font-weight:500;max-width:205px}
+#zone-panel.glass-panel .chart-eyebrow{font-size:10px;letter-spacing:.7px;color:#80596b}
+#zone-panel.glass-panel .sample-badge{font-size:11px;padding:5px 7px;background:#ffffff7a;border-color:#efdae580}
+#zone-panel.glass-panel .bar-chart th:first-child{width:106px}
+#zone-panel.glass-panel .bar-chart thead th{font-size:11px;font-weight:400}
+#zone-panel.glass-panel .bar-chart thead th:last-child{padding-left:7px}
+#zone-panel.glass-panel .bar-chart tbody th{font-size:14px;padding:14px 6px 14px 0;line-height:1.4}
+#zone-panel.glass-panel .bar-chart tbody td{padding:14px 0 14px 7px}
+#zone-panel.glass-panel .bar-chart tbody tr{border-color:#eddae35c}
+#zone-panel.glass-panel .bar-cell{grid-template-columns:minmax(0,1fr) 63px;gap:10px}
+#zone-panel.glass-panel .bar-value{font-size:20px;font-weight:600;letter-spacing:-.5px;color:#bf2b5a}
+#zone-panel.glass-panel .bar-value small{font-size:12px}
+#zone-panel.glass-panel .chart-track{height:7px;background-color:#f3e7ef70}
+#zone-panel.glass-panel .chart-fill{opacity:.85}
+#zone-panel.glass-panel .bar-chart tfoot td{padding-left:7px;padding-right:73px}
+#zone-panel.glass-panel .chart-scale{font-size:10px;color:#80596b}
+#zone-panel.glass-panel .chart-scale span:nth-child(2),#zone-panel.glass-panel .chart-scale span:nth-child(4){display:none}
+#zone-panel.glass-panel .chart-coverage{display:none}
+#zone-panel.glass-panel .chart-pagination{display:flex;align-items:center;justify-content:center;gap:14px;margin:17px 0 20px;color:#80566c;font-size:12px}
+#zone-panel.glass-panel .chart-pagination button{width:30px;height:30px;border:1px solid #e9c8d9;border-radius:50%;background:#fff8fb88;color:#c2386d;font-size:17px}
+#zone-panel.glass-panel .chart-pagination button:disabled{opacity:.3;cursor:default}
+#zone-panel.glass-panel .glass-finding{padding-top:17px;border-top:1px solid #eddae385}
+#zone-panel.glass-panel .glass-finding>span{font-size:10px;letter-spacing:1px;color:#9a3f64}
+#zone-panel.glass-panel .glass-finding p{font-size:14px;line-height:1.7;color:#75445c;margin:9px 0 14px}
+#zone-panel.glass-panel .glass-method{font-size:12px;line-height:1.7;color:#80596b;margin:18px 0 15px}
+#zone-panel.glass-panel .glass-footer{display:flex;align-items:center;justify-content:space-between;gap:10px;border-top:1px solid #eddae385;padding-top:13px}
+#zone-panel.glass-panel .chart-help{font-size:12px;margin:0;padding:4px 0;min-height:30px}
+#zone-panel.glass-panel .glass-return{background:transparent;color:#ad2450;font-size:12px;padding:8px 0;min-height:32px}
+#zone-panel.glass-panel .context-intro h3{font-size:16px}
+#zone-panel.glass-panel .context-intro p{font-size:14px;line-height:1.65}
+#zone-panel.glass-panel .context-chart-row p{font-size:14px}
+#zone-panel.glass-panel .context-chart-row strong{font-size:22px}
+#zone-panel.glass-panel .context-chart-group{margin-bottom:18px;padding-top:15px}
+#zone-panel.glass-panel .context-method{font-size:12px}
+#zone-panel.glass-panel .finding{font-size:14px!important}
+#zone-panel.glass-panel .verified-quote{font-size:18px;font-style:italic;line-height:1.5;color:#c74c73;margin:18px 0}
+#zone-panel.glass-panel .verified-quote cite{display:block;font:11px/1.5 var(--sans);margin-top:9px;color:#a27489}
+@media(min-width:1800px){
+ body.focus-active .context-area{right:5vw;max-width:520px}
+ body.focus-active.panel-left .context-area{left:5vw}
+ #zone-panel.glass-panel{padding:29px 30px}
+ #zone-panel.glass-panel .bar-chart th:first-child{width:130px}
+ #zone-panel.glass-panel .zone-heading h2{font-size:29px}
+ #zone-panel.glass-panel .bar-value{font-size:24px}
+}
+@media(max-width:1150px) and (min-width:851px){
+ body.exploring:not(.cover-view) .subtitle{font-size:19px}
+ body.exploring:not(.cover-view) .description{font-size:11px}
+ body.focus-active .context-area{right:3vw;width:34vw}
+ body.focus-active.panel-left .context-area{left:3vw}
+ #zone-panel.glass-panel{padding:20px 18px}
+ #zone-panel.glass-panel .bar-chart th:first-child{width:87px}
+ #zone-panel.glass-panel .bar-cell{grid-template-columns:minmax(0,1fr) 57px;gap:7px}
+ #zone-panel.glass-panel .bar-chart tfoot td{padding-right:64px}
+ #zone-panel.glass-panel .bar-value{font-size:18px}
+}
+@media(max-width:850px){
+ body.exploring:not(.cover-view) .experience,
+ body.exploring:not(.cover-view):has(#zone-panel:not([hidden])) .experience{grid-template-columns:38% 62%}
+ body.exploring:not(.cover-view) .editorial{padding-top:30px}
+ body.exploring:not(.cover-view) .cover-title-assets{max-width:290px}
+ body.exploring:not(.cover-view) .body-stage{height:650px;min-height:650px}
+ body.exploring:not(.cover-view) .context-area{padding-left:0}
+ body.focus-active .site-header{position:relative;z-index:22;opacity:.6}
+ body.focus-active .editorial,body.focus-active .site-footer{visibility:hidden}
+ body.focus-active .body-stage{position:fixed!important;top:72px!important;bottom:0!important;left:0!important;right:0!important;margin:0!important;width:100%!important;height:calc(100svh - 72px)!important;min-height:0!important;z-index:12;background:radial-gradient(ellipse at 55% 25%,#fff0,#fff9 65%),#fcf9fb;isolation:isolate}
+ body.focus-active .context-area,body.focus-active.panel-left .context-area{position:fixed;z-index:21;top:auto;right:12px;left:12px;bottom:12px;width:auto;max-width:none;padding:0!important}
+ #zone-panel.glass-panel{max-height:45svh;max-width:660px;margin:0 auto;padding:17px 20px 20px;border-radius:23px}
+ #zone-panel.glass-panel .glass-topline{margin-bottom:15px}
+ #zone-panel.glass-panel .zone-heading{margin-bottom:15px}
+ #zone-panel.glass-panel .zone-heading h2{font-size:24px}
+ #zone-panel.glass-panel p.glass-concepts{font-size:13px;margin-top:7px}
+ .focus-status{bottom:auto;top:10%;font-size:11px}
+}
+@media(max-width:560px){
+ body.exploring:not(.cover-view) .experience,
+ body.exploring:not(.cover-view):has(#zone-panel:not([hidden])) .experience{display:flex;flex-direction:column}
+ body.exploring:not(.cover-view) .cover-title-assets{max-width:270px;width:78%}
+ body.exploring:not(.cover-view) .body-stage{height:570px;min-height:570px}
+ body.exploring:not(.cover-view) .subtitle{font-size:24px}
+ body.exploring:not(.cover-view) .editorial>.eyebrow{font-size:8px}
+ body.exploring:not(.cover-view) .factor{font-size:12px}
+ #zone-panel.glass-panel{padding:16px 16px 19px;max-height:47svh}
+ #zone-panel.glass-panel .zone-heading{gap:9px}
+ #zone-panel.glass-panel .zone-symbol{width:27px;height:27px;font-size:20px}
+ #zone-panel.glass-panel .zone-heading h2{font-size:23px}
+ #zone-panel.glass-panel .bar-chart th:first-child{width:99px}
+ #zone-panel.glass-panel .bar-chart tbody th{font-size:13px}
+ #zone-panel.glass-panel .chart-heading h3{font-size:15px}
+ #zone-panel.glass-panel .bar-value{font-size:19px}
+ #zone-panel.glass-panel .chart-scale{font-size:10px}
+ #zone-panel.glass-panel .glass-finding p{font-size:14px}
+}
+
+#zone-panel.glass-panel .glass-topline{position:sticky;top:-1px;z-index:4;background:rgba(255,255,255,.78);backdrop-filter:blur(12px);border-radius:13px;padding:4px 0}

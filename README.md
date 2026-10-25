@@ -27,7 +27,7 @@ Pivotes utilizados: `Cabeza`, `Torso`, `Cintura`, `Hombro_I/D`, `Codo_I/D`, `Mun
 
 ## Datos
 
-Encuesta n = 27. Los datos son los proporcionados en el encargo: no se añadieron resultados, recuentos ni asociaciones estadísticas. Las líneas son conexiones narrativas, no relaciones causales. «Vacío» se conserva sin reinterpretar. Los pies no constituyen una zona independiente. Los cuatro fragmentos de voces se identifican como ejemplos conceptuales, pendientes de reemplazar por transcripciones verificadas si están disponibles.
+Encuesta n = 27. Los datos son los proporcionados en el encargo: no se añadieron resultados, recuentos ni asociaciones estadísticas. Las manchas y los hilos son conexiones narrativas, no relaciones causales. «Vacío» se conserva sin reinterpretar. Los pies no constituyen una zona independiente. Los cuatro fragmentos de voces se identifican como ejemplos conceptuales, pendientes de reemplazar por transcripciones verificadas si están disponibles.
 
 ## Interacción
 
@@ -49,8 +49,20 @@ Los movimientos manuales detienen la introducción y el idle para evitar que sob
 
 ## Visualización de datos por zona
 
-Al elegir una zona, el panel gana espacio y muestra sus sensaciones como una tabla con barras horizontales. Las barras conservan una escala fija de 0 a 100 %, con etiquetas y valores visibles; no se normalizan a la categoría mayor ni se completan porcentajes faltantes. La tabla ofrece una lectura equivalente para lectores de pantalla.
+Al elegir una zona, la cámara encuadra su geometría real y después muestra una ventana de cristal. Las sensaciones se presentan en páginas de tres filas con barras horizontales; las flechas permiten consultar todos los valores sin saturar la pantalla. Las barras conservan una escala fija de 0 a 100 %, con etiquetas y valores visibles; no se normalizan a la categoría mayor ni se completan porcentajes faltantes. La tabla ofrece una lectura equivalente para lectores de pantalla.
 
 Las pestañas «Sensaciones» y «Decisión y emociones» separan la pregunta corporal de los demás resultados. Estos últimos se agrupan según su pregunta original: factores de decisión, preocupaciones o emociones. Se navega entre pestañas con flechas, Inicio y Fin. El contenido sigue procediendo de `dist/data.js`; `dist/charts.js` solo añade su presentación y clasificación, y `dist/charts.css` define la gráfica y su adaptación responsive.
 
 No se incorpora la frase de la imagen de referencia como testimonio verificado. Se conservan las voces conceptuales identificadas en la interfaz y las notas que distinguen sensaciones reportadas de causalidad médica.
+
+## Acercamiento y memoria corporal
+
+`dist/focus.js` calcula los encuadres con los bounding boxes de las mallas reales del GLB, siguiendo la postura y el ángulo actuales. Guarda posición y target; bloquea la rotación durante la lectura, interpola ambos en un segundo con easeInOutCubic y regresa a la vista guardada en 850 ms al cerrar. Mantiene el FOV. En manos se puede elegir cualquiera de los dos lados; comparten los mismos datos. El panel aparece después del acercamiento y cambia de lado cuando hace falta. En móvil se sitúa debajo de la zona visible.
+
+`dist/immersive.css` define el cristal blanco al 74 %, blur de 20 px y transición de 400 ms. Cerrar, Volver al cuerpo o Escape restablecen la exploración. El foco queda dentro del panel durante la lectura y vuelve al hotspot al cerrar; los demás controles permanecen inertes. El movimiento reducido omite la interpolación, los pulsos y el desplazamiento de las manchas.
+
+`dist/pigments.js` genera una textura granular ligera en Canvas y la usa en WebGL. Un máximo de dos factores viaja a la vez desde fuera del cuerpo por sus rutas narrativas; deja huellas suaves junto a los anclajes y conserva los hilos descubiertos con menor intensidad. Los diez factores y sus rutas están en `dist/experience.js`, junto con hallazgos limitados a los datos proporcionados. Los residuos siguen las articulaciones y la cámara. No se agregan imágenes pesadas.
+
+El panel solo presenta un testimonio cuando tiene texto, fuente y la marca explícita `verified: true`; actualmente no hay transcripciones verificadas, por lo que no muestra frases ilustrativas como entrevistas reales. Las voces conceptuales siguen identificadas en su sección.
+
+`node scripts/check-focus.mjs` reconstruye la jerarquía y los límites reales del archivo GLB para verificar los encuadres en 360°, escritorio/móvil, ambas manos, paneles laterales, cierre durante el zoom, retorno exacto, movimiento reducido, paginación y rutas.
