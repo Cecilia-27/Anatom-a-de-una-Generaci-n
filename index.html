@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="./cover.css">
   <link rel="stylesheet" href="./explore.css">
   <link rel="stylesheet" href="./charts.css">
+  <link rel="stylesheet" href="./immersive.css">
   <script type="importmap">{"imports":{"three":"./vendor/three.module.js"}}</script>
   <script type="module" src="./app.js"></script>
 </head>
@@ -33,7 +34,7 @@
       <p class="eyebrow"><span></span> UN RETRATO DE LA GENERACIÓN Z</p>
       <h1 id="main-title" aria-label="Anatomía de una Generación"><span class="cover-title-assets" aria-hidden="true"><img class="asset-anatomia" src="./assets/titulo-anatomia.svg" width="506.21" height="108.34" alt=""><img class="asset-de-una" src="./assets/titulo-de-una.svg" width="276.69" height="114.55" alt=""><img class="asset-generacion" src="./assets/titulo-generacion.svg" width="595.5" height="112.75" alt=""></span><span class="title-anatomia">Anatomía</span><br> <span class="title-bridge">de una</span><br> <em class="title-generation">Generación</em><span class="title-period">.</span></h1>
       <div class="intro-copy" id="intro-copy"><p class="subtitle"><span>Una <strong>decisión</strong></span><br>que atraviesa el <strong>cuerpo.</strong></p><p class="description">Explora cómo las emociones, experiencias y condiciones de una generación se conectan al momento de pensar en tener o no tener hijos.</p></div>
-      <div class="explore-copy" id="explore-copy" hidden><p class="subtitle">Cada parte cuenta<br>algo de la historia.</p><p class="description">Elige un punto del cuerpo. Descubre sus sensaciones y sigue los hilos que lo conectan con otras zonas.</p></div>
+      <div class="explore-copy" id="explore-copy" hidden><p class="subtitle">Cada parte cuenta<br>algo de la historia.</p><p class="description">Elige un punto del cuerpo. Acércate a sus sensaciones y descubre las huellas que lo conectan con otras zonas.</p></div>
       <button class="primary-button" id="start" disabled>Preparando el cuerpo <span aria-hidden="true">↗</span></button>
       <div class="journey" id="journey" hidden><p class="eyebrow">TU RECORRIDO <span id="progress-text">0 de 6 zonas</span></p><div class="progress-track"><span id="progress-bar"></span></div><button id="conclusion" class="text-button" hidden>Ver las conexiones descubiertas <span aria-hidden="true">↗</span></button></div>
       <p class="editorial-footnote"><span class="small-star">✳</span> No hay una sola manera<br>de imaginar el futuro.</p>
@@ -49,6 +50,7 @@
       <div id="joint-handles" class="joint-handles" aria-label="Partes que puedes mover" hidden></div>
       <div id="factors" class="factors" aria-hidden="true"></div>
       <div class="stage-status" id="stage-status" role="status">El cuerpo está por despertar…</div>
+      <div class="focus-status" id="focus-status" role="status" hidden>Acercándonos a la zona…</div>
       <div class="rotation-controls"><button id="rotate-left" class="round-button" aria-label="Girar el cuerpo a la izquierda"><span class="rotation-glyph" aria-hidden="true">↶</span><svg class="cover-rotation-arrow" viewBox="0 0 100 50" aria-hidden="true"><path d="M95 6C-15 13-15 29 70 40m-10-9 10 9-14 2"/></svg></button><div><span class="degrees">360°</span><span class="drag-hint">Arrastra para girar</span></div><button id="rotate-right" class="round-button" aria-label="Girar el cuerpo a la derecha"><span class="rotation-glyph" aria-hidden="true">↷</span><svg class="cover-rotation-arrow" viewBox="0 0 100 50" aria-hidden="true"><path d="M95 6C-15 13-15 29 70 40m-10-9 10 9-14 2"/></svg></button></div>
       <button class="reset-view" id="reset-view" aria-label="Volver a la vista frontal">↺ <span>Vista inicial</span></button>
     </section>
