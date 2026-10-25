@@ -31,7 +31,7 @@ Encuesta n = 27. Los datos son los proporcionados en el encargo: no se añadiero
 
 ## Interacción
 
-Arrastrar horizontalmente, botones ↶/↷ o flechas al enfocar el canvas. Seis hotspots accesibles con Tab/Enter/espacio. Tras descubrir tres zonas se habilita el cierre, sin impedir continuar. `prefers-reduced-motion` elimina la intro, idle, partículas de recorrido y animaciones CSS. No hay audio, analítica ni almacenamiento de datos personales.
+Arrastrar horizontalmente, botones ↶/↷ o flechas al enfocar el canvas. Seis hotspots accesibles con Tab/Enter/espacio. Tras descubrir tres zonas se habilita el cierre, sin impedir continuar. `prefers-reduced-motion` elimina la intro, idle, el desplazamiento de las manchas y las animaciones CSS. No hay audio, analítica ni almacenamiento de datos personales.
 
 ## Mover el cuerpo
 
@@ -57,12 +57,18 @@ No se incorpora la frase de la imagen de referencia como testimonio verificado. 
 
 ## Acercamiento y memoria corporal
 
-`dist/focus.js` calcula los encuadres con los bounding boxes de las mallas reales del GLB, siguiendo la postura y el ángulo actuales. Guarda posición y target; bloquea la rotación durante la lectura, interpola ambos en un segundo con easeInOutCubic y regresa a la vista guardada en 850 ms al cerrar. Mantiene el FOV. En manos se puede elegir cualquiera de los dos lados; comparten los mismos datos. El panel aparece después del acercamiento y cambia de lado cuando hace falta. En móvil se sitúa debajo de la zona visible.
+`dist/focus.js` calcula los encuadres con los bounding boxes de las mallas reales del GLB, siguiendo la postura y el ángulo actuales. Guarda posición y target; mantiene el encuadre durante la lectura y permite articular las piezas, interpola ambos en un segundo con easeInOutCubic y regresa a la vista guardada en 850 ms al cerrar. Mantiene el FOV. En manos se puede elegir cualquiera de los dos lados; comparten los mismos datos. El panel aparece después del acercamiento y cambia de lado cuando hace falta. En móvil se sitúa debajo de la zona visible.
 
-`dist/immersive.css` define el cristal blanco al 74 %, blur de 20 px y transición de 400 ms. Cerrar, Volver al cuerpo o Escape restablecen la exploración. El foco queda dentro del panel durante la lectura y vuelve al hotspot al cerrar; los demás controles permanecen inertes. El movimiento reducido omite la interpolación, los pulsos y el desplazamiento de las manchas.
+`dist/immersive.css` define el cristal blanco al 74 %, blur de 20 px y transición de 400 ms. Los seis accesos del panel y los hotspots permiten pasar directamente a otra zona, incluso durante un acercamiento, conservando la vista general original. Cerrar, Volver al cuerpo o Escape restablecen la exploración. El teclado recorre el cuerpo y el panel durante la lectura; el foco vuelve al hotspot al cerrar. El movimiento reducido omite la interpolación, los pulsos y el desplazamiento de las manchas.
 
-`dist/pigments.js` genera una textura granular ligera en Canvas y la usa en WebGL. Un máximo de dos factores viaja a la vez desde fuera del cuerpo por sus rutas narrativas; deja huellas suaves junto a los anclajes y conserva los hilos descubiertos con menor intensidad. Los diez factores y sus rutas están en `dist/experience.js`, junto con hallazgos limitados a los datos proporcionados. Los residuos siguen las articulaciones y la cámara. No se agregan imágenes pesadas.
+`dist/pigments.js` genera una textura granular ligera en Canvas y la usa en WebGL. Un máximo de dos factores recorre continuamente sus rutas desde fuera del cuerpo, en ciclos de 5,6 segundos. Un rastro granular más intenso mantiene legible todo el camino durante el acercamiento; las nubes y pequeños granos se desplazan sobre él, dejan huellas junto a los anclajes y conservan los hilos descubiertos con menor intensidad. El botón Pausar manchas congela el flujo y permite reanudarlo sin saltos. El movimiento reducido muestra rutas estáticas. Los diez factores y sus rutas están en `dist/experience.js`, junto con hallazgos limitados a los datos proporcionados. Los residuos siguen las articulaciones y la cámara. No se agregan imágenes pesadas.
 
 El panel solo presenta un testimonio cuando tiene texto, fuente y la marca explícita `verified: true`; actualmente no hay transcripciones verificadas, por lo que no muestra frases ilustrativas como entrevistas reales. Las voces conceptuales siguen identificadas en su sección.
 
 `node scripts/check-focus.mjs` reconstruye la jerarquía y los límites reales del archivo GLB para verificar los encuadres en 360°, escritorio/móvil, ambas manos, paneles laterales, cierre durante el zoom, retorno exacto, movimiento reducido, paginación y rutas.
+
+## Articular y cambiar de zona durante el zoom
+
+En una vista de detalle se pueden arrastrar las piezas del GLB o sus puntos de luz para articularlas; arrastrar el fondo gira la vista alrededor de la zona, con límites de distancia proporcionales al acercamiento. El giro actual se conserva al cambiar de zona y los límites originales se recuperan al cerrar. Un clic sin arrastre sobre otra pieza o hotspot abre su zona correspondiente. El apartado «Mover el cuerpo aquí» conserva los ocho grupos y los mismos límites de articulación de la vista general. Sus controles comparten la postura; no se usan transformaciones de geometría ni estados separados. Tras un movimiento, el encuadre se ajusta suavemente a los nuevos límites reales de la zona sin cerrar ni reiniciar los datos.
+
+Los botones de las seis zonas están visibles en el panel de escritorio; en móvil se presenta un selector compacto. Cambiar de zona interpola desde la cámara actual y mantiene la cámara original para el regreso final, aunque se encadenen varios cambios. Los hotspots fuera del encuadre no interceptan el teclado. El panel no es modal: el cuerpo sigue accesible.

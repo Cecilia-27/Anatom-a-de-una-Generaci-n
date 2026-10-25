@@ -4,6 +4,7 @@ import * as THREE from '../dist/vendor/three.module.js';
 import {bodyBounds,regionBounds,boxCorners,calculateFocusFrame,FocusController} from '../dist/focus.js';
 import {pigmentFactors,zoneStories} from '../dist/experience.js';
 import {zones} from '../dist/data.js';
+import {PigmentSystem} from '../dist/pigments.js';
 import {sensationsChart} from '../dist/charts.js';
 
 // Fixture independiente: límites POSITION y transformaciones originales del GLB.
@@ -40,14 +41,43 @@ assert.deepEqual(pigmentFactors.Tiempo.route,['cabeza','manos','piernas']);
 assert.deepEqual(pigmentFactors['Bienestar emocional'].route,['cabeza','pecho','estomago']);
 
 const camera=new THREE.PerspectiveCamera(32,.9,.1,80);camera.position.set(5,2.9,11);
-const controls={target:new THREE.Vector3(0,2.65,0),enabled:true,enableDamping:true,update(){}};
+const controls={target:new THREE.Vector3(0,2.65,0),enabled:true,enableDamping:true,minDistance:11.65,maxDistance:13.1,update(){}};
 const originalPosition=camera.position.clone(),originalTarget=controls.target.clone(),phases=[];let reduced=false;
 const focus=new FocusController({camera,controls,bodyHeight:height,getBox:zone=>regionBounds(zone,meshes),getReduced:()=>reduced,getMobile:()=>false,onPhase:p=>phases.push(p),onVisual(){}});
-assert.equal(focus.select('cabeza'),true);assert.equal(controls.enabled,false);assert.equal(focus.select('manos'),false);
-focus.update(0);focus.update(.016);focus.update(.916);assert.equal(focus.phase,'zooming-in');focus.update(1.017);assert.equal(focus.phase,'open');assert.equal(camera.fov,32);
-focus.close();focus.update(2);focus.update(2.84);assert.equal(focus.phase,'zooming-out');focus.update(2.86);
-assert.equal(focus.phase,'free');assert.equal(controls.enabled,true);assert.ok(camera.position.distanceTo(originalPosition)<1e-9);assert.ok(controls.target.distanceTo(originalTarget)<1e-9);
-reduced=true;focus.select('piernas');focus.update(3);focus.update(3.016);assert.equal(focus.phase,'open');focus.close();focus.update(3.02);assert.equal(focus.phase,'free');
-// Cerrar durante el acercamiento también devuelve la vista guardada.
-reduced=false;focus.select('boca');focus.update(4);focus.update(4.016);focus.update(4.4);focus.close();focus.update(4.5);focus.update(5.36);assert.equal(focus.phase,'free');assert.ok(camera.position.distanceTo(originalPosition)<1e-9);
-console.log('Verificado: encuadres del GLB en 360°, cristal móvil sin tapar la región, zoom gradual sin cambiar FOV, regreso exacto, cierre interrumpido, movimiento reducido, paginación y rutas narrativas.');
+assert.equal(focus.select('cabeza'),true);assert.equal(controls.enabled,false);
+focus.update(0);focus.update(.016);focus.update(.916);assert.equal(focus.phase,'zooming-in');focus.update(1.017);assert.equal(focus.phase,'open');assert.equal(camera.fov,32);assert.equal(controls.enabled,true);assert.ok(controls.maxDistance<11.65);
+// Ir de una zona a otra no guarda la vista de detalle como nueva vista general.
+const firstDetail=camera.position.clone(),detailDirection=camera.position.clone().sub(controls.target).normalize();
+assert.equal(focus.select('manos','left'),true);assert.ok(camera.position.distanceTo(firstDetail)<1e-9);
+focus.update(1.03);focus.update(1.046);focus.update(1.5);
+assert.equal(focus.phase,'zooming-in');assert.ok(camera.position.distanceTo(firstDetail)>.01);
+assert.equal(focus.select('estomago'),true);focus.update(1.6);focus.update(1.616);focus.update(2.617);assert.equal(focus.phase,'open');
+assert.ok(focus.viewDirection.dot(detailDirection)>.999);assert.ok(focus.saved.position.distanceTo(originalPosition)<1e-9);assert.ok(focus.saved.target.distanceTo(originalTarget)<1e-9);
+// Reencuadrar una articulación conserva la lectura y no vuelve a abrir el panel.
+const phaseCount=phases.length;nodes.find(n=>n.name==='Torso').rotation.x=.15;root.updateMatrixWorld(true);
+focus.reframe();focus.update(3);focus.update(3.56);assert.equal(focus.phase,'open');assert.equal(phases.length,phaseCount);
+focus.close();focus.update(4);assert.equal(focus.select('cabeza'),false);focus.update(4.84);assert.equal(focus.phase,'zooming-out');focus.update(4.86);
+assert.equal(focus.phase,'free');assert.equal(controls.minDistance,11.65);assert.equal(controls.maxDistance,13.1);assert.equal(controls.enabled,true);assert.ok(camera.position.distanceTo(originalPosition)<1e-9);assert.ok(controls.target.distanceTo(originalTarget)<1e-9);
+reduced=true;focus.select('piernas');focus.update(5);focus.update(5.016);assert.equal(focus.phase,'open');focus.select('cabeza');focus.update(5.02);focus.update(5.036);assert.equal(focus.phase,'open');focus.close();focus.update(5.04);assert.equal(focus.phase,'free');
+assert.ok(camera.position.distanceTo(originalPosition)<1e-9);
+// Cambio de mano en la misma zona y cierre durante un acercamiento.
+reduced=false;focus.select('manos');focus.update(6);focus.update(6.016);assert.equal(focus.select('manos','left',{force:true}),true);focus.update(6.1);focus.update(6.116);focus.update(6.4);focus.close();focus.update(6.5);focus.update(7.36);assert.equal(focus.phase,'free');assert.ok(camera.position.distanceTo(originalPosition)<1e-9);
+
+// La animación conserva dos flujos vivos, memoria acotada y pausa real.
+const scene=new THREE.Scene(),anchorNames={cabeza:'Cabeza',boca:'Cabeza',pecho:'Torso',estomago:'Torso',manos:'Muneca_I',piernas:'Rodilla_D'};
+const anchors=Object.fromEntries(Object.entries(anchorNames).map(([id,name])=>[id,nodes.find(n=>n.name===name)]));
+const pigment=new PigmentSystem({scene,box:bounds,getAnchor:id=>anchors[id],texture:new THREE.Texture()});
+const renderer={domElement:{height:960}};
+pigment.activate(['Familia','Economía'],0);
+for(let tick=0;tick<=180;tick++)pigment.update(tick*.05,camera,renderer);
+assert.equal(pigment.active.length,2);assert.ok(pigment.count>400);assert.ok(pigment.count<=pigment.max);assert.ok(pigment.memories.size>=5);
+assert.ok([...pigment.positions.subarray(0,pigment.count*3)].every(Number.isFinite));
+const positions=Array.from(pigment.positions.subarray(0,pigment.count*3));
+for(let tick=181;tick<240;tick++)pigment.update(tick*.05,camera,renderer,{paused:true});
+assert.deepEqual(Array.from(pigment.positions.subarray(0,pigment.count*3)),positions);
+pigment.update(12,camera,renderer);assert.notDeepEqual(Array.from(pigment.positions.subarray(0,pigment.count*3)),positions);
+pigment.update(13,camera,renderer,{reduced:true});const staticPositions=Array.from(pigment.positions.subarray(0,pigment.count*3));
+pigment.update(14,camera,renderer,{reduced:true});assert.deepEqual(Array.from(pigment.positions.subarray(0,pigment.count*3)),staticPositions);
+anchors.cabeza.rotation.y+=.3;root.updateMatrixWorld(true);pigment.update(15,camera,renderer,{reduced:true});
+assert.ok(pigment.count<=pigment.max);assert.equal(pigment.active.length,2);
+console.log('Verificado: encuadres reales en 360°, cambio directo y durante el zoom, postura y reencuadre sin cerrar panel, regreso original, movimiento reducido, paginación, flujo continuo con pausa y partículas acotadas.');
