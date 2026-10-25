@@ -34,3 +34,17 @@ setPoseValue(pose,'brazo_I','codo',45);assert.ok(jointAngles(pose).Codo_I.x<0);a
 setPoseValue(pose,'mano_D','dedos',80);assert.ok(jointAngles(pose).Dedo_D_0.x>0);assert.ok(jointAngles(pose).Punta_D_3.x>0);
 assert.equal(partForMesh('Antebrazo_I'),'brazo_I');assert.equal(partForMesh('Falange_distal_D_0'),'mano_D');assert.equal(partForMesh('Hilo_0'),null);
 console.log('Verificado: 8 partes articulables, límites de giro, selección de piezas, dedos y control independiente de ambos lados.');
+
+// Fidelidad cuantitativa: cada longitud representa su porcentaje en escala 0–100.
+const {sensationsChart,contextGroups}=await import('../dist/charts.js');
+for(const [id,zone] of Object.entries(zones)){
+ const html=sensationsChart(id);
+ const widths=[...html.matchAll(/--bar-value:([0-9.]+)%/g)].map(m=>Number(m[1]));
+ assert.deepEqual(widths,zone.sensations.map(([,value])=>value),`Escala real: ${id}`);
+ assert.ok(widths.every(v=>v>=0&&v<=100));
+ assert.deepEqual(contextGroups(id).flatMap(g=>g.rows.map(r=>[r.value,r.label])),zone.stats.map(([v,t])=>[Number(v),t]),`Sin omitir ni añadir resultados: ${id}`);
+}
+assert.deepEqual(contextGroups('estomago').find(g=>g.title==='Emociones').rows.map(r=>r.value),[59.3,40.7]);
+assert.deepEqual(contextGroups('estomago').find(g=>g.title==='Factores de decisión').rows.map(r=>r.value),[40.7]);
+assert.deepEqual(contextGroups('boca'),[]);
+console.log('Verificado: barras con porcentajes exactos y escala común; preguntas de la encuesta separadas; sin completar distribuciones ni inventar cifras.');

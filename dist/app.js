@@ -3,6 +3,7 @@ import { GLTFLoader } from './vendor/GLTFLoader.js';
 import { OrbitControls } from './vendor/OrbitControls.js';
 import { zones, voices, factorPositions } from './data.js';
 import { bodyParts, partOrder, createPose, setPoseValue, jointAngles, partForMesh } from './pose.js';
+import { sensationsChart, contextCharts } from './charts.js';
 
 const $ = (s) => document.querySelector(s);
 const zoneIds = Object.keys(zones);
@@ -125,8 +126,19 @@ function selectZone(id){
 
 function renderZone(id){
   const z=zones[id],v=voices[z.quote],panel=$('#zone-panel');
-  panel.innerHTML=`<div class="zone-heading"><span class="zone-symbol" aria-hidden="true">${z.symbol}</span><div><p class="small-label">${z.theme.toUpperCase()}</p><h2>${z.name}</h2></div></div><h3 class="zone-question" style="font-family:var(--serif);font-weight:400">${z.question}</h3><p class="zone-caption">${z.description}</p><div class="body-stat"><strong>${z.sensations[0][1]}<span> %</span></strong><span>reportó <b>«${z.sensations[0][0].toLowerCase()}»</b><br>en ${id==='pecho'?'el pecho':id==='manos'?'las manos':id==='piernas'?'las piernas':id==='cabeza'?'la cabeza':id==='boca'?'la boca':'el estómago'}.</span></div><p class="source-note">Sensación reportada en la encuesta · n = 27</p><details class="sensations-details"><summary>Ver todas las sensaciones de esta zona</summary>${z.sensations.map(([name,value])=>`<div class="sensation-row"><span>${name}</span><span>${value} %</span><div class="sensation-bar"><i style="--value:${value}%"></i></div></div>`).join('')}<p class="source-note">Categorías proporcionadas, sin completar la distribución. No son afirmaciones médicas.</p></details><div class="stats-list">${z.stats.map(([pct,text])=>`<div class="stat-row"><strong>${pct} %</strong><span>${text}</span></div>`).join('')}</div><p class="finding">${z.finding}</p><button class="quote-bubble" id="quote-toggle" aria-expanded="false"><span class="quote-top"><span>UNA VOZ · ${v.name}</span><span id="quote-sign">＋</span></span><span class="quote-text">“${v.text}”</span><span class="quote-caption" id="quote-caption" hidden>${v.stance}. Ejemplo conceptual proporcionado para el prototipo; no es una transcripción verificada.</span></button><p class="source-note">Voz: ejemplo conceptual proporcionado.</p><button class="text-button zone-next" id="next-zone"><span>Siguiente zona · ${zones[zoneIds[(zoneIds.indexOf(id)+1)%zoneIds.length]].name}</span><span>→</span></button>`;
+  panel.innerHTML=`<div class="zone-heading"><span class="zone-symbol" aria-hidden="true">${z.symbol}</span><div><p class="small-label">${z.theme.toUpperCase()}</p><h2>${z.name}</h2></div><span class="zone-index">${String(zoneIds.indexOf(id)+1).padStart(2,'0')} / 06</span></div>
+    <h3 class="zone-question">${z.question}</h3><p class="zone-caption">${z.description}</p>
+    <div class="data-tabs" role="tablist" aria-label="Resultados de ${z.name}"><button id="tab-sensations" type="button" role="tab" aria-selected="true" aria-controls="data-sensations" tabindex="0">Sensaciones</button><button id="tab-context" type="button" role="tab" aria-selected="false" aria-controls="data-context" tabindex="-1">Decisión y emociones</button></div>
+    <div id="data-sensations" class="data-tab-panel" role="tabpanel" tabindex="0" aria-labelledby="tab-sensations">${sensationsChart(id)}<p class="chart-method">La encuesta describe sensaciones; no demuestra que una emoción las cause.</p></div>
+    <div id="data-context" class="data-tab-panel" role="tabpanel" tabindex="0" aria-labelledby="tab-context" hidden>${contextCharts(id)}<p class="finding">${z.finding}</p></div>
+    <button class="chart-help" id="chart-help">Cómo leer los datos <span aria-hidden="true">↗</span></button>
+    <button class="quote-bubble" id="quote-toggle" aria-expanded="false"><span class="quote-top"><span>UNA VOZ · ${v.name}</span><span id="quote-sign">＋</span></span><span class="quote-text">“${v.text}”</span><span class="quote-caption" id="quote-caption" hidden>${v.stance}. Ejemplo conceptual proporcionado para el prototipo; no es una transcripción verificada.</span></button><p class="source-note voice-source">Voz: ejemplo conceptual proporcionado.</p>
+    <button class="text-button zone-next" id="next-zone"><span>Siguiente zona · ${zones[zoneIds[(zoneIds.indexOf(id)+1)%zoneIds.length]].name}</span><span>→</span></button>`;
   panel.style.animation='none';void panel.offsetWidth;panel.style.animation='';
+  const tabs=[...panel.querySelectorAll('[role="tab"]')];
+  const activateTab=(tab,focus=false)=>{for(const button of tabs){const selected=button===tab;button.setAttribute('aria-selected',String(selected));button.tabIndex=selected?0:-1;$('#'+button.getAttribute('aria-controls')).hidden=!selected;}if(focus)tab.focus();};
+  tabs.forEach((tab,index)=>{tab.onclick=()=>activateTab(tab);tab.onkeydown=e=>{let next;if(e.key==='ArrowRight')next=(index+1)%tabs.length;if(e.key==='ArrowLeft')next=(index+tabs.length-1)%tabs.length;if(e.key==='Home')next=0;if(e.key==='End')next=tabs.length-1;if(next!==undefined){e.preventDefault();activateTab(tabs[next],true);}};});
+  $('#chart-help').onclick=showSources;
   $('#quote-toggle').onclick=()=>{state.quoteExpanded=!state.quoteExpanded;$('#quote-toggle').setAttribute('aria-expanded',String(state.quoteExpanded));$('#quote-caption').hidden=!state.quoteExpanded;$('#quote-sign').textContent=state.quoteExpanded?'−':'＋';};
   $('#next-zone').onclick=()=>{const next=zoneIds[(zoneIds.indexOf(id)+1)%zoneIds.length];selectZone(next);hotspotObjects.get(next)?.el.focus({preventScroll:true});};
 }

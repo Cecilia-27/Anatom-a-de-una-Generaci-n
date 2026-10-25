@@ -1,0 +1,143 @@
+/* Lectura de datos: espacio propio, escala constante y valores siempre visibles. */
+body:not(.cover-view):has(#zone-panel:not([hidden])) .experience{grid-template-columns:22% 35% 43%}
+body:not(.cover-view):has(#zone-panel:not([hidden])) .editorial{position:sticky;top:12px;align-self:start;padding-top:32px}
+body:not(.cover-view):has(#zone-panel:not([hidden])) .cover-title-assets{width:91%;max-width:250px}
+body:not(.cover-view):has(#zone-panel:not([hidden])) .subtitle{font-size:22px;line-height:1.3;letter-spacing:-.4px}
+body:not(.cover-view):has(#zone-panel:not([hidden])) .description{font-size:13px;line-height:1.75;max-width:245px}
+body:not(.cover-view):has(#zone-panel:not([hidden])) .editorial>.eyebrow{font-size:8px;letter-spacing:1px}
+body:not(.cover-view):has(#zone-panel:not([hidden])) .context-area{padding:28px 0 34px 26px;align-self:start}
+body:not(.cover-view):has(#zone-panel:not([hidden])) .cover-art{right:30%;opacity:.35}
+#zone-panel{max-width:none;color:#49333d;padding:24px 26px 22px;background:#fffffff5;border:1px solid #f1dce5;border-radius:24px;box-shadow:0 10px 42px #af316409}
+#zone-panel .zone-heading{gap:12px;margin:0 0 14px;padding-bottom:17px;border-bottom:1px solid #f2e2e9}
+#zone-panel .zone-symbol{width:42px;height:42px;flex-shrink:0;font-size:28px}
+#zone-panel .zone-heading .small-label{font-size:10px;letter-spacing:1.3px;color:#956475;margin:0 0 3px}
+#zone-panel .zone-heading h2{font-size:29px;font-weight:600;letter-spacing:-.7px;line-height:1.1;margin:0;color:#cf1c50}
+#zone-panel .zone-index{margin-left:auto;align-self:flex-start;color:#a17486;font-size:11px;letter-spacing:.7px;white-space:nowrap;padding-top:3px}
+#zone-panel .zone-question{font-size:19px;font-weight:500!important;line-height:1.35;letter-spacing:-.2px;margin:0 0 7px;color:#5e3a4a}
+#zone-panel .zone-caption{font-size:13px;line-height:1.6;color:#836572;margin:0 0 21px}
+#zone-panel .data-tabs{display:grid;grid-template-columns:1fr 1.4fr;gap:4px;background:#fcf1f6;border:1px solid #f7e4ed;padding:4px;border-radius:14px;margin-bottom:23px}
+#zone-panel .data-tabs button{background:transparent;border-radius:10px;color:#98536e;font-size:12px;font-weight:500;min-height:40px;padding:9px 11px;line-height:1.3;transition:background .3s,box-shadow .3s,color .3s}
+#zone-panel .data-tabs button[aria-selected=true]{background:#fff;color:#bd184d;box-shadow:0 2px 9px #9e2a5410}
+#zone-panel .data-tabs button:hover{color:#d91555}
+#zone-panel .sensations-chart{margin:0}
+#zone-panel .chart-heading{display:flex;gap:12px;align-items:center;justify-content:space-between;margin-bottom:18px}
+#zone-panel .chart-eyebrow{display:block;font-size:9px;line-height:1.4;letter-spacing:1.2px;color:#9c6c7f;margin-bottom:6px}
+#zone-panel .chart-heading h3,#zone-panel .context-intro h3{font:600 17px/1.3 var(--sans);letter-spacing:-.3px;color:#4b3340;margin:0}
+#zone-panel .sample-badge{flex-shrink:0;padding:6px 10px;border-radius:20px;background:#faf4f7;border:1px solid #f0e2e9;color:#7d5669;font-size:11px;white-space:nowrap}
+#zone-panel .bar-chart{border-collapse:collapse;table-layout:fixed;width:100%;font-family:var(--sans)}
+#zone-panel .bar-chart th:first-child{width:123px}
+#zone-panel .bar-chart thead th{text-align:left;font-size:10px;font-weight:500;color:#9a7585;line-height:1.4;padding:0 0 8px}
+#zone-panel .bar-chart thead th:last-child{padding-left:12px}
+#zone-panel .bar-chart tbody tr{border-bottom:1px solid #f6edf2}
+#zone-panel .bar-chart tbody th{text-align:left;font-size:13px;font-weight:450;color:#604452;line-height:1.35;padding:12px 9px 12px 0}
+#zone-panel .bar-chart tbody td{padding:12px 0 12px 12px}
+#zone-panel .bar-chart .leading-row th{font-weight:650;color:#47303d}
+#zone-panel .bar-cell{display:grid;grid-template-columns:minmax(0,1fr) 61px;gap:13px;align-items:center}
+#zone-panel .chart-track{display:block;height:13px;position:relative;overflow:hidden;border-radius:4px;background:repeating-linear-gradient(to right,transparent 0,transparent calc(25% - 1px),#ffffffb5 calc(25% - 1px),#ffffffb5 25%),#f5edf2}
+#zone-panel .chart-fill{position:absolute;inset:0 auto 0 0;width:var(--bar-value);border-radius:4px;background:var(--selected-color,#b66c8f);transform-origin:left center;animation:chart-reveal .55s ease both}
+#zone-panel .bar-value{font-size:17px;font-weight:650;line-height:1.1;color:#513443;text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;letter-spacing:-.3px}
+#zone-panel .bar-value small{font-size:12px;font-weight:500;letter-spacing:0}
+#zone-panel .leading-row .bar-value{color:#442b39}
+#zone-panel .bar-chart tfoot th{font-size:10px;font-weight:400;text-align:left;color:#9e7c8b;padding-top:12px}
+#zone-panel .bar-chart tfoot td{padding:12px 74px 0 12px}
+#zone-panel .chart-scale{display:flex;align-items:center;justify-content:space-between;font-size:9px;color:#a58594;line-height:1.2;white-space:nowrap}
+#zone-panel p.chart-coverage{font-size:11px;color:#927180;line-height:1.6;margin:15px 0 0}
+#zone-panel p.chart-method{font-size:11px;color:#8d6478;line-height:1.65;border-left:2px solid #efd4e0;padding-left:11px;margin:16px 0 4px}
+#zone-panel .chart-help{display:flex;align-items:center;gap:8px;background:none;color:#bc2b60;font-size:11px;padding:7px 0;margin:9px 0 17px;min-height:30px;text-decoration:underline;text-underline-offset:4px;text-decoration-color:#e5a7c0}
+#zone-panel .context-intro{margin-bottom:21px}
+#zone-panel .context-intro p{font-size:13px;color:#8b6276;line-height:1.6;margin:9px 0 0}
+#zone-panel .context-chart-group{padding:17px 0 0;margin:0 0 22px;border-top:1px solid #f0e0e8}
+#zone-panel .context-chart-group h4{font-size:12px;font-weight:650;color:#a93f65;margin:0 0 16px;letter-spacing:.1px}
+#zone-panel .context-chart-row{display:grid;grid-template-columns:1fr 76px;gap:8px 16px;margin-bottom:18px;align-items:start}
+#zone-panel .context-chart-row p{font-size:14px;line-height:1.5;color:#684b5b;margin:0}
+#zone-panel .context-chart-row strong{font-size:23px;font-weight:600;letter-spacing:-.7px;line-height:1.2;color:#ce265c;text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+#zone-panel .context-chart-row strong small{font-size:13px;font-weight:500;letter-spacing:0}
+#zone-panel .context-chart-row .chart-track{grid-column:1/-1;height:7px}
+#zone-panel .context-chart-row .chart-fill{background:#d8638d}
+#zone-panel p.context-method{font-size:11px;color:#957080;line-height:1.65;margin:0 0 18px}
+#zone-panel p.chart-empty{font-size:14px;line-height:1.7;color:#805568;background:#fff5f9;padding:17px;border-radius:12px;margin:0 0 21px}
+#zone-panel p.finding{font-size:12px!important;line-height:1.7!important;color:#7d576a;padding:3px 0 3px 13px;margin:20px 0}
+#zone-panel .quote-bubble{margin-top:8px;padding:14px 16px;background:#fff7fa;border-color:#f0dce6}
+#zone-panel .quote-top{font-size:10px;color:#ab5878}
+#zone-panel .quote-text{font-size:17px;line-height:1.45;color:#b93768}
+#zone-panel .quote-caption{font-size:12px;color:#8b6276;line-height:1.55}
+#zone-panel .voice-source{font-size:10px!important;color:#a57d8e!important;margin:8px 0 0}
+#zone-panel .zone-next{font-size:11px;padding:11px 14px;margin-top:17px;gap:12px}
+@keyframes chart-reveal{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@media(min-width:1800px){
+ #zone-panel{padding:28px 31px}
+ #zone-panel .bar-chart th:first-child{width:145px}
+ #zone-panel .bar-chart tbody th{font-size:15px;padding-top:14px;padding-bottom:14px}
+ #zone-panel .bar-value{font-size:20px}
+ #zone-panel .chart-heading h3{font-size:19px}
+ #zone-panel .chart-track{height:15px}
+}
+@media(max-width:1150px) and (min-width:851px){
+ body:not(.cover-view):has(#zone-panel:not([hidden])) .experience{grid-template-columns:20% 34% 46%}
+ body:not(.cover-view):has(#zone-panel:not([hidden])) .context-area{padding-left:15px}
+ body:not(.cover-view):has(#zone-panel:not([hidden])) .subtitle{font-size:20px}
+ body:not(.cover-view):has(#zone-panel:not([hidden])) .description{font-size:12px}
+ #zone-panel{padding:19px}
+ #zone-panel .bar-chart th:first-child{width:104px}
+ #zone-panel .bar-cell{gap:9px;grid-template-columns:minmax(0,1fr) 57px}
+ #zone-panel .bar-chart tfoot td{padding-right:66px}
+ #zone-panel .zone-heading h2{font-size:26px}
+ #zone-panel .bar-chart tbody th{font-size:12px}
+ #zone-panel .data-tabs button{font-size:11px}
+ #zone-panel .chart-heading h3{font-size:16px}
+}
+@media(max-width:850px){
+ body:not(.cover-view):has(#zone-panel:not([hidden])) .experience{grid-template-columns:38% 62%}
+ body:not(.cover-view):has(#zone-panel:not([hidden])) .editorial{position:relative;top:auto;padding-top:32px}
+ body:not(.cover-view):has(#zone-panel:not([hidden])) .context-area{padding:18px 0 30px}
+ #zone-panel{width:100%;max-width:650px;margin:0 auto;padding:25px}
+ #zone-panel .bar-chart th:first-child{width:145px}
+ #zone-panel .bar-chart tbody th{font-size:14px}
+ #zone-panel .bar-value{font-size:18px}
+}
+@media(max-width:560px){
+ body:not(.cover-view):has(#zone-panel:not([hidden])) .experience{display:flex;flex-direction:column}
+ body:not(.cover-view):has(#zone-panel:not([hidden])) .cover-title-assets{width:78%;max-width:270px}
+ body:not(.cover-view):has(#zone-panel:not([hidden])) .subtitle{font-size:24px}
+ body:not(.cover-view):has(#zone-panel:not([hidden])) .context-area{padding:15px 0 25px}
+ #zone-panel{padding:20px 16px;border-radius:20px}
+ #zone-panel .zone-heading h2{font-size:28px}
+ #zone-panel .zone-caption{font-size:13px}
+ #zone-panel .zone-question{font-size:19px}
+ #zone-panel .chart-heading h3{font-size:16px}
+ #zone-panel .chart-eyebrow{font-size:8px;letter-spacing:.9px}
+ #zone-panel .sample-badge{font-size:10px;padding:5px 8px}
+ #zone-panel .data-tabs{grid-template-columns:1fr 1.35fr}
+ #zone-panel .data-tabs button{font-size:11px;min-height:43px;padding:8px}
+ #zone-panel .bar-chart th:first-child{width:95px}
+ #zone-panel .bar-chart tbody th{font-size:12px;padding:12px 5px 12px 0}
+ #zone-panel .bar-chart thead th{font-size:9px}
+ #zone-panel .bar-chart thead th:last-child{padding-left:7px}
+ #zone-panel .bar-chart tbody td{padding-left:7px}
+ #zone-panel .bar-cell{grid-template-columns:minmax(0,1fr) 52px;gap:8px}
+ #zone-panel .bar-value{font-size:16px}
+ #zone-panel .bar-value small{font-size:11px}
+ #zone-panel .bar-chart tfoot td{padding-left:7px;padding-right:60px}
+ #zone-panel .chart-scale{font-size:8px}
+ #zone-panel .chart-track{height:12px}
+ #zone-panel .context-chart-row p{font-size:13px}
+ #zone-panel .context-chart-row strong{font-size:22px}
+ #zone-panel .context-chart-row{gap:8px 12px;grid-template-columns:1fr 70px}
+}
+
+#zone-panel .chart-scale{position:relative;height:12px;display:block}
+#zone-panel .chart-scale span{position:absolute;top:0}
+#zone-panel .chart-scale span:nth-child(1){left:0}
+#zone-panel .chart-scale span:nth-child(2){left:25%;transform:translateX(-50%)}
+#zone-panel .chart-scale span:nth-child(3){left:50%;transform:translateX(-50%)}
+#zone-panel .chart-scale span:nth-child(4){left:75%;transform:translateX(-50%)}
+#zone-panel .chart-scale span:nth-child(5){right:0}
+
+#zone-panel .data-tab-panel:focus-visible{outline:2px solid #ed2161;outline-offset:7px;border-radius:5px}
+@media(max-width:560px){
+ #zone-panel .bar-chart tbody th{font-size:13px}
+ #zone-panel .bar-value{font-size:17px}
+ #zone-panel .bar-chart thead th{font-size:10px}
+ #zone-panel .chart-scale{font-size:10px}
+ #zone-panel .chart-scale span:nth-child(2),#zone-panel .chart-scale span:nth-child(4){display:none}
+}

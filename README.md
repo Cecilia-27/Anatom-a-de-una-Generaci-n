@@ -46,3 +46,11 @@ Los movimientos manuales detienen la introducción y el idle para evitar que sob
 ## Estilo de la exploración
 
 `dist/explore.css` aplica la identidad blanca y rosa de la portada a la exploración, sus paneles y el modo de movimiento. El título reutiliza los SVG originales a una escala más compacta; las manchas quedan difuminadas detrás del cuerpo. Los colores de zonas, datos y recorridos se conservan. La escena se mantiene visible durante la lectura de paneles largos en desktop. No cambia la lógica ni el contenido de la investigación.
+
+## Visualización de datos por zona
+
+Al elegir una zona, el panel gana espacio y muestra sus sensaciones como una tabla con barras horizontales. Las barras conservan una escala fija de 0 a 100 %, con etiquetas y valores visibles; no se normalizan a la categoría mayor ni se completan porcentajes faltantes. La tabla ofrece una lectura equivalente para lectores de pantalla.
+
+Las pestañas «Sensaciones» y «Decisión y emociones» separan la pregunta corporal de los demás resultados. Estos últimos se agrupan según su pregunta original: factores de decisión, preocupaciones o emociones. Se navega entre pestañas con flechas, Inicio y Fin. El contenido sigue procediendo de `dist/data.js`; `dist/charts.js` solo añade su presentación y clasificación, y `dist/charts.css` define la gráfica y su adaptación responsive.
+
+No se incorpora la frase de la imagen de referencia como testimonio verificado. Se conservan las voces conceptuales identificadas en la interfaz y las notas que distinguen sensaciones reportadas de causalidad médica.
