@@ -12,8 +12,8 @@ export function makePigmentTexture(){
 }
 
 export class PigmentSystem{
-  constructor({scene,box,getAnchor}){
-    this.box=box.clone();this.height=box.getSize(new THREE.Vector3()).y;this.getAnchor=getAnchor;this.active=[];this.memories=new Map();this.texture=makePigmentTexture();this.max=1400;
+  constructor({scene,box,getAnchor,texture}){
+    this.box=box.clone();this.height=box.getSize(new THREE.Vector3()).y;this.getAnchor=getAnchor;this.active=[];this.memories=new Map();this.texture=texture||makePigmentTexture();this.max=2200;this.flowTime=0;this.lastTime=null;
     this.positions=new Float32Array(this.max*3);this.colors=new Float32Array(this.max*3);this.alpha=new Float32Array(this.max);this.sizes=new Float32Array(this.max);
     const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(this.positions,3).setUsage(THREE.DynamicDrawUsage));g.setAttribute('aColor',new THREE.BufferAttribute(this.colors,3).setUsage(THREE.DynamicDrawUsage));g.setAttribute('aAlpha',new THREE.BufferAttribute(this.alpha,1).setUsage(THREE.DynamicDrawUsage));g.setAttribute('aSize',new THREE.BufferAttribute(this.sizes,1).setUsage(THREE.DynamicDrawUsage));g.setDrawRange(0,0);
     this.material=new THREE.ShaderMaterial({transparent:true,depthWrite:false,depthTest:false,toneMapped:false,uniforms:{uMap:{value:this.texture},uSizeFactor:{value:1000}},vertexShader:`attribute vec3 aColor;attribute float aAlpha;attribute float aSize;uniform float uSizeFactor;varying vec3 vColor;varying float vAlpha;void main(){vec4 mv=modelViewMatrix*vec4(position,1.0);gl_Position=projectionMatrix*mv;gl_PointSize=clamp(aSize*uSizeFactor/max(.1,-mv.z),1.,180.);vColor=aColor;vAlpha=aAlpha;}`,fragmentShader:`uniform sampler2D uMap;varying vec3 vColor;varying float vAlpha;void main(){float alpha=texture2D(uMap,gl_PointCoord).a*vAlpha;if(alpha<.003)discard;gl_FragColor=vec4(vColor,alpha);}`});
@@ -26,8 +26,8 @@ export class PigmentSystem{
     this.active=[];
     for(const [index,label] of labels.slice(0,2).entries()){
       const f=pigmentFactors[label];if(!f)continue;
-      if(reduced){for(const zone of f.route)this.remember(label,zone);continue;}
-      this.active.push({label,started:time+index*.22,seeds:seeds(label,90),visited:new Set()});
+      if(reduced)for(const zone of f.route)this.remember(label,zone);
+      this.active.push({label,started:this.flowTime-(reduced?3:0)+index*.45,seeds:seeds(label,110),ribbon:seeds(`${label}:ribbon`,100),grains:seeds(`${label}:grains`,44),visited:new Set()});
     }
   }
   remember(label,zone){const key=`${label}:${zone}`;if(!this.memories.has(key))this.memories.set(key,{label,zone,seeds:seeds(key,20)});}
@@ -35,28 +35,44 @@ export class PigmentSystem{
   emit(p,color,alpha,size){if(this.count>=this.max)return;const i=this.count++;this.positions.set([p.x,p.y,p.z],i*3);this.colors.set([color.r,color.g,color.b],i*3);this.alpha[i]=alpha;this.sizes[i]=size;}
   highlight(zone,color,strength,time,reduced=false){
     const anchor=zone?this.getAnchor(zone):null;this.halo.visible=!!anchor&&strength>.001;
-    if(!anchor)return;anchor.getWorldPosition(this.halo.position);this.halo.material.color.set(color);this.halo.material.opacity=strength*.38;
+    if(!anchor)return;anchor.getWorldPosition(this.halo.position);this.halo.material.color.set(color);this.halo.material.opacity=strength*.52;
     const size=this.height*(zone==='manos'?.12:zone==='piernas'?.24:.19)*(reduced?1:1+Math.sin(time*.8)*.025);this.halo.scale.set(size,size,1);
   }
-  update(time,camera,renderer,{visible=true,reduced=false}={}){
-    this.points.visible=visible;if(!visible){this.halo.visible=false;return;}this.count=0;if(reduced&&this.active.length){for(const track of this.active)for(const zone of pigmentFactors[track.label].route)this.remember(track.label,zone);this.active=[];}
+  update(time,camera,renderer,{visible=true,reduced=false,paused=false}={}){
+    const delta=this.lastTime===null?0:THREE.MathUtils.clamp(time-this.lastTime,0,.1);this.lastTime=time;
+    if(visible&&!paused&&!reduced)this.flowTime+=delta;
+    this.points.visible=visible;if(!visible){this.halo.visible=false;return;}this.count=0;
+    if(reduced)for(const track of this.active)for(const zone of pigmentFactors[track.label].route)this.remember(track.label,zone);
     this.material.uniforms.uSizeFactor.value=renderer.domElement.height/(2*Math.tan(THREE.MathUtils.degToRad(camera.fov/2)));
     for(const memory of this.memories.values()){
       const anchor=this.getAnchor(memory.zone);if(!anchor)continue;const color=this.color(memory.label);
       for(const seed of memory.seeds){this.offset.set(seed.x*this.height*.028,seed.y*this.height*.027,seed.z*this.height*.008);this.point.copy(this.offset);anchor.localToWorld(this.point);this.emit(this.point,color,.095*seed.alpha,this.height*.067*seed.size);}
     }
-    this.active=this.active.filter(track=>time-track.started<3.3);
     for(const track of this.active){
-      const age=time-track.started;if(age<0)continue;const f=pigmentFactors[track.label],progress=THREE.MathUtils.clamp(age/2.8,0,1),color=this.color(track.label);
+      const age=this.flowTime-track.started;if(age<0&&!reduced)continue;
+      const f=pigmentFactors[track.label],progress=reduced?.56:((Math.max(0,age)%5.6)/5.6),color=this.color(track.label);
       const points=[this.sourcePoint(track.label),...f.route.map(zone=>this.getAnchor(zone)?.getWorldPosition(new THREE.Vector3())).filter(Boolean)];if(points.length<2)continue;
       const curve=new THREE.CatmullRomCurve3(points,false,'centripetal');
-      for(let i=0;i<f.route.length;i++)if(progress>=(i+1)/f.route.length&&!track.visited.has(i)){track.visited.add(i);this.remember(track.label,f.route[i]);}
-      const fade=Math.min(1,age/.28)*(1-THREE.MathUtils.clamp((age-2.65)/.65,0,1));
+      for(let i=0;i<f.route.length;i++)if((age>5.6||progress>=(i+1)/(f.route.length+1))&&!track.visited.has(i)){track.visited.add(i);this.remember(track.label,f.route[i]);}
+      // Un rastro de pigmento legible permanece bajo el flujo, también durante el zoom.
+      const appear=reduced?1:THREE.MathUtils.clamp(age/.65,0,1);
+      for(const [index,seed] of track.ribbon.entries()){
+        const t=index/(track.ribbon.length-1);curve.getPoint(t,this.point);
+        const wave=reduced?0:Math.sin(this.flowTime*.8+seed.phase);
+        this.point.x+=seed.x*this.height*.009+wave*this.height*.003;
+        this.point.y+=seed.y*this.height*.01;this.point.z+=seed.z*this.height*.008;
+        this.emit(this.point,color,appear*.42*seed.alpha,this.height*.048*seed.size);
+      }
       for(const seed of track.seeds){
-        const t=THREE.MathUtils.clamp(progress-seed.trail*.13,0,1);curve.getPoint(t,this.point);
-        const spread=this.height*(.026+.012*Math.sin(progress*Math.PI));
-        this.point.x+=seed.x*spread+(reduced?0:Math.sin(time*.9+seed.phase)*spread*.13);this.point.y+=seed.y*spread;this.point.z+=seed.z*spread;
-        this.emit(this.point,color,fade*.27*seed.alpha,this.height*.07*seed.size);
+        const t=(progress-seed.trail*.28+1)%1;curve.getPoint(t,this.point);
+        const spread=this.height*(.023+.012*Math.sin(t*Math.PI));
+        this.point.x+=seed.x*spread+(reduced?0:Math.sin(this.flowTime*.8+seed.phase)*spread*.16);this.point.y+=seed.y*spread;this.point.z+=seed.z*spread;
+        this.emit(this.point,color,appear*.38*seed.alpha,this.height*.074*seed.size);
+      }
+      for(const seed of track.grains){
+        const t=(progress+seed.trail*.55)%1;curve.getPoint(t,this.point);
+        this.point.x+=seed.x*this.height*.038;this.point.y+=seed.y*this.height*.035;this.point.z+=seed.z*this.height*.012;
+        this.emit(this.point,color,appear*.65*seed.alpha,this.height*.008*seed.size);
       }
     }
     this.points.geometry.setDrawRange(0,this.count);for(const attribute of Object.values(this.points.geometry.attributes))attribute.needsUpdate=true;
