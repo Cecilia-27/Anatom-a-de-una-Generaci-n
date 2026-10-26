@@ -23,7 +23,8 @@
   <link rel="stylesheet" href="./opinions.css?v=20261026-zone-type">
   <link rel="stylesheet" href="./mexico-context.css?v=20261026-zone-type">
   <script type="importmap">{"imports":{"three":"./vendor/three.module.js"}}</script>
-  <script type="module" src="./app.js?v=20261026-zone-readability"></script>
+  <script type="module" src="./app.js?v=20261026-particle-sound"></script>
+  <link rel="stylesheet" href="./particle-sound.css?v=1">
 </head>
 <body class="cover-view">
   <a class="skip-link" href="#main">Saltar al contenido</a>
@@ -52,7 +53,7 @@
       <p class="editorial-footnote"><span class="small-star">✳</span> No hay una sola manera<br>de imaginar el futuro.</p>
     </section>
     <section class="body-stage" id="stage" aria-label="Exploración del cuerpo en tres dimensiones">
-      <div class="scene-topbar scene-toolbar" aria-label="Controles del títere"><div class="scene-actions"><div class="interaction-switch" role="group" aria-label="Modo de interacción"><button id="mode-data" aria-pressed="true">Explorar datos</button><button id="mode-pose" aria-pressed="false" disabled>Mover el cuerpo <span aria-hidden="true">✧</span></button></div><button class="pigment-toggle" id="pigment-toggle" aria-pressed="false">Ⅱ Pausar manchas</button><button class="reset-view" id="reset-view" aria-label="Volver a la vista frontal" disabled>↺ <span>Vista inicial</span></button></div></div>
+      <div class="scene-topbar scene-toolbar" aria-label="Controles del títere"><div class="scene-actions"><div class="interaction-switch" role="group" aria-label="Modo de interacción"><button id="mode-data" aria-pressed="true">Explorar datos</button><button id="mode-pose" aria-pressed="false" disabled>Mover el cuerpo <span aria-hidden="true">✧</span></button></div><button class="pigment-toggle" id="pigment-toggle" aria-pressed="false">Ⅱ Pausar manchas</button><button class="reset-view" id="reset-view" aria-label="Volver a la vista frontal" disabled>↺ <span>Vista inicial</span></button><button id="sound-toggle" class="sound-toggle" type="button" aria-pressed="true" aria-label="Silenciar efectos de sonido">♪ Sonido</button></div></div>
       <div class="scene-viewport" id="scene-viewport">
       <canvas id="scene-canvas" aria-hidden="true"></canvas>
       <div class="wash wash-blue" aria-hidden="true"></div><div class="wash wash-coral" aria-hidden="true"></div><div class="wash wash-green" aria-hidden="true"></div>

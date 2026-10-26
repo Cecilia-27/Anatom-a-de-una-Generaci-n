@@ -5,13 +5,14 @@ import { zones, voices, mainZoneIds, coverQuote } from './data.js';
 import { bodyParts, partOrder, createPose, setPoseValue, jointAngles, partForMesh } from './pose.js';
 import { renderZoneChart, contextCharts } from './charts.js';
 import { FocusController, bodyBounds, regionBounds, restoreOrbitView } from './focus.js';
-import { PigmentSystem } from './pigments.js';
+import { PigmentSystem } from './pigments.js?v=20261026-sound';
 import { zoneStories, pigmentFactors } from './experience.js';
 import {zoneIcon} from './zone-icons.js';
 import {addAmbientMotion} from './motion.js';
 import {renderTitle} from './titles.js';
 import {viewportMetrics,stageFromNdc,ndcFromStage} from './viewport.js';
-import {OpinionOrbit} from './opinions.js';
+import {OpinionOrbit} from './opinions.js?v=20261026-sound';
+import {ParticleSound} from './particle-sound.js';
 import {opinionSource} from './opinions-data.js';
 
 const $ = (s) => document.querySelector(s);
@@ -34,10 +35,18 @@ $('#sources').addEventListener('click',showSources);
 $('#context-mexico').addEventListener('click',()=>openDialog(`<section class="mexico-context-content"><header class="mexico-context-heading"><span class="mexico-dialog-map" aria-hidden="true"><img src="./assets/mexico-contexto.svg" alt=""></span><div><p class="dialog-eyebrow">MÉXICO · CONTEXTO DEL PROYECTO</p><h2><span class="sr-only">¿Qué hay detrás de la baja natalidad en México?</span><img class="mexico-dialog-title" src="./assets/headings/mexico-context.svg" alt="" aria-hidden="true"></h2></div></header><p>En México y en distintas partes del mundo, la natalidad ha disminuido durante las últimas generaciones. Este cambio comienza a transformar la manera en que se distribuyen las edades dentro de la población y abre nuevas preguntas sobre cómo imaginamos el futuro.</p><p class="mexico-question-intro">Pero detrás de las cifras existe algo más complejo:</p><p class="mexico-question"><strong>¿Cómo y por qué están cambiando las decisiones de tener, postergar o no tener hijos entre las nuevas generaciones?</strong></p><p>Esta experiencia explora las emociones, pensamientos, expectativas y condiciones que atraviesan a los jóvenes al imaginar esa posibilidad. A través del cuerpo, los datos y sus testimonios, buscamos acercarnos a todo aquello que influye en una decisión que no siempre es sencilla ni definitiva.</p></section>`));
 
 $('#nav-about').addEventListener('click',()=>openDialog(`<p class="dialog-eyebrow">SOBRE EL PROYECTO</p><h2 class="dialog-brand-title" aria-label="Anatomía de una Generación"><img src="./assets/portada-titulo.svg" width="865.21" height="253.99" alt=""></h2><p>Una decisión que atraviesa el cuerpo.</p><p>Una exploración interactiva sobre cómo la Generación Z vive la decisión de tener, postergar o no tener hijos. Emociones, presiones sociales, economía y proyectos personales se encuentran alrededor de un mismo cuerpo.</p><div class="about-marks"><span>Visualización de datos</span><span>Narrativa generacional</span><span>Exploración 3D</span></div><h3>Cómo explorar</h3><p>Comienza el recorrido y elige una de las seis zonas. Arrastra el títere horizontalmente para girarlo, usa los botones ↶ / ↷ o las flechas del teclado al enfocar el modelo. Con Tab puedes recorrer los puntos; con Enter o espacio abrir sus datos.</p><p>En «Mover el cuerpo», selecciona una parte y arrástrala o ajusta sus controles. Puedes flexionar codos, muñecas, dedos, rodillas y tobillos. La postura se conserva al regresar a los datos y puedes restablecerla en cualquier momento.</p><p>Tras descubrir tres zonas podrás ver una vista conjunta y continuar explorando. El movimiento se reduce automáticamente si tu dispositivo así lo solicita.</p><p class="source-note">Modelo original: titere-articulado.glb · encuesta, n = 27.</p>`));
-function showVoices(){navigateChapter('explore',()=>opinionOrbit.setActive(true));}
+function showVoices(){sound.unlock();navigateChapter('explore',()=>opinionOrbit.setActive(true));}
 $('#nav-voices').addEventListener('click',()=>showVoices());
 
 const stage = $('#scene-viewport'), stageSection=$('#stage'), canvas = $('#body-canvas'), sceneCanvas=$('#scene-canvas');
+let soundEnabled=true;
+try{soundEnabled=localStorage.getItem('anatomia-particle-sound')!=='off';}catch{}
+const sound=new ParticleSound({enabled:soundEnabled,onState:({enabled,supported,ready})=>{
+  const button=$('#sound-toggle');button.disabled=!supported;button.setAttribute('aria-pressed',String(enabled));button.textContent=enabled?'♪ Sonido':'♩ Silenciado';button.setAttribute('aria-label',supported?(enabled?'Silenciar efectos de sonido':'Activar efectos de sonido'):'Sonido no disponible en este navegador');button.title=!enabled?'Efectos de sonido silenciados.':ready?'Sonidos de partículas activos. Pulsa para silenciarlos.':'El sonido se inicia al explorar una zona o las opiniones.';
+}});
+sound.notify();
+$('#sound-toggle').onclick=()=>{const enabled=!sound.enabled;sound.setEnabled(enabled);try{localStorage.setItem('anatomia-particle-sound',enabled?'on':'off');}catch{}announce(enabled?'Efectos de sonido activados.':'Efectos de sonido silenciados.');};
+document.addEventListener('visibilitychange',()=>sound.setVisible(!document.hidden));
 let sceneFrame=viewportMetrics(1,1);
 function pointerPosition(event){const rect=canvas.getBoundingClientRect(),p=ndcFromStage({x:event.clientX-rect.left,y:event.clientY-rect.top},sceneFrame);pointer.set(p.x,p.y);}
 function scenePoint(ndc){return stageFromNdc(ndc,sceneFrame);}
@@ -201,7 +210,7 @@ function selectZone(id,anchorKey=id){
   $('#welcome-panel').hidden=true;$('#closing-panel').hidden=true;
   selectedPart=partForZone(id,anchorKey);clearTimeout(zoneRenderTimer);const token=++zoneRenderToken,panel=$('#zone-panel'),replacePanel=()=>{if(token!==zoneRenderToken||state.selected!==id)return;renderZone(id);renderJointControls();};
   if(!panel.hidden&&!reduced){panel.classList.add('chart-leaving');zoneRenderTimer=setTimeout(replacePanel,300);}else replacePanel();
-  revealFactors(z);rotating=0;
+  sound.body(id);revealFactors(z);rotating=0;
   hotspotObjects.forEach(({el,zone},key)=>{el.classList.toggle('dim',key!==anchorKey);el.classList.toggle('seen',state.visited.has(zone));el.setAttribute('aria-pressed',String(key===anchorKey));});
   updateProgress();
   const h=hotspotObjects.get(anchorKey);h?.anchor.getWorldPosition(world);const screenX=h?world.clone().project(camera).x:0;
@@ -437,7 +446,7 @@ $('#reset-view').onclick=()=>{
   else restore();
 };
 canvas.addEventListener('keydown',(e)=>{if(e.key==='ArrowLeft'||e.key==='ArrowRight'){e.preventDefault();rotate(e.key==='ArrowLeft'?-Math.PI/8:Math.PI/8);}if(e.key==='Home'){e.preventDefault();$('#reset-view').click();}});
-canvas.addEventListener('pointerdown',e=>{pointerStart={x:e.clientX,y:e.clientY};dragged=false;});
+canvas.addEventListener('pointerdown',e=>{if(state.started&&!document.body.classList.contains('cover-view'))sound.body(state.selected||'cabeza');pointerStart={x:e.clientX,y:e.clientY};dragged=false;});
 canvas.addEventListener('pointermove',e=>{if(pointerStart&&Math.hypot(e.clientX-pointerStart.x,e.clientY-pointerStart.y)>6)dragged=true;});
 canvas.addEventListener('pointercancel',()=>{pointerStart=null;canvas.classList.remove('dragging');});
 canvas.addEventListener('pointerup',e=>{pointerStart=null;if(dragged||!state.started||!ready||focusController?.phase==='zooming-out'||motionMode)return;pointerPosition(e);raycaster.setFromCamera(pointer,camera);const hits=raycaster.intersectObjects([...hotspotObjects.values()].map(h=>h.hit));if(hits.length)selectZone(hits[0].object.userData.zone,hits[0].object.userData.anchorKey);});
@@ -473,13 +482,13 @@ function frame(ms){
   updateStrings();
   if(focusController?.phase==='open'&&focusReframeAt&&time>=focusReframeAt&&!poseDrag){focusReframeAt=0;focusController.reframe();}
   if((!focusController?.busy||focusController.phase==='open'&&!focusController.animation)&&Math.abs(rotating)>.0001){const step=reduced?rotating:rotating*Math.min(dt*8,1),orbitTarget=focusController?.busy?controls.target:target;camera.position.sub(orbitTarget).applyAxisAngle(zAxis,step).add(orbitTarget);rotating-=step;}
-  const focusing=focusController?.update(time);if(!focusing||focusController.phase==='open'&&!focusController.animation&&controls.enabled)controls.update();updateHotspots();updateJointHandles();updateEdges(time);updateFactorLabels();pigments?.update(time,camera,renderer,{visible:state.started&&!document.body.classList.contains('cover-view'),reduced,paused:flowPaused});updateFocusVisuals(time);renderer.render(scene,camera);
+  const focusing=focusController?.update(time);if(!focusing||focusController.phase==='open'&&!focusController.animation&&controls.enabled)controls.update();updateHotspots();updateJointHandles();updateEdges(time);updateFactorLabels();pigments?.update(time,camera,renderer,{visible:state.started&&!document.body.classList.contains('cover-view'),reduced,paused:flowPaused});updateFocusVisuals(time);sound.update({body:pigments?.soundMotion,bodyActive:!!focusController?.busy||motionMode||!!pointerStart||Math.abs(rotating)>.001,opinions:opinionOrbit?.soundMotion(),paused:flowPaused||dialog.open,visible:state.started&&!document.body.classList.contains('cover-view')});renderer.render(scene,camera);
 }
 media.addEventListener('change',e=>{reduced=e.matches;if(controls)controls.enableDamping=!reduced;if(reduced){introAction?.stop();if(!motionMode&&!poseChanged)for(const [name,q] of baseRotations)joints.get(name)?.quaternion.copy(q);}else{introStart=performance.now()/1000-INTRO_DURATION-1;startTime=introStart;}});
 $('#pigment-toggle').onclick=()=>{flowPaused=!flowPaused;document.body.classList.toggle('flow-paused',flowPaused);$('#pigment-toggle').setAttribute('aria-pressed',String(flowPaused));$('#pigment-toggle').textContent=flowPaused?'▷ Reanudar manchas':'Ⅱ Pausar manchas';};
 function makeFallback(){for(const [i,id] of zoneIds.entries()){const el=document.createElement('button');el.className='quote-bubble';el.style.cssText=`position:absolute;left:15%;top:${12+i*11}%;width:70%;pointer-events:auto`;el.textContent=`${zones[id].symbol} ${zones[id].name}`;el.onclick=()=>selectZone(id);$('#hotspots').append(el);}$('#stage-status').hidden=true;}
 
-opinionOrbit=new OpinionOrbit({stage,context:document.querySelector('.context-area'),getPaused:()=>flowPaused,getObstacles:()=>[...hotspotObjects.values()].filter(h=>!h.el.hidden&&h.el.style.display!=='none').map(h=>({x:h.screen.x,y:h.screen.y,width:44,height:44})),announce,onSelect:index=>state.voice=index});
+opinionOrbit=new OpinionOrbit({stage,context:document.querySelector('.context-area'),getPaused:()=>flowPaused,getObstacles:()=>[...hotspotObjects.values()].filter(h=>!h.el.hidden&&h.el.style.display!=='none').map(h=>({x:h.screen.x,y:h.screen.y,width:44,height:44})),announce,onSelect:index=>{state.voice=index;sound.opinion(index);}});
 
 // Diagnóstico de la experiencia sin datos personales.
 window.anatomia={get state(){return {ready,started:state.started,selected:state.selected,visited:[...state.visited],connections:state.edges.size,reducedMotion:reduced,focusPhase:focusController?.phase||'free',pigmentMemories:pigments?.memories.size||0};}};

@@ -13,7 +13,7 @@ export function makePigmentTexture(){
 
 export class PigmentSystem{
   constructor({scene,box,getAnchor,texture}){
-    this.box=box.clone();this.height=box.getSize(new THREE.Vector3()).y;this.getAnchor=getAnchor;this.active=[];this.memories=new Map();this.texture=texture||makePigmentTexture();this.max=2200;this.flowTime=0;this.lastTime=null;
+    this.box=box.clone();this.height=box.getSize(new THREE.Vector3()).y;this.getAnchor=getAnchor;this.active=[];this.memories=new Map();this.texture=texture||makePigmentTexture();this.max=2200;this.flowTime=0;this.lastTime=null;this.soundMotion=null;
     this.positions=new Float32Array(this.max*3);this.colors=new Float32Array(this.max*3);this.alpha=new Float32Array(this.max);this.sizes=new Float32Array(this.max);
     const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(this.positions,3).setUsage(THREE.DynamicDrawUsage));g.setAttribute('aColor',new THREE.BufferAttribute(this.colors,3).setUsage(THREE.DynamicDrawUsage));g.setAttribute('aAlpha',new THREE.BufferAttribute(this.alpha,1).setUsage(THREE.DynamicDrawUsage));g.setAttribute('aSize',new THREE.BufferAttribute(this.sizes,1).setUsage(THREE.DynamicDrawUsage));g.setDrawRange(0,0);
     this.material=new THREE.ShaderMaterial({transparent:true,depthWrite:false,depthTest:true,toneMapped:false,uniforms:{uMap:{value:this.texture},uSizeFactor:{value:1000}},vertexShader:`attribute vec3 aColor;attribute float aAlpha;attribute float aSize;uniform float uSizeFactor;varying vec3 vColor;varying float vAlpha;void main(){vec4 mv=modelViewMatrix*vec4(position,1.0);gl_Position=projectionMatrix*mv;gl_PointSize=clamp(aSize*uSizeFactor/max(.1,-mv.z),1.,180.);vColor=aColor;vAlpha=aAlpha;}`,fragmentShader:`uniform sampler2D uMap;varying vec3 vColor;varying float vAlpha;void main(){float alpha=texture2D(uMap,gl_PointCoord).a*vAlpha;if(alpha<.003)discard;gl_FragColor=vec4(vColor,alpha);}`});
@@ -41,7 +41,7 @@ export class PigmentSystem{
   update(time,camera,renderer,{visible=true,reduced=false,paused=false}={}){
     const delta=this.lastTime===null?0:THREE.MathUtils.clamp(time-this.lastTime,0,.1);this.lastTime=time;
     if(visible&&!paused&&!reduced)this.flowTime+=delta;
-    this.points.visible=visible;if(!visible){this.halo.visible=false;return;}this.count=0;
+    this.soundMotion=null;this.points.visible=visible;if(!visible){this.halo.visible=false;return;}this.count=0;
     if(reduced)for(const track of this.active)for(const zone of pigmentFactors[track.label].route)this.remember(track.label,zone);
     this.material.uniforms.uSizeFactor.value=renderer.domElement.height*Math.abs(camera.projectionMatrix.elements[5])/2;
     for(const memory of this.memories.values()){
@@ -54,6 +54,7 @@ export class PigmentSystem{
       const points=[this.sourcePoint(track.label),...f.route.map(zone=>this.getAnchor(zone)?.getWorldPosition(new THREE.Vector3())).filter(Boolean)];if(points.length<2)continue;
       const behind=camera.getWorldDirection(new THREE.Vector3()).multiplyScalar(this.height*.13);for(const p of points)p.add(behind);
       const curve=new THREE.CatmullRomCurve3(points,false,'centripetal');
+      if(!this.soundMotion&&!paused&&!reduced){const p=curve.getPoint(progress).project(camera);this.soundMotion={phase:progress,pan:THREE.MathUtils.clamp(p.x*.7,-.75,.75)};}
       for(let i=0;i<f.route.length;i++)if((age>5.6||progress>=(i+1)/(f.route.length+1))&&!track.visited.has(i)){track.visited.add(i);this.remember(track.label,f.route[i]);}
       // Un rastro de pigmento legible permanece bajo el flujo, también durante el zoom.
       const appear=reduced?1:THREE.MathUtils.clamp(age/.65,0,1);
