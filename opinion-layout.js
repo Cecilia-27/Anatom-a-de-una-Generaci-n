@@ -19,7 +19,8 @@ export function opinionPositions({width,height,phase=0,count=4,obstacles=[]}){
  }
  return points;
 }
-export function opinionWindowPosition({viewportWidth,viewportHeight,panelWidth,panelHeight,preferredLeft=0,particleTop=180}){
+export function opinionWindowPosition({viewportWidth,viewportHeight,panelWidth,panelHeight,preferredLeft=0,particleTop=180,verticalLift=0}){
  const width=Math.min(panelWidth,viewportWidth-32),height=Math.min(panelHeight,viewportHeight-40);
- return {left:clamp(preferredLeft,16,viewportWidth-width-16),top:clamp(particleTop-65,100,Math.max(100,viewportHeight-height-20)),width,height};
+ const top=clamp(particleTop-65,100,Math.max(100,viewportHeight-height-20));
+ return {left:clamp(preferredLeft,16,viewportWidth-width-16),top:Math.max(100,top-verticalLift),width,height};
 }
