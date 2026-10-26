@@ -55,3 +55,9 @@ No hay audio automático, analítica ni almacenamiento de datos personales. Thre
 La portada utiliza los trazados del título y subtítulo originales de `assets-interaccion`, con el título en dos líneas y “de una” junto a ANATOMÍA. No se simula Dunbar con otra fuente. Los párrafos usan League Spartan Regular, servida localmente; los controles disponen de los pesos SemiBold y Bold de la misma familia. Las manchas de la portada se animan mediante transformaciones lentas en capas detrás del modelo. El botón existente de pausa también las detiene y `prefers-reduced-motion` elimina esos movimientos.
 
 La portada oculta el selector Explorar datos/Mover el cuerpo; ambos modos siguen disponibles después de comenzar. La introducción dura 14 segundos y amplía los movimientos de los pivotes rígidos, seguida de una oscilación lenta con entrada gradual. Las ventanas de opiniones y proyecto comparten la identidad rosa y League Spartan, con desplazamiento interior accesible, cierre fijo y el título original trazado en la ventana del proyecto.
+
+### Continuidad en la exploración
+
+`motion.js` combina una capa de movimiento ambiental con los ángulos manuales de `pose.js`, sin modificar los valores elegidos por la persona. Las articulaciones conservan sus límites, el movimiento se atenúa al arrastrar o viajar con la cámara y continúa suavemente dentro de una zona. Se elimina con movimiento reducido. `check-motion.mjs` comprueba continuidad temporal, postura intacta y límites.
+
+`exploration.css` conserva el layout y las gráficas existentes, y continúa la identidad de la portada: blanco, rosa, League Spartan Regular para lectura y peso SemiBold para títulos y controles activos. Las fuentes, tamaños y contrastes se adaptan a la función de cada texto y al ancho disponible.

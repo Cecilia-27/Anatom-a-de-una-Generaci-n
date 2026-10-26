@@ -8,6 +8,7 @@ import { FocusController, bodyBounds, regionBounds } from './focus.js';
 import { PigmentSystem } from './pigments.js';
 import { zoneStories, pigmentFactors } from './experience.js';
 import {zoneIcon} from './zone-icons.js';
+import {addAmbientMotion} from './motion.js';
 
 const $ = (s) => document.querySelector(s);
 const zoneIds = Object.keys(zones);
@@ -44,6 +45,7 @@ const helperQ = new THREE.Quaternion(), helperE = new THREE.Euler();
 const zAxis = new THREE.Vector3(0,1,0);
 const target = new THREE.Vector3(0,2.65,0);
 const pose = createPose(), displayedPose = createPose(), jointHandles = new Map();
+let ambientWeight=0;
 let motionMode=false, selectedPart='cabeza', poseChanged=false, poseDrag=null;
 let focusController=null,pigments=null,selectedAnchorKey=null,handAnchorKey='manos',focusStrength=0,focusZone=null,focusScroll=0,focusReframeAt=0,flowPaused=false,suppressZoneClick=false;
 const modelMeshes=[],originalColors=new Map(),factorLabels=new Map();
@@ -122,7 +124,7 @@ function begin(){
   state.started=true;document.body.classList.add('exploring');$('#intro-copy').hidden=true;$('#explore-copy').hidden=false;$('#start').hidden=true;$('#journey').hidden=false;$('#chapter-number').textContent='02 / 03';$('#chapter-label').textContent='Descubrir lo que nos atraviesa';
   if(failed)makeFallback();
   hotspotObjects.forEach(({el},i)=>{el.hidden=false;el.style.animationDelay=`${i*.12}s`;});
-  updateFreeGuide();$('#pigment-toggle').hidden=false;if(pigments&&!pigments.active.length)revealFactors(zones.cabeza);
+  updateFreeGuide();window.scrollTo({top:0,behavior:'instant'});$('#pigment-toggle').hidden=false;if(pigments&&!pigments.active.length)revealFactors(zones.cabeza);
   announce('Exploración iniciada. Seis zonas disponibles. Selecciona un punto del cuerpo.');
   const first=hotspotObjects.get('cabeza')?.el;first?.focus({preventScroll:true});
 }
@@ -322,7 +324,7 @@ function updateManualPose(dt){
   let changing=false,offset=false;
   for(const id of partOrder)for(const f of bodyParts[id].fields){const current=displayedPose[id][f.id],value=pose[id][f.id],difference=value-current;displayedPose[id][f.id]=reduced||Math.abs(difference)<.02?value:current+difference*(1-Math.exp(-dt*16));if(Math.abs(displayedPose[id][f.id])>.001)offset=true;if(Math.abs(difference)>.02)changing=true;}
   const active=motionMode||!!focusController?.busy||poseChanged||offset||changing;
-  if(active){for(const [name,a] of Object.entries(jointAngles(displayedPose))){const node=joints.get(name);if(!node)continue;helperE.set(a.x,a.y,a.z);helperQ.setFromEuler(helperE);node.quaternion.copy(baseRotations.get(name)).multiply(helperQ);}}
+  for(const [name,a] of Object.entries(jointAngles(displayedPose))){const node=joints.get(name);if(!node)continue;helperE.set(a.x,a.y,a.z);helperQ.setFromEuler(helperE);node.quaternion.copy(baseRotations.get(name)).multiply(helperQ);}
   return active;
 }
 function startPartDrag(e,id,element,clickZone=null){
@@ -374,11 +376,18 @@ canvas.addEventListener('pointercancel',()=>{pointerStart=null;canvas.classList.
 canvas.addEventListener('pointerup',e=>{pointerStart=null;if(dragged||!state.started||!ready||focusController?.phase==='zooming-out'||motionMode)return;const rect=canvas.getBoundingClientRect();pointer.set((e.clientX-rect.left)/rect.width*2-1,-(e.clientY-rect.top)/rect.height*2+1);raycaster.setFromCamera(pointer,camera);const hits=raycaster.intersectObjects([...hotspotObjects.values()].map(h=>h.hit));if(hits.length)selectZone(hits[0].object.userData.zone,hits[0].object.userData.anchorKey);});
 
 function updateStrings(){if(!model)return;model.updateMatrixWorld(true);inverse.copy(model.matrixWorld).invert();for(const [jointName,point,top,meshName] of strings){const joint=joints.get(jointName),mesh=joints.get(meshName);if(!joint||!mesh)continue;stringEnd.fromArray(point);joint.localToWorld(stringEnd).applyMatrix4(inverse);stringTop.fromArray(top);stringDir.copy(stringEnd).sub(stringTop);mesh.position.copy(stringTop).add(stringEnd).multiplyScalar(.5);mesh.scale.y=stringDir.length();mesh.quaternion.setFromUnitVectors(up,stringDir.normalize());}}
-function idle(time){
-  const t=time-startTime-INTRO_DURATION;
-  if(reduced||t<0)return;
-  const fade=Math.min(t/4,1); // El movimiento continuo entra sin un salto al terminar la introducción.
-  for(const [name,axis,amplitude,speed,phase] of [['Torso','x',.024,.38,0],['Cintura','y',.035,.30,.4],['Cabeza','y',.09,.32,0],['Hombro_I','z',.07,.40,.5],['Hombro_D','z',-.06,.40,.9],['Codo_I','x',-.08,.36,.2],['Codo_D','x',-.06,.36,.7],['Muneca_I','z',.065,.32,.8],['Muneca_D','z',-.055,.32,1.3],['Pierna_I','x',-.022,.30,0],['Rodilla_I','x',.03,.30,0]]){const node=joints.get(name);if(!node)continue;helperE.set(0,0,0);helperE[axis]=Math.sin(t*speed+phase)*amplitude*fade;helperQ.setFromEuler(helperE);node.quaternion.copy(baseRotations.get(name)).multiply(helperQ);}
+function idle(time,dt){
+  // Se suaviza al acercar la cámara y al arrastrar; nunca altera el estado de los controles.
+  const phase=focusController?.phase;
+  const desired=reduced||poseDrag||phase==='zooming-in'||phase==='zooming-out'?0:phase==='open'?.4:motionMode?.65:1;
+  ambientWeight+= (desired-ambientWeight)*(1-Math.exp(-dt*(desired?1.8:10)));
+  if(reduced||ambientWeight<.0001)return;
+  const angles=addAmbientMotion(jointAngles(displayedPose),time-startTime,ambientWeight);
+  for(const [name,a] of Object.entries(angles)){
+    const node=joints.get(name);if(!node)continue;
+    helperE.set(a.x,a.y,a.z);helperQ.setFromEuler(helperE);
+    node.quaternion.copy(baseRotations.get(name)).multiply(helperQ);
+  }
 }
 function updateHotspots(){
   const width=stage.clientWidth,height=stage.clientHeight,panelRect=focusController?.phase==='open'&&!$('#zone-panel').hidden?$('#zone-panel').getBoundingClientRect():null,stageRect=panelRect?stage.getBoundingClientRect():null;
@@ -389,8 +398,10 @@ function updateHotspots(){
 function frame(ms){
   if(!ready)return;requestAnimationFrame(frame);const time=ms/1000,dt=Math.min(time-(lastTime||time),.05);lastTime=time;
   if(document.hidden)return;
-  if(!focusController?.busy&&!reduced&&!motionMode&&!poseChanged&&introAction?.isRunning())mixer.setTime(Math.min(time-introStart,INTRO_DURATION));
-  if(!updateManualPose(dt)&&!focusController?.busy)idle(time);updateStrings();
+  const manualActive=updateManualPose(dt);
+  if(!manualActive&&!reduced&&introAction?.isRunning())mixer.setTime(Math.min(time-introStart,INTRO_DURATION));
+  else idle(time,dt);
+  updateStrings();
   if(focusController?.phase==='open'&&focusReframeAt&&time>=focusReframeAt&&!poseDrag){focusReframeAt=0;focusController.reframe();}
   if((!focusController?.busy||focusController.phase==='open'&&!focusController.animation)&&Math.abs(rotating)>.0001){const step=reduced?rotating:rotating*Math.min(dt*8,1),orbitTarget=focusController?.busy?controls.target:target;camera.position.sub(orbitTarget).applyAxisAngle(zAxis,step).add(orbitTarget);rotating-=step;}
   const focusing=focusController?.update(time);if(!focusing||focusController.phase==='open'&&!focusController.animation&&controls.enabled)controls.update();updateHotspots();updateJointHandles();updateEdges(time);updateFactorLabels();pigments?.update(time,camera,renderer,{visible:state.started,reduced,paused:flowPaused});updateFocusVisuals(time);renderer.render(scene,camera);
