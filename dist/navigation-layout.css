@@ -125,3 +125,7 @@ body.exploring #journey #conclusion{width:fit-content;max-width:100%;min-height:
 body.exploring #journey #conclusion:hover{background:#ffe7ef;color:#b90038;border:0;box-shadow:0 7px 17px #f5004618}
 @media(min-width:1800px){body.exploring .scene-topbar .interaction-switch button,body.exploring .scene-topbar .pigment-toggle,body.exploring .scene-topbar .reset-view{font-size:15px;min-height:36px}body.exploring #journey #conclusion{font-size:15px;min-height:40px}}
 @media(max-width:560px){body.exploring .scene-topbar .scene-actions{gap:0 10px}body.exploring .scene-topbar .interaction-switch{gap:12px}body.exploring .scene-topbar .interaction-switch button,body.exploring .scene-topbar .pigment-toggle,body.exploring .scene-topbar .reset-view{font-size:13px;min-height:44px;padding:8px 4px}body.exploring #journey #conclusion{font-size:14px;min-height:44px;padding:10px 13px;margin-top:20px}}
+/* El centro aprovecha el espacio libre bajo la cabecera sin desplazar las columnas de lectura. */
+@media(min-width:1051px){
+ body.exploring:not(.cover-view) .body-stage,body.exploring:not(.cover-view).focus-active .body-stage{margin-top:-48px!important;top:78px!important;height:calc(100svh - 97px)!important}
+}
