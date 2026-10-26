@@ -1,6 +1,6 @@
 # Anatomía de una Generación
 
-Experiencia editorial con Three.js r169 y recursos locales en `dist/`, sin CDN ni instalación de dependencias.
+Experiencia editorial con Three.js r169 y recursos locales en `dist/`, sin CDN ni instalación de dependencias. Requiere Node.js 20 o superior para servir el proyecto y ejecutar sus verificaciones.
 
 ## Abrir y verificar
 
@@ -18,7 +18,7 @@ La portada conserva sus SVG originales y `cover.css`. `editorial.css` adapta la 
 
 Los cinco botones inferiores llaman a la misma función `selectZone` de los hotspots: Cabeza, Pecho, Estómago, Manos y Piernas. Boca sigue disponible como recorrido complementario. Se conservan las seis zonas visitadas y el progreso; tras tres se habilita la vista de conexiones.
 
-El panel presenta título editorial, subtítulo, descripción, voz identificada, gráfica y acceso a las articulaciones. La frase del boceto conserva su etiqueta conceptual. Las opiniones usan los 37 fragmentos proporcionados por la autora, con nombre y edad; Fabiola y Gabriel se identifican como frases adaptadas de entrevista.
+El panel presenta título editorial, subtítulo, descripción, voz identificada y gráfica. La articulación continúa disponible en el títere y en el control principal «Mover el cuerpo». La frase del boceto conserva su etiqueta conceptual. Las opiniones usan los 37 fragmentos proporcionados por la autora, con nombre y edad; Fabiola y Gabriel se identifican como frases adaptadas de entrevista.
 
 ## Datos y visualización
 
@@ -85,3 +85,16 @@ Los controles están debajo del visor en flujo normal. El encabezado reserva esp
 El botón `context-mexico` abre el texto proporcionado por la autora, sin añadir estadísticas. Conserva el cierre y el retorno de foco de las ventanas existentes, y permite desplazamiento interno en pantallas pequeñas. Los títulos usan trazados de Dunbar Low Bold y la lectura League Spartan Regular.
 
 La silueta local `assets/mexico-contexto.svg` procede de Natural Earth 1:110m, Admin 0 Countries, geometría ADM0_A3=MEX, proyectada para el icono. Fuente: https://github.com/nvkelso/natural-earth-vector/blob/master/geojson/ne_110m_admin_0_countries.geojson. Datos cartográficos de dominio público: https://www.naturalearthdata.com/about/terms-of-use/. No requiere recursos externos durante la navegación.
+
+
+## Audios de la experiencia
+
+El sonido utiliza tres grabaciones locales en `dist/assets/audio/`; no depende de YouTube durante la reproducción ni genera tonos sintéticos. Se descarga y activa tras pulsar Comenzar o explorar las opiniones.
+
+- `cuencos-ambiente.m4a`: fondo continuo en todos los recorridos, preparado a partir del fragmento 1:00–2:30 de [Cuencos Tibetanos de Cristal · Baño de Sonido ULTRA RELAJANTE](https://www.youtube.com/live/2UfTPVmDtKw).
+- `particulas-cuerpo.m4a`: capa del cuerpo, de [Particle Simulation with Sound Effects](https://www.youtube.com/watch?v=J8wMIeztJQM).
+- `particulas-opiniones.m4a`: capa de opiniones, de [Particles - Sound Design](https://www.youtube.com/watch?v=0vsvrtvNsYw).
+
+Archivos incorporados a petición de la autora a partir de sus referencias. Se prepararon uniones con fundido y se ajustaron sus niveles para que los bucles sean suaves. Los controles de sonido y de pausa, la preferencia de silencio y el cambio de pestaña siguen funcionando. Los cambios entre cuerpo y opiniones conservan el mismo fondo y mezclan las capas gradualmente.
+
+Las verificaciones del GLB usan el SHA-256 del original confirmado, por lo que `npm run check` también funciona al clonar sólo este repositorio.
