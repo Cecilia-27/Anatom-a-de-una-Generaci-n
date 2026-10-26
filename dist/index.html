@@ -12,6 +12,7 @@
   <link rel="stylesheet" href="./explore.css">
   <link rel="stylesheet" href="./charts.css">
   <link rel="stylesheet" href="./immersive.css">
+  <link rel="stylesheet" href="./editorial.css">
   <script type="importmap">{"imports":{"three":"./vendor/three.module.js"}}</script>
   <script type="module" src="./app.js"></script>
 </head>
@@ -31,6 +32,7 @@
     <div class="cover-art" aria-hidden="true"></div>
     <div class="cover-rail" aria-hidden="true"><span class="cover-rail-line"></span><img src="./assets/portada-indicador.svg" alt=""><img src="./assets/portada-indicador-contorno.svg" alt=""><img src="./assets/portada-indicador-contorno.svg" alt=""></div>
     <section class="editorial" aria-labelledby="main-title">
+      <nav class="chapter-rail" aria-label="Recorrido del proyecto"><a href="./"><i></i><span>01</span>Inicio</a><button id="rail-explore" aria-current="step"><i></i><span>02</span>Exploración</button><button id="rail-zones"><i></i><span>03</span>Zonas</button><button id="rail-voices"><i></i><span>04</span>Las voces</button><button id="rail-connections" disabled><i></i><span>05</span>Conexiones</button></nav>
       <p class="eyebrow"><span></span> UN RETRATO DE LA GENERACIÓN Z</p>
       <h1 id="main-title" aria-label="Anatomía de una Generación"><span class="cover-title-assets" aria-hidden="true"><img class="asset-anatomia" src="./assets/titulo-anatomia.svg" width="506.21" height="108.34" alt=""><img class="asset-de-una" src="./assets/titulo-de-una.svg" width="276.69" height="114.55" alt=""><img class="asset-generacion" src="./assets/titulo-generacion.svg" width="595.5" height="112.75" alt=""></span><span class="title-anatomia">Anatomía</span><br> <span class="title-bridge">de una</span><br> <em class="title-generation">Generación</em><span class="title-period">.</span></h1>
       <div class="intro-copy" id="intro-copy"><p class="subtitle"><span>Una <strong>decisión</strong></span><br>que atraviesa el <strong>cuerpo.</strong></p><p class="description">Explora cómo las emociones, experiencias y condiciones de una generación se conectan al momento de pensar en tener o no tener hijos.</p></div>
@@ -70,6 +72,7 @@
       <div id="closing-panel" class="closing-panel" hidden><p class="small-label">LOS HILOS QUE DESCUBRISTE</p><h2>Distintas partes,<br><em>una misma decisión.</em></h2><p>Tener, postergar o no tener hijos no depende de una sola razón. Las emociones, experiencias, proyectos y condiciones de vida se conectan entre sí y construyen diferentes formas de imaginar el futuro.</p><div class="postures"><p><strong>33.3 %</strong><span>quiere tener hijos</span></p><p><strong>29.6 %</strong><span>aún no lo sabe</span></p><p><strong>37.0 %</strong><span>no quiere tener hijos</span></p></div><p class="source-note">Postura actual · encuesta, n = 27</p><button class="text-button" id="continue">Seguir explorando ↗</button></div>
     </aside>
   </main>
+  <section class="zone-navigation" id="zone-navigation" aria-labelledby="zone-navigation-title"><div><h2 id="zone-navigation-title">Zonas del cuerpo</h2><p>Explora cada parte</p></div><nav id="zone-buttons" aria-label="Zonas del cuerpo, capítulos principales"></nav></section>
   <footer class="site-footer"><div class="chapter"><span id="chapter-number">01 / 03</span><span id="chapter-label">Una decisión, muchas conexiones</span></div><span class="footer-center">UNA EXPLORACIÓN PARA SENTIR Y PENSAR</span><button id="sources" class="text-button">Acerca de los datos <span aria-hidden="true">↗</span></button></footer>
   <dialog id="info-dialog" aria-labelledby="dialog-title"><button class="dialog-close round-button" aria-label="Cerrar ventana">×</button><div id="dialog-content"></div></dialog>
   <div class="sr-only" id="announcement" aria-live="polite"></div>

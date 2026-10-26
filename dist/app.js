@@ -1,12 +1,13 @@
 import * as THREE from 'three';
 import { GLTFLoader } from './vendor/GLTFLoader.js';
 import { OrbitControls } from './vendor/OrbitControls.js';
-import { zones, voices } from './data.js';
+import { zones, voices, mainZoneIds, coverQuote } from './data.js';
 import { bodyParts, partOrder, createPose, setPoseValue, jointAngles, partForMesh } from './pose.js';
-import { sensationsChart, contextCharts } from './charts.js';
+import { renderZoneChart, contextCharts } from './charts.js';
 import { FocusController, bodyBounds, regionBounds } from './focus.js';
 import { PigmentSystem } from './pigments.js';
 import { zoneStories, pigmentFactors } from './experience.js';
+import {zoneIcon} from './zone-icons.js';
 
 const $ = (s) => document.querySelector(s);
 const zoneIds = Object.keys(zones);
@@ -45,6 +46,7 @@ const pose = createPose(), displayedPose = createPose(), jointHandles = new Map(
 let motionMode=false, selectedPart='cabeza', poseChanged=false, poseDrag=null;
 let focusController=null,pigments=null,selectedAnchorKey=null,handAnchorKey='manos',focusStrength=0,focusZone=null,focusScroll=0,focusReframeAt=0,flowPaused=false,suppressZoneClick=false;
 const modelMeshes=[],originalColors=new Map(),factorLabels=new Map();
+let zoneRenderTimer=null,zoneRenderToken=0;
 const anchorDefinitions = {
   cabeza:['Cabeza',[0,.45,.275]], boca:['Cabeza',[0,.12,.28]],
   pecho:['Torso',[0,.64,.29]], estomago:['Torso',[0,.18,.23]],
@@ -65,7 +67,7 @@ try {
   const fill=new THREE.DirectionalLight(0xffffff,1.6);fill.position.set(-4,4,-3);scene.add(fill);
   const floor=new THREE.Mesh(new THREE.PlaneGeometry(30,30),new THREE.ShadowMaterial({opacity:.09}));floor.rotation.x=-Math.PI/2;floor.position.y=.08;floor.receiveShadow=true;scene.add(floor);
   camera.position.set(.65,2.93,12.1);
-  controls=new OrbitControls(camera,canvas);controls.target.copy(target);controls.enableDamping=!reduced;controls.dampingFactor=.075;controls.enablePan=false;controls.rotateSpeed=.52;controls.minPolarAngle=Math.PI/2-.025;controls.maxPolarAngle=Math.PI/2-.025;controls.minDistance=11.65;controls.maxDistance=13.1;controls.zoomSpeed=.35;controls.mouseButtons={LEFT:THREE.MOUSE.ROTATE,MIDDLE:THREE.MOUSE.DOLLY,RIGHT:THREE.MOUSE.ROTATE};controls.touches={ONE:THREE.TOUCH.ROTATE,TWO:THREE.TOUCH.DOLLY_ROTATE};controls.update();
+  controls=new OrbitControls(camera,canvas);controls.target.copy(target);controls.enableDamping=!reduced;controls.dampingFactor=.075;controls.enablePan=false;controls.rotateSpeed=.52;controls.minPolarAngle=Math.PI/2-.025;controls.maxPolarAngle=Math.PI/2-.025;controls.minDistance=11.65;controls.maxDistance=13.1;controls.enableZoom=true;controls.zoomSpeed=.6;controls.mouseButtons={LEFT:THREE.MOUSE.ROTATE,MIDDLE:THREE.MOUSE.DOLLY,RIGHT:THREE.MOUSE.ROTATE};controls.touches={ONE:THREE.TOUCH.ROTATE,TWO:THREE.TOUCH.DOLLY_ROTATE};controls.update();
   controls.addEventListener('start',()=>{canvas.classList.add('dragging');rotating=0;focusReframeAt=0;});
   controls.addEventListener('end',()=>canvas.classList.remove('dragging'));
   const resize=()=>{const w=stage.clientWidth,h=stage.clientHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.fov=document.body.classList.contains('cover-view')&&innerWidth>850?28:32;camera.updateProjectionMatrix();focusController?.resize();};
@@ -82,7 +84,8 @@ function initModel(gltf){
   makeHotspots();createIntro(gltf.animations);ready=true;introStart=performance.now()/1000;startTime=introStart;
   const bounds=bodyBounds(modelMeshes),height=bounds.getSize(new THREE.Vector3()).y;
   pigments=new PigmentSystem({scene,box:bounds,getAnchor:zone=>getZoneHotspot(zone)?.anchor});
-  focusController=new FocusController({camera,controls,bodyHeight:height,getBox:zone=>regionBounds(zone,modelMeshes,handAnchorKey==='manos_D'?'D':'I'),getReduced:()=>reduced,getMobile:()=>innerWidth<=850,onPhase:handleFocusPhase,onVisual:(zone,strength)=>{focusZone=zone;focusStrength=strength;}});
+  focusController=new FocusController({camera,controls,bodyHeight:height,getBox:zone=>regionBounds(zone,modelMeshes,handAnchorKey==='manos_D'?'D':'I'),getReduced:()=>reduced,getMobile:()=>false,getOverview:()=>({position:new THREE.Vector3(.65,2.93,12.1),target:target.clone()}),onPhase:handleFocusPhase,onVisual:(zone,strength)=>{focusZone=zone;focusStrength=strength;}});
+  controls.minDistance=height*.55;controls.maxDistance=height*2.8;
   console.info('Encuadres calculados desde el GLB',{bodyBounds:bounds.getSize(new THREE.Vector3()).toArray()});
   initArticulation();$('#mode-pose').disabled=false;
   $('#stage-status').hidden=true;document.body.classList.add('model-ready');$('#start').disabled=false;$('#start').innerHTML='Comenzar <span aria-hidden="true">→</span>';
@@ -106,7 +109,7 @@ function makeHotspots(){
     const joint=joints.get(name);if(!joint)continue;
     const anchor=new THREE.Object3D();anchor.position.fromArray(offset);joint.add(anchor);
     const hit=new THREE.Mesh(new THREE.SphereGeometry(.1,10,8),new THREE.MeshBasicMaterial({visible:false}));Object.assign(hit.userData,{zone,anchorKey:id});anchor.add(hit);
-    const el=document.createElement('button');el.type='button';el.className='hotspot';el.style.setProperty('--zone-color',zones[zone].color);el.setAttribute('aria-label',id==='manos_D'?'Explorar Manos, mano derecha':`Explorar ${zones[zone].name}`);el.setAttribute('aria-pressed','false');el.innerHTML=`<span class="hotspot-core"><b></b></span><span class="hotspot-label">${zones[zone].symbol} ${id==='manos_D'?'Mano derecha':zones[zone].name}</span>`;el.hidden=true;el.addEventListener('pointerdown',e=>{if(focusController?.phase==='open')startPartDrag(e,partForZone(zone,id),el);});el.addEventListener('pointermove',movePartDrag);el.addEventListener('pointerup',endPartDrag);el.addEventListener('pointercancel',endPartDrag);el.addEventListener('lostpointercapture',endPartDrag);el.addEventListener('click',()=>{if(suppressZoneClick){suppressZoneClick=false;return;}selectZone(zone,id);});$('#hotspots').append(el);
+    const el=document.createElement('button');el.type='button';el.className='hotspot';el.style.setProperty('--zone-color',zones[zone].color);el.setAttribute('aria-label',id==='manos_D'?'Explorar Manos, mano derecha':`Explorar ${zones[zone].name}`);el.setAttribute('aria-pressed','false');el.innerHTML=`<span class="hotspot-core"><b></b></span><span class="hotspot-label">${zones[zone].symbol} ${id==='manos_D'?'Mano derecha':zones[zone].name}</span>`;el.hidden=true;el.addEventListener('pointerdown',e=>{if(e.pointerType!=='touch'&&focusController?.phase==='open')startPartDrag(e,partForZone(zone,id),el);});el.addEventListener('pointermove',movePartDrag);el.addEventListener('pointerup',endPartDrag);el.addEventListener('pointercancel',endPartDrag);el.addEventListener('lostpointercapture',endPartDrag);el.addEventListener('click',()=>{if(suppressZoneClick){suppressZoneClick=false;return;}selectZone(zone,id);});$('#hotspots').append(el);
     hotspotObjects.set(id,{zone,anchor,hit,el,position:new THREE.Vector3(),screen:{x:0,y:0}});
   }
 }
@@ -137,53 +140,51 @@ function selectZone(id,anchorKey=id){
   selectedAnchorKey=anchorKey;if(id==='manos')handAnchorKey=anchorKey;
   introAction?.stop();updateManualPose(0);model?.updateMatrixWorld(true);
   const z=zones[id];document.documentElement.style.setProperty('--selected-color',z.color);
-  $('#welcome-panel').hidden=true;$('#closing-panel').hidden=true;$('#zone-panel').hidden=true;
-  selectedPart=partForZone(id,anchorKey);renderZone(id);renderJointControls();revealFactors(z);rotating=0;
+  $('#welcome-panel').hidden=true;$('#closing-panel').hidden=true;
+  selectedPart=partForZone(id,anchorKey);clearTimeout(zoneRenderTimer);const token=++zoneRenderToken,panel=$('#zone-panel'),replacePanel=()=>{if(token!==zoneRenderToken||state.selected!==id)return;renderZone(id);renderJointControls();};
+  if(!panel.hidden&&!reduced){panel.classList.add('chart-leaving');zoneRenderTimer=setTimeout(replacePanel,300);}else replacePanel();
+  revealFactors(z);rotating=0;
   hotspotObjects.forEach(({el,zone},key)=>{el.classList.toggle('dim',key!==anchorKey);el.classList.toggle('seen',state.visited.has(zone));el.setAttribute('aria-pressed',String(key===anchorKey));});
   updateProgress();
   const h=hotspotObjects.get(anchorKey);h?.anchor.getWorldPosition(world);const screenX=h?world.clone().project(camera).x:0;
-  const side=id==='manos'&&screenX>0?'left':'right';
+  const side='right';
   if(focusController)focusController.select(id,side,{force:true});else handleFocusPhase('open',id,side);
   announce(`Acercándonos a ${z.name.toLowerCase()}.`);
 }
 
 function renderZone(id){
-  const z=zones[id],story=zoneStories[id],panel=$('#zone-panel');let page=0;
-  panel.classList.add('glass-panel');panel.setAttribute('role','dialog');panel.setAttribute('aria-modal','false');panel.setAttribute('aria-labelledby','glass-title');panel.inert=true;
-  panel.innerHTML=`<div class="glass-topline"><span>03 · ZONA DEL CUERPO</span><button id="close-zone" class="glass-close" aria-label="Cerrar información de la zona">Cerrar <span aria-hidden="true">×</span></button></div>
-    <div class="zone-heading"><span class="zone-symbol" aria-hidden="true">${z.symbol}</span><div><h2 id="glass-title">${z.name}</h2><p class="glass-concepts">${story.concepts.join(' · ')}</p></div></div>
-    <nav class="focus-zone-nav" aria-label="Cambiar de zona sin cerrar">${zoneIds.map(key=>`<button type="button" data-focus-zone="${key}" aria-label="Ir a ${zones[key].name}" aria-pressed="${key===id}"><span aria-hidden="true">${zones[key].symbol}</span>${zones[key].name}</button>`).join('')}</nav>
-    <label class="focus-zone-select" for="focus-zone-select">Cambiar de zona<select id="focus-zone-select">${zoneIds.map(key=>`<option value="${key}" ${key===id?'selected':''}>${zones[key].symbol} ${zones[key].name}</option>`).join('')}</select></label>
-    ${id==='manos'?`<div class="focus-hand-nav" aria-label="Mano que exploras"><button data-hand-anchor="manos" aria-label="Ver mano izquierda" aria-pressed="${handAnchorKey==='manos'}">Mano izquierda</button><button data-hand-anchor="manos_D" aria-label="Ver mano derecha" aria-pressed="${handAnchorKey==='manos_D'}">Mano derecha</button></div>`:''}
-    <details class="focus-motion" id="focus-motion"><summary>Mover el cuerpo aquí <span aria-hidden="true">↗</span></summary><p>Arrastra una pieza para articularla o el fondo para girar la vista. También puedes ajustar los controles. Tu postura se conserva al cambiar de zona.</p><label for="focus-body-part">Parte del cuerpo</label><select id="focus-body-part">${partOrder.map(key=>`<option value="${key}" ${key===selectedPart?'selected':''}>${bodyParts[key].name}</option>`).join('')}</select><div id="focus-joint-controls"></div><button id="focus-reset-pose" class="text-button">↺ Restablecer postura</button></details>
-    <p class="focus-hint">Arrastra una pieza para moverla. Toca otra luz para cambiar de zona.</p>
+  const z=zones[id],story=zoneStories[id],panel=$('#zone-panel'),index=mainZoneIds.indexOf(id);
+  const quoted=z.testimony?.verified===true&&z.testimony.text&&z.testimony.source?z.testimony:id==='cabeza'?coverQuote:{text:voices[z.quote].text,source:`${voices[z.quote].name} · ejemplo conceptual`,verified:false};
+  panel.classList.add('glass-panel');panel.classList.remove('chart-leaving');panel.setAttribute('role','region');panel.removeAttribute('aria-modal');panel.setAttribute('aria-labelledby','glass-title');panel.inert=true;
+  panel.innerHTML=`<div class="editorial-panel-top"><button id="return-body" class="body-return">← <span>Volver al cuerpo</span></button><span class="zone-counter">${index>=0?`${index+1} / 5`:'Recorrido complementario'}</span><button id="close-zone" class="editorial-close" aria-label="Cerrar información de la zona">×</button></div>
+    <div class="editorial-zone-heading"><span class="zone-illustration" style="--wash-color:${z.color}">${zoneIcon(id)}</span><div><h2 id="glass-title">${id==='pecho'?'Pecho':z.name}</h2><p class="editorial-subtitle">${z.subtitle}</p></div></div>
+    <p class="editorial-description">${z.description} Una lectura de las experiencias subjetivas reportadas al pensar o hablar de esta decisión.</p>
+    <blockquote class="editorial-quote" style="--wash-color:${z.color}"><p>“${quoted.text}”</p><cite>${quoted.source||'Entrevista verificada'}</cite></blockquote>
     <div class="data-tabs" role="tablist" aria-label="Resultados de ${z.name}"><button id="tab-sensations" type="button" role="tab" aria-selected="true" aria-controls="data-sensations" tabindex="0">Sensaciones</button><button id="tab-context" type="button" role="tab" aria-selected="false" aria-controls="data-context" tabindex="-1">Decisión y emociones</button></div>
-    <div id="data-sensations" class="data-tab-panel" role="tabpanel" tabindex="0" aria-labelledby="tab-sensations"><div id="page-plot"></div><div class="chart-pagination" aria-label="Páginas de sensaciones"><button id="sensations-prev" aria-label="Ver sensaciones anteriores">←</button><span id="sensations-page" aria-live="polite"></span><button id="sensations-next" aria-label="Ver siguientes sensaciones">→</button></div><div class="glass-finding"><span>HALLAZGO DE LA ENCUESTA</span><p>${story.insight}</p></div></div>
+    <div id="data-sensations" class="data-tab-panel" role="tabpanel" tabindex="0" aria-labelledby="tab-sensations">${renderZoneChart(id)}<p class="editorial-finding">${story.insight}</p></div>
     <div id="data-context" class="data-tab-panel" role="tabpanel" tabindex="0" aria-labelledby="tab-context" hidden>${contextCharts(id)}<p class="finding">${z.finding}</p></div>
-    <div id="verified-voice"></div><p class="glass-method">Sensaciones reportadas · encuesta, n = 27. Las manchas son recorridos narrativos, no relaciones médicas.</p>
-    <div class="glass-footer"><button class="chart-help" id="chart-help">Cómo leer los datos ↗</button><button class="glass-return" id="return-body">Volver al cuerpo →</button></div>`;
+    ${id==='manos'?`<div class="focus-hand-nav" aria-label="Mano que exploras"><button data-hand-anchor="manos" aria-label="Ver mano izquierda" aria-pressed="${handAnchorKey==='manos'}">Mano izquierda</button><button data-hand-anchor="manos_D" aria-label="Ver mano derecha" aria-pressed="${handAnchorKey==='manos_D'}">Mano derecha</button></div>`:''}
+    <details class="focus-motion" id="focus-motion"><summary>Mover el cuerpo aquí <span aria-hidden="true">↗</span></summary><p>Arrastra una pieza con el mouse para articularla o el fondo para girar. En touch, arrastra para girar y usa estos controles para articular. Tu postura se conserva al cambiar de zona.</p><label for="focus-body-part">Parte del cuerpo</label><select id="focus-body-part">${partOrder.map(key=>`<option value="${key}" ${key===selectedPart?'selected':''}>${bodyParts[key].name}</option>`).join('')}</select><div id="focus-joint-controls"></div><button id="focus-reset-pose" class="text-button">↺ Restablecer postura</button></details>
+    <details class="zone-shortcuts"><summary>Otros recorridos y zonas</summary><nav class="focus-zone-nav" aria-label="Cambiar de zona sin cerrar">${zoneIds.map(key=>`<button type="button" data-focus-zone="${key}" aria-label="Ir a ${zones[key].name}" aria-pressed="${key===id}">${zones[key].name}</button>`).join('')}</nav></details>
+    <label class="focus-zone-select" for="focus-zone-select">Cambiar de zona<select id="focus-zone-select">${zoneIds.map(key=>`<option value="${key}" ${key===id?'selected':''}>${zones[key].name}</option>`).join('')}</select></label>
+    <p class="editorial-method">Encuesta n = 27 · Experiencias subjetivas. Las manchas son recorridos narrativos; no representan relaciones médicas.</p><button class="chart-help" id="chart-help">Cómo leer los datos ↗</button>`;
   panel.querySelectorAll('[data-focus-zone]').forEach(button=>button.onclick=()=>selectZone(button.dataset.focusZone));
   panel.querySelectorAll('[data-hand-anchor]').forEach(button=>button.onclick=()=>selectZone('manos',button.dataset.handAnchor));
   $('#focus-zone-select').onchange=e=>selectZone(e.target.value);
   $('#focus-body-part').onchange=e=>selectPart(e.target.value);
   $('#focus-joint-controls').addEventListener('input',e=>{if(e.target.matches('[data-pose-field]'))changePose(selectedPart,e.target.dataset.poseField,Number(e.target.value));});
   $('#focus-reset-pose').onclick=resetPose;
-  const paintPage=()=>{const offset=page*3;$('#page-plot').innerHTML=sensationsChart(id,{offset,limit:3});$('#sensations-page').textContent=`${offset+1}–${Math.min(offset+3,z.sensations.length)} de ${z.sensations.length} sensaciones`;$('#sensations-prev').disabled=page===0;$('#sensations-next').disabled=offset+3>=z.sensations.length;};
-  $('#sensations-prev').onclick=()=>{if(page>0){page--;paintPage();if($('#sensations-prev').disabled)$('#sensations-next').focus();}};
-  $('#sensations-next').onclick=()=>{if((page+1)*3<z.sensations.length){page++;paintPage();if($('#sensations-next').disabled)$('#sensations-prev').focus();}};paintPage();
   const tabs=[...panel.querySelectorAll('[role="tab"]')];
   const activateTab=(tab,focus=false)=>{for(const button of tabs){const selected=button===tab;button.setAttribute('aria-selected',String(selected));button.tabIndex=selected?0:-1;$('#'+button.getAttribute('aria-controls')).hidden=!selected;}if(focus)tab.focus();};
   tabs.forEach((tab,index)=>{tab.onclick=()=>activateTab(tab);tab.onkeydown=e=>{let next;if(e.key==='ArrowRight')next=(index+1)%tabs.length;if(e.key==='ArrowLeft')next=(index+tabs.length-1)%tabs.length;if(e.key==='Home')next=0;if(e.key==='End')next=tabs.length-1;if(next!==undefined){e.preventDefault();activateTab(tabs[next],true);}};});
-  $('#chart-help').onclick=showSources;$('#close-zone').onclick=()=>requestCloseFocus();$('#return-body').onclick=()=>requestCloseFocus();
-  // Solo se admite un fragmento marcado y documentado como entrevista verificada.
-  if(z.testimony?.verified===true&&z.testimony.text&&z.testimony.source){const quote=document.createElement('blockquote');quote.className='verified-quote';quote.textContent=z.testimony.text;const source=document.createElement('cite');source.textContent=z.testimony.source;quote.append(source);$('#verified-voice').append(quote);}
+  $('#chart-help').onclick=showSources;$('#close-zone').onclick=()=>requestCloseFocus();$('#return-body').onclick=()=>{resetPose();requestCloseFocus(undefined,{overview:true});};
 }
 function updateFreeGuide(){
   $('#welcome-panel').innerHTML=`<p class="small-label">EL CUERPO COMO MAPA</p><h2>${state.visited.size?'Tu recorrido<br>continúa.':'Gira, descubre<br>y acércate.'}</h2><p>${state.visited.size?'Las huellas que descubriste permanecen. Elige otra luz para seguir conectando el cuerpo.':'Selecciona una luz del cuerpo. Acércate a sus sensaciones, mueve las piezas y cambia de zona sin cerrar la ventana.'}</p><div class="color-key">${zoneIds.map(id=>`<span><i style="--c:${zones[id].color}"></i>${zones[id].symbol} ${zones[id].name}</span>`).join('')}</div><p class="sample-note">Encuesta, n = 27 · Experiencias subjetivas.<br>Las manchas no representan relaciones médicas.</p>`;
 }
-function requestCloseFocus(afterClose){
-  endPartDrag();
-  if(focusController?.busy)focusController.close(afterClose);
+function requestCloseFocus(afterClose,{overview=false}={}){
+  endPartDrag();clearTimeout(zoneRenderTimer);zoneRenderToken++;focusReframeAt=0;
+  if(focusController?.busy)focusController.close(afterClose,{overview});
   else{handleFocusPhase('free',state.selected);afterClose?.();}
 }
 function handleFocusPhase(phase,id,side='right'){
@@ -191,15 +192,15 @@ function handleFocusPhase(phase,id,side='right'){
   const active=phase!=='free',panel=$('#zone-panel');
   if(active&&!document.body.classList.contains('focus-active'))focusScroll=scrollY;
   document.body.classList.toggle('focus-active',active);document.body.classList.toggle('panel-left',active&&side==='left');document.body.classList.remove('panel-ready');document.body.classList.toggle('focus-exit',phase==='zooming-out');
-  $('.site-header').inert=active;$('.editorial').inert=active;$('.site-footer').inert=active;
-  for(const selector of ['#mode-data','#mode-pose','#rotate-left','#rotate-right','#reset-view'])$(selector).disabled=active||(selector==='#mode-pose'&&!ready);
+  $('.site-header').inert=false;$('.editorial').inert=false;$('.site-footer').inert=false;
+  for(const selector of ['#mode-data','#mode-pose','#rotate-left','#rotate-right','#reset-view'])$(selector).disabled=(selector==='#mode-pose'&&!ready)||(['#mode-data','#mode-pose','#reset-view'].includes(selector)?active:active&&phase!=='open');
   hotspotObjects.forEach(({el})=>el.disabled=phase==='zooming-out');canvas.tabIndex=phase==='open'||!active?0:-1;canvas.setAttribute('aria-label',active?'Títere en detalle. Arrastra una pieza para articularla o el fondo para girar. Selecciona otra luz para cambiar de zona.':'Títere 3D. Arrastra para girar o usa las flechas izquierda y derecha del teclado.');
   $('#focus-status').hidden=!active||phase==='open';$('#focus-status').textContent=phase==='zooming-out'?'Volviendo al cuerpo…':`Acercándonos a ${zones[id]?.name.toLowerCase()||'la zona'}…`;
-  if(phase==='zooming-in'){panel.hidden=true;panel.inert=true;}
-  if(phase==='open'){panel.hidden=false;panel.inert=false;panel.scrollTop=0;void panel.offsetWidth;requestAnimationFrame(()=>{if(stage.dataset.focusPhase==='open'){document.body.classList.add('panel-ready');$('#close-zone')?.focus({preventScroll:true});}});announce(`${zones[id].name}. Información de la zona. Puedes mover las piezas o cambiar directamente a otra zona.`);}
+  if(phase==='zooming-in'){panel.inert=true;if(!panel.childElementCount)panel.hidden=true;}
+  if(phase==='open'){panel.hidden=false;panel.inert=false;panel.scrollTop=0;void panel.offsetWidth;requestAnimationFrame(()=>{if(stage.dataset.focusPhase==='open'){document.body.classList.add('panel-ready');$('#return-body')?.focus({preventScroll:true});}});announce(`${zones[id].name}. Información de la zona. Puedes mover las piezas o cambiar directamente a otra zona.`);}
   if(phase==='zooming-out'){panel.inert=true;}
   if(phase==='free'){
-    const returnKey=selectedAnchorKey;panel.hidden=true;panel.inert=false;state.selected=null;selectedAnchorKey=null;focusZone=null;focusStrength=0;highlightZone(null);
+    const returnKey=selectedAnchorKey;panel.hidden=true;panel.inert=false;state.selected=null;document.querySelectorAll('[data-zone-nav]').forEach(button=>button.setAttribute('aria-pressed','false'));selectedAnchorKey=null;focusZone=null;focusStrength=0;highlightZone(null);
     hotspotObjects.forEach(({el,zone})=>{el.classList.remove('dim');el.setAttribute('aria-pressed','false');el.classList.toggle('seen',state.visited.has(zone));});
     $('#welcome-panel').hidden=false;updateFreeGuide();window.scrollTo({top:focusScroll,behavior:'instant'});hotspotObjects.get(returnKey)?.el.focus({preventScroll:true});announce('Vista general restaurada. Puedes girar el cuerpo y elegir otra zona.');
   }
@@ -208,17 +209,12 @@ function updateFocusVisuals(time){
   if(!focusZone||!focusController?.busy){pigments?.highlight(null,'#ffffff',0,time,reduced);return;}
   const patterns={cabeza:/^Cabeza_madera|^Oreja/,boca:/^Cabeza_madera/,pecho:/^Torso_madera|^Union_hombro/,estomago:/^Torso_madera|^Pelvis/,manos:/^Palma|^Falange|^Pulgar_madera/,piernas:/^Muslo|^Pantorrilla/};
   for(const mesh of modelMeshes){const base=originalColors.get(mesh.uuid);let selected=patterns[focusZone].test(mesh.name);if(focusZone==='manos')selected=selected&&new RegExp(`_${handAnchorKey==='manos_D'?'D':'I'}(?:_|$)`).test(mesh.name);mesh.material.color.copy(base.color).lerp(base.muted,selected?0:focusStrength*.60);if(mesh.material.emissive){mesh.material.emissive.set(selected?zones[focusZone].color:0x000000);mesh.material.emissiveIntensity=selected?.22*focusStrength:0;}}
-  pigments?.highlight(focusZone,zones[focusZone].color,focusStrength,time,reduced);
+  pigments?.highlight(focusZone,zones[focusZone].color,focusStrength,time,reduced||flowPaused);
 }
 document.addEventListener('keydown',e=>{
   if(!document.body.classList.contains('focus-active')||dialog.open)return;
   if(e.key==='Escape'){e.preventDefault();requestCloseFocus();return;}
-  if(e.key!=='Tab')return;
-  if(focusController&&focusController.phase!=='open'){e.preventDefault();return;}
-  const items=[...document.querySelectorAll('#body-canvas,#hotspots button:not(:disabled),#pigment-toggle,#zone-panel button:not(:disabled),#zone-panel select,#zone-panel input,#zone-panel summary,#zone-panel [tabindex="0"]')].filter(el=>el.getClientRects().length&&!el.closest('[hidden]')&&(!el.closest('details')||el.closest('details').open||el.tagName==='SUMMARY')&&getComputedStyle(el).visibility!=='hidden');
-  const first=items[0],last=items[items.length-1];if(!first)return;
-  if(e.shiftKey&&(document.activeElement===first||!items.includes(document.activeElement))){e.preventDefault();last.focus();}
-  else if(!e.shiftKey&&(document.activeElement===last||!items.includes(document.activeElement))){e.preventDefault();first.focus();}
+
 });
 function revealFactors(z){
   const labels=z.factors.filter(label=>pigmentFactors[label]).slice(0,2);factorLabels.forEach(el=>el.classList.remove('visible'));
@@ -230,7 +226,7 @@ function updateFactorLabels(){
   for(const [label,el] of factorLabels){projected.copy(pigments.sourcePoint(label)).project(camera);el.style.left=`${(projected.x*.5+.5)*width}px`;el.style.top=`${(-projected.y*.5+.5)*height}px`;el.style.visibility=projected.z>1||projected.z< -1?'hidden':'visible';}
 }
 
-function updateProgress(){const n=state.visited.size;$('#progress-text').textContent=`${n} de 6 zonas`;$('#progress-bar').style.width=`${n/6*100}%`;$('#conclusion').hidden=n<3;if(n===6)$('#conclusion').textContent='Ver el cuerpo conectado ↗';}
+function updateProgress(){document.querySelectorAll('[data-zone-nav]').forEach(button=>{button.setAttribute('aria-pressed',String(button.dataset.zoneNav===state.selected));button.classList.toggle('is-visited',state.visited.has(button.dataset.zoneNav));});$('#rail-connections').disabled=state.visited.size<3;const n=state.visited.size;$('#progress-text').textContent=`${n} de 6 zonas`;$('#progress-bar').style.width=`${n/6*100}%`;$('#conclusion').hidden=n<3;if(n===6)$('#conclusion').textContent='Ver el cuerpo conectado ↗';}
 function highlightZone(id){if(!model)return;const patterns={cabeza:/^Cabeza_madera|^Oreja/,boca:/^Cabeza_madera/,pecho:/^Torso_madera/,estomago:/^Torso_madera|^Union_cintura/,manos:/^Palma|^Falange|^Pulgar_madera/,piernas:/^Muslo|^Pantorrilla/};model.traverse(o=>{if(o.isMesh&&o.material.emissive){const base=originalColors.get(o.uuid);if(base)o.material.color.copy(base.color);const active=id&&patterns[id].test(o.name);o.material.emissive.set(active?zones[id].color:0x000000);o.material.emissiveIntensity=active?.10:0;}});}
 
 function discoverRoute(route,color){
@@ -259,6 +255,12 @@ function updateEdges(time){
 function showConclusion(){if(state.visited.size<3)return;if(focusController?.busy){requestCloseFocus(()=>showConclusion());return;}if(motionMode)setMotionMode(false);state.closing=true;$('#zone-panel').hidden=true;$('#welcome-panel').hidden=true;$('#closing-panel').hidden=false;$('#chapter-number').textContent='03 / 03';$('#chapter-label').textContent='Distintas partes, una misma decisión';hotspotObjects.forEach(({el})=>el.classList.remove('dim'));highlightZone(null);announce('Vista general. Distintas partes, una misma decisión. Tus conexiones permanecen visibles.');if(innerWidth<=850)$('#closing-panel').scrollIntoView({behavior:reduced?'instant':'smooth',block:'start'});}
 function resume(){if(focusController?.busy){requestCloseFocus();return;}if(motionMode)setMotionMode(false);state.closing=false;$('#chapter-number').textContent=state.started?'02 / 03':'01 / 03';$('#chapter-label').textContent='Descubrir lo que nos atraviesa';$('#closing-panel').hidden=true;$('#zone-panel').hidden=true;$('#welcome-panel').hidden=false;updateFreeGuide();}
 $('#conclusion').onclick=showConclusion;$('#continue').onclick=resume;
+$('#zone-buttons').innerHTML=mainZoneIds.map(id=>`<button type="button" data-zone-nav="${id}" aria-label="Explorar ${zones[id].name} desde zonas del cuerpo" aria-pressed="false" style="--wash-color:${zones[id].color}"><span class="zone-nav-icon">${zoneIcon(id)}</span><span>${id==='pecho'?'Pecho':zones[id].name}</span><small class="zone-visited">Explorada</small></button>`).join('');
+$('#zone-buttons').addEventListener('click',e=>{const button=e.target.closest('[data-zone-nav]');if(!button)return;selectZone(button.dataset.zoneNav);(innerWidth>1050?$('#main'):$('#stage')).scrollIntoView({behavior:reduced?'instant':'smooth',block:'start'});});
+$('#rail-explore').onclick=()=>{if(focusController?.busy)requestCloseFocus();else resume();$('#stage').scrollIntoView({behavior:reduced?'instant':'smooth',block:'start'});};
+$('#rail-zones').onclick=()=>$('#zone-navigation').scrollIntoView({behavior:reduced?'instant':'smooth',block:'center'});
+$('#rail-voices').onclick=()=>showVoices();$('#rail-connections').onclick=showConclusion;
+
 
 function initArticulation(){
   $('#body-part').innerHTML=partOrder.map(id=>`<option value="${id}">${bodyParts[id].name}</option>`).join('');
@@ -345,7 +347,7 @@ function endPartDrag(e){
 }
 // Capturamos las piezas antes de que OrbitControls interprete el arrastre como giro.
 canvas.addEventListener('pointerdown',e=>{
-  if(!canArticulate()||!ready||e.button!==0)return;
+  if(e.pointerType==='touch'||!canArticulate()||!ready||e.button!==0)return;
   const rect=canvas.getBoundingClientRect();pointer.set((e.clientX-rect.left)/rect.width*2-1,-(e.clientY-rect.top)/rect.height*2+1);raycaster.setFromCamera(pointer,camera);
   const hit=raycaster.intersectObject(model,true).find(h=>h.object.isMesh&&partForMesh(h.object.name));
   if(hit){
@@ -392,7 +394,7 @@ function frame(ms){
   const focusing=focusController?.update(time);if(!focusing||focusController.phase==='open'&&!focusController.animation&&controls.enabled)controls.update();updateHotspots();updateJointHandles();updateEdges(time);updateFactorLabels();pigments?.update(time,camera,renderer,{visible:state.started,reduced,paused:flowPaused});updateFocusVisuals(time);renderer.render(scene,camera);
 }
 media.addEventListener('change',e=>{reduced=e.matches;if(controls)controls.enableDamping=!reduced;if(reduced){introAction?.stop();if(!motionMode&&!poseChanged)for(const [name,q] of baseRotations)joints.get(name)?.quaternion.copy(q);}else{introStart=performance.now()/1000-11;startTime=introStart;}});
-$('#pigment-toggle').onclick=()=>{flowPaused=!flowPaused;$('#pigment-toggle').setAttribute('aria-pressed',String(flowPaused));$('#pigment-toggle').textContent=flowPaused?'▷ Reanudar manchas':'Ⅱ Pausar manchas';};
+$('#pigment-toggle').onclick=()=>{flowPaused=!flowPaused;document.body.classList.toggle('flow-paused',flowPaused);$('#pigment-toggle').setAttribute('aria-pressed',String(flowPaused));$('#pigment-toggle').textContent=flowPaused?'▷ Reanudar manchas':'Ⅱ Pausar manchas';};
 function makeFallback(){for(const [i,id] of zoneIds.entries()){const el=document.createElement('button');el.className='quote-bubble';el.style.cssText=`position:absolute;left:15%;top:${12+i*11}%;width:70%;pointer-events:auto`;el.textContent=`${zones[id].symbol} ${zones[id].name}`;el.onclick=()=>selectZone(id);$('#hotspots').append(el);}$('#stage-status').hidden=true;}
 
 // Diagnóstico de la experiencia sin datos personales.

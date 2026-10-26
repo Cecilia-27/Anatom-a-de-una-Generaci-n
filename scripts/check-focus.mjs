@@ -31,7 +31,7 @@ for(const zone of Object.keys(zones)){
   for(const corner of boxCorners(box)){const p=corner.project(camera);assert.ok(Math.abs(p.x)<.99&&Math.abs(p.y)<.99&&p.z<1,`Encuadre ${zone}, giro ${yaw}, aspecto ${aspect}, ${panelSide}`);if(mobile)assert.ok(p.y>-.02,`La región queda encima del cristal móvil: ${zone}`);}
  }
  // Tres datos por página, conservando exactamente el orden y los porcentajes.
- const paginated=[];for(let offset=0;offset<zones[zone].sensations.length;offset+=3){const html=sensationsChart(zone,{offset,limit:3});const values=[...html.matchAll(/--bar-value:([0-9.]+)%/g)].map(m=>Number(m[1]));assert.ok(values.length<=3);paginated.push(...values);}
+ const paginated=[];for(let offset=0;offset<zones[zone].sensations.length;offset+=3){const html=sensationsChart(zone,{offset,limit:3});const values=[...html.matchAll(/data-value="([0-9.]+)"/g)].map(m=>Number(m[1]));assert.ok(values.length<=3);paginated.push(...values);}
  assert.deepEqual(paginated,zones[zone].sensations.map(([,v])=>v));
 }
 for(const f of Object.values(pigmentFactors))for(const zone of f.route)assert.ok(zones[zone]);
@@ -45,7 +45,7 @@ const controls={target:new THREE.Vector3(0,2.65,0),enabled:true,enableDamping:tr
 const originalPosition=camera.position.clone(),originalTarget=controls.target.clone(),phases=[];let reduced=false;
 const focus=new FocusController({camera,controls,bodyHeight:height,getBox:zone=>regionBounds(zone,meshes),getReduced:()=>reduced,getMobile:()=>false,onPhase:p=>phases.push(p),onVisual(){}});
 assert.equal(focus.select('cabeza'),true);assert.equal(controls.enabled,false);
-focus.update(0);focus.update(.016);focus.update(.916);assert.equal(focus.phase,'zooming-in');focus.update(1.017);assert.equal(focus.phase,'open');assert.equal(camera.fov,32);assert.equal(controls.enabled,true);assert.ok(controls.maxDistance<11.65);
+focus.update(0);focus.update(.016);focus.update(.916);assert.equal(focus.phase,'zooming-in');focus.update(1.017);assert.equal(focus.phase,'open');assert.equal(camera.fov,32);assert.equal(controls.enabled,true);assert.ok(controls.maxDistance>=13.1);assert.ok(controls.minDistance>height*.3);
 // Ir de una zona a otra no guarda la vista de detalle como nueva vista general.
 const firstDetail=camera.position.clone(),detailDirection=camera.position.clone().sub(controls.target).normalize();
 assert.equal(focus.select('manos','left'),true);assert.ok(camera.position.distanceTo(firstDetail)<1e-9);
@@ -62,6 +62,11 @@ reduced=true;focus.select('piernas');focus.update(5);focus.update(5.016);assert.
 assert.ok(camera.position.distanceTo(originalPosition)<1e-9);
 // Cambio de mano en la misma zona y cierre durante un acercamiento.
 reduced=false;focus.select('manos');focus.update(6);focus.update(6.016);assert.equal(focus.select('manos','left',{force:true}),true);focus.update(6.1);focus.update(6.116);focus.update(6.4);focus.close();focus.update(6.5);focus.update(7.36);assert.equal(focus.phase,'free');assert.ok(camera.position.distanceTo(originalPosition)<1e-9);
+
+// Volver al cuerpo puede pedir el encuadre completo, aun si se entró desde un zoom manual.
+const overviewPosition=new THREE.Vector3(.65,2.93,12.1),overviewTarget=new THREE.Vector3(0,2.65,0);
+focus.getOverview=()=>({position:overviewPosition,target:overviewTarget});focus.select('cabeza');focus.update(8);focus.update(8.016);focus.update(9.02);focus.close(undefined,{overview:true});focus.update(10);focus.update(10.86);
+assert.ok(camera.position.distanceTo(overviewPosition)<1e-9);assert.ok(controls.target.distanceTo(overviewTarget)<1e-9);
 
 // La animación conserva dos flujos vivos, memoria acotada y pausa real.
 const scene=new THREE.Scene(),anchorNames={cabeza:'Cabeza',boca:'Cabeza',pecho:'Torso',estomago:'Torso',manos:'Muneca_I',piernas:'Rodilla_D'};

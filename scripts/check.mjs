@@ -39,7 +39,7 @@ console.log('Verificado: 8 partes articulables, límites de giro, selección de 
 const {sensationsChart,contextGroups}=await import('../dist/charts.js');
 for(const [id,zone] of Object.entries(zones)){
  const html=sensationsChart(id);
- const widths=[...html.matchAll(/--bar-value:([0-9.]+)%/g)].map(m=>Number(m[1]));
+ const widths=[...html.matchAll(/data-value="([0-9.]+)"/g)].map(m=>Number(m[1]));
  assert.deepEqual(widths,zone.sensations.map(([,value])=>value),`Escala real: ${id}`);
  assert.ok(widths.every(v=>v>=0&&v<=100));
  assert.deepEqual(contextGroups(id).flatMap(g=>g.rows.map(r=>[r.value,r.label])),zone.stats.map(([v,t])=>[Number(v),t]),`Sin omitir ni añadir resultados: ${id}`);
@@ -47,4 +47,16 @@ for(const [id,zone] of Object.entries(zones)){
 assert.deepEqual(contextGroups('estomago').find(g=>g.title==='Emociones').rows.map(r=>r.value),[59.3,40.7]);
 assert.deepEqual(contextGroups('estomago').find(g=>g.title==='Factores de decisión').rows.map(r=>r.value),[40.7]);
 assert.deepEqual(contextGroups('boca'),[]);
-console.log('Verificado: barras con porcentajes exactos y escala común; preguntas de la encuesta separadas; sin completar distribuciones ni inventar cifras.');
+console.log('Verificado: porcentajes exactos de las columnas; preguntas separadas; sin completar distribuciones ni inventar cifras.');
+
+const {organicColumns,renderZoneChart}=await import('../dist/organic-chart.js');
+for(const [id,zone] of Object.entries(zones)){
+ const columns=organicColumns(id);assert.deepEqual(columns.map(c=>c.value),expected[id]);
+ for(const c of columns){assert.ok(Math.abs(c.height-c.value/100*240)<.0011);assert.ok(c.marks.every(m=>m.y-m.radius>=-.001&&m.y+m.radius<=c.height+.001));assert.ok(c.grains.every(m=>m.y>=0&&m.y<=c.height+.001));}
+ assert.equal(renderZoneChart(id),renderZoneChart(id),'Las marcas tienen un seed estable');
+ assert.ok(!renderZoneChart(id).includes('chart-track'));
+ assert.ok(renderZoneChart(id).includes('n = 27'));
+ assert.deepEqual(organicColumns(id,{plotHeight:400}).map(c=>c.height),expected[id].map(v=>Math.round(v*4*1000)/1000));
+}
+const {mainZoneIds}=await import('../dist/data.js');assert.equal(mainZoneIds.length,5);assert.equal(new Set(mainZoneIds).size,5);assert.ok(zones.boca);
+console.log('Verificado: escala vertical lineal 0–100 %, marcas dentro de cada altura, semillas estables, paletas por zona y cinco capítulos sin eliminar Boca.');
