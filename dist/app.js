@@ -12,7 +12,7 @@ import {addAmbientMotion} from './motion.js';
 import {renderTitle} from './titles.js';
 import {viewportMetrics,stageFromNdc,ndcFromStage} from './viewport.js';
 import {OpinionOrbit} from './opinions.js?v=20261026-sound';
-import {ParticleSound} from './particle-sound.js';
+import {ParticleSound} from './particle-sound.js?v=20261026-crystal';
 import {opinionSource} from './opinions-data.js';
 
 const $ = (s) => document.querySelector(s);
@@ -42,7 +42,7 @@ const stage = $('#scene-viewport'), stageSection=$('#stage'), canvas = $('#body-
 let soundEnabled=true;
 try{soundEnabled=localStorage.getItem('anatomia-particle-sound')!=='off';}catch{}
 const sound=new ParticleSound({enabled:soundEnabled,onState:({enabled,supported,ready})=>{
-  const button=$('#sound-toggle');button.disabled=!supported;button.setAttribute('aria-pressed',String(enabled));button.textContent=enabled?'♪ Sonido':'♩ Silenciado';button.setAttribute('aria-label',supported?(enabled?'Silenciar efectos de sonido':'Activar efectos de sonido'):'Sonido no disponible en este navegador');button.title=!enabled?'Efectos de sonido silenciados.':ready?'Sonidos de partículas activos. Pulsa para silenciarlos.':'El sonido se inicia al explorar una zona o las opiniones.';
+  const button=$('#sound-toggle');button.disabled=!supported;button.setAttribute('aria-pressed',String(enabled));button.textContent=enabled?'♪ Sonido':'♩ Silenciado';button.setAttribute('aria-label',supported?(enabled?'Silenciar efectos de sonido':'Activar efectos de sonido'):'Sonido no disponible en este navegador');button.title=!enabled?'Efectos de sonido silenciados.':ready?'Ambiente de cristales activo. Pulsa para silenciarlo.':'El ambiente de cristales comienza con la exploración.';
 }});
 sound.notify();
 $('#sound-toggle').onclick=()=>{const enabled=!sound.enabled;sound.setEnabled(enabled);try{localStorage.setItem('anatomia-particle-sound',enabled?'on':'off');}catch{}announce(enabled?'Efectos de sonido activados.':'Efectos de sonido silenciados.');};
@@ -144,6 +144,7 @@ function makeHotspots(){
 }
 
 function begin(){
+  sound.unlock();
   opinionOrbit?.setActive(false);
   if(motionMode)setMotionMode(false);
   const firstVisit=!state.started;
@@ -482,7 +483,7 @@ function frame(ms){
   updateStrings();
   if(focusController?.phase==='open'&&focusReframeAt&&time>=focusReframeAt&&!poseDrag){focusReframeAt=0;focusController.reframe();}
   if((!focusController?.busy||focusController.phase==='open'&&!focusController.animation)&&Math.abs(rotating)>.0001){const step=reduced?rotating:rotating*Math.min(dt*8,1),orbitTarget=focusController?.busy?controls.target:target;camera.position.sub(orbitTarget).applyAxisAngle(zAxis,step).add(orbitTarget);rotating-=step;}
-  const focusing=focusController?.update(time);if(!focusing||focusController.phase==='open'&&!focusController.animation&&controls.enabled)controls.update();updateHotspots();updateJointHandles();updateEdges(time);updateFactorLabels();pigments?.update(time,camera,renderer,{visible:state.started&&!document.body.classList.contains('cover-view'),reduced,paused:flowPaused});updateFocusVisuals(time);sound.update({body:pigments?.soundMotion,bodyActive:!!focusController?.busy||motionMode||!!pointerStart||Math.abs(rotating)>.001,opinions:opinionOrbit?.soundMotion(),paused:flowPaused||dialog.open,visible:state.started&&!document.body.classList.contains('cover-view')});renderer.render(scene,camera);
+  const focusing=focusController?.update(time);if(!focusing||focusController.phase==='open'&&!focusController.animation&&controls.enabled)controls.update();updateHotspots();updateJointHandles();updateEdges(time);updateFactorLabels();pigments?.update(time,camera,renderer,{visible:state.started&&!document.body.classList.contains('cover-view'),reduced,paused:flowPaused});updateFocusVisuals(time);sound.update({body:pigments?.soundMotion,bodyActive:state.started,opinions:opinionOrbit?.soundMotion(),paused:flowPaused,visible:state.started&&!document.body.classList.contains('cover-view')});renderer.render(scene,camera);
 }
 media.addEventListener('change',e=>{reduced=e.matches;if(controls)controls.enableDamping=!reduced;if(reduced){introAction?.stop();if(!motionMode&&!poseChanged)for(const [name,q] of baseRotations)joints.get(name)?.quaternion.copy(q);}else{introStart=performance.now()/1000-INTRO_DURATION-1;startTime=introStart;}});
 $('#pigment-toggle').onclick=()=>{flowPaused=!flowPaused;document.body.classList.toggle('flow-paused',flowPaused);$('#pigment-toggle').setAttribute('aria-pressed',String(flowPaused));$('#pigment-toggle').textContent=flowPaused?'▷ Reanudar manchas':'Ⅱ Pausar manchas';};
