@@ -1,0 +1,8 @@
+/* Fuentes locales para que la identidad no dependa de las fuentes del dispositivo. */
+@font-face{font-family:'League Spartan';src:url('./assets/fonts/league-spartan-regular.ttf') format('truetype');font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:'League Spartan';src:url('./assets/fonts/league-spartan-semibold.ttf') format('truetype');font-weight:600;font-style:normal;font-display:swap}
+@font-face{font-family:'League Spartan';src:url('./assets/fonts/league-spartan-bold.ttf') format('truetype');font-weight:700;font-style:normal;font-display:swap}
+:root{--sans:'League Spartan','Avenir Next','Segoe UI',sans-serif}
+body{font-family:var(--sans)}
+/* Párrafos de todas las etapas; los encabezados conservan su jerarquía editorial. */
+body p,body.exploring p,#zone-panel p,#zone-panel p.editorial-description,#zone-panel p.editorial-subtitle,#zone-panel .editorial-quote p,#zone-panel p.editorial-finding,#zone-panel p.editorial-method,#zone-panel p.organic-key{font-family:var(--sans);font-weight:400;font-style:normal}
