@@ -35,7 +35,7 @@ export class PigmentSystem{
   emit(p,color,alpha,size){if(this.count>=this.max)return;const i=this.count++;this.positions.set([p.x,p.y,p.z],i*3);this.colors.set([color.r,color.g,color.b],i*3);this.alpha[i]=alpha;this.sizes[i]=size;}
   highlight(zone,color,strength,time,reduced=false){
     const anchor=zone?this.getAnchor(zone):null;this.halo.visible=!!anchor&&strength>.001;
-    if(!anchor)return;anchor.getWorldPosition(this.halo.position);this.halo.material.color.set(color);this.halo.material.opacity=strength*.52;
+    if(!anchor)return;anchor.getWorldPosition(this.halo.position);this.halo.material.color.set(color);this.halo.material.opacity=strength*.82;
     const size=this.height*(zone==='manos'?.12:zone==='piernas'?.24:.19)*(reduced?1:1+Math.sin(time*.8)*.025);this.halo.scale.set(size,size,1);
   }
   update(time,camera,renderer,{visible=true,reduced=false,paused=false}={}){
@@ -46,7 +46,7 @@ export class PigmentSystem{
     this.material.uniforms.uSizeFactor.value=renderer.domElement.height/(2*Math.tan(THREE.MathUtils.degToRad(camera.fov/2)));
     for(const memory of this.memories.values()){
       const anchor=this.getAnchor(memory.zone);if(!anchor)continue;const color=this.color(memory.label);
-      for(const seed of memory.seeds){this.offset.set(seed.x*this.height*.028,seed.y*this.height*.027,seed.z*this.height*.008);this.point.copy(this.offset);anchor.localToWorld(this.point);this.emit(this.point,color,.095*seed.alpha,this.height*.067*seed.size);}
+      for(const seed of memory.seeds){this.offset.set(seed.x*this.height*.028,seed.y*this.height*.027,seed.z*this.height*.008);this.point.copy(this.offset);anchor.localToWorld(this.point);this.emit(this.point,color,.16*seed.alpha,this.height*.067*seed.size);}
     }
     for(const track of this.active){
       const age=this.flowTime-track.started;if(age<0&&!reduced)continue;
@@ -62,18 +62,18 @@ export class PigmentSystem{
         const wave=reduced?0:Math.sin(this.flowTime*.8+seed.phase);
         this.point.x+=seed.x*this.height*.009+wave*this.height*.003;
         this.point.y+=seed.y*this.height*.01;this.point.z+=seed.z*this.height*.008;
-        this.emit(this.point,color,appear*.42*seed.alpha,this.height*.048*seed.size);
+        this.emit(this.point,color,appear*.68*seed.alpha,this.height*.048*seed.size);
       }
       for(const seed of track.seeds){
         const t=(progress-seed.trail*.28+1)%1;curve.getPoint(t,this.point);
         const spread=this.height*(.023+.012*Math.sin(t*Math.PI));
         this.point.x+=seed.x*spread+(reduced?0:Math.sin(this.flowTime*.8+seed.phase)*spread*.16);this.point.y+=seed.y*spread;this.point.z+=seed.z*spread;
-        this.emit(this.point,color,appear*.28*seed.alpha,this.height*.074*seed.size);
+        this.emit(this.point,color,appear*.48*seed.alpha,this.height*.074*seed.size);
       }
       for(const seed of track.grains){
         const t=(progress+seed.trail*.55)%1;curve.getPoint(t,this.point);
         this.point.x+=seed.x*this.height*.038;this.point.y+=seed.y*this.height*.035;this.point.z+=seed.z*this.height*.012;
-        this.emit(this.point,color,appear*.65*seed.alpha,this.height*.008*seed.size);
+        this.emit(this.point,color,appear*.82*seed.alpha,this.height*.008*seed.size);
       }
     }
     this.points.geometry.setDrawRange(0,this.count);for(const attribute of Object.values(this.points.geometry.attributes))attribute.needsUpdate=true;

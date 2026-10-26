@@ -61,3 +61,9 @@ La portada oculta el selector Explorar datos/Mover el cuerpo; ambos modos siguen
 `motion.js` combina una capa de movimiento ambiental con los ángulos manuales de `pose.js`, sin modificar los valores elegidos por la persona. Las articulaciones conservan sus límites, el movimiento se atenúa al arrastrar o viajar con la cámara y continúa suavemente dentro de una zona. Se elimina con movimiento reducido. `check-motion.mjs` comprueba continuidad temporal, postura intacta y límites.
 
 `exploration.css` conserva el layout y las gráficas existentes, y continúa la identidad de la portada: blanco, rosa, League Spartan Regular para lectura y peso SemiBold para títulos y controles activos. Las fuentes, tamaños y contrastes se adaptan a la función de cada texto y al ancho disponible.
+
+### Referencia de la segunda pantalla
+
+`reference.css` adapta la pantalla al nuevo boceto: marcador 02, recorrido lateral de manchas, relato abajo a la izquierda, cuerpo central y lectura a la derecha. Los títulos fijos son trazados reales de Dunbar Low Bold, exportados por `scripts/export-titles.py` desde la fuente local, sin distribuir el archivo de fuente. `titles.js` conserva el texto accesible de cada encabezado. Los párrafos mantienen League Spartan Regular.
+
+Los cuatro SVG originales de manchas (morado, amarillo, azul y rosa) se reutilizan alrededor de los hotspots existentes. Los colores de zonas, recorridos y gráficas se coordinan con esa paleta; las manchas pulsan suavemente, responden a la pausa y se detienen con movimiento reducido. Las cifras y rutas narrativas no cambian. Los porcentajes usan una variante oscura de su color para conservar legibilidad.

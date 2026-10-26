@@ -9,6 +9,7 @@ import { PigmentSystem } from './pigments.js';
 import { zoneStories, pigmentFactors } from './experience.js';
 import {zoneIcon} from './zone-icons.js';
 import {addAmbientMotion} from './motion.js';
+import {renderTitle} from './titles.js';
 
 const $ = (s) => document.querySelector(s);
 const zoneIds = Object.keys(zones);
@@ -73,7 +74,7 @@ try {
   controls=new OrbitControls(camera,canvas);controls.target.copy(target);controls.enableDamping=!reduced;controls.dampingFactor=.075;controls.enablePan=false;controls.rotateSpeed=.52;controls.minPolarAngle=Math.PI/2-.025;controls.maxPolarAngle=Math.PI/2-.025;controls.minDistance=11.65;controls.maxDistance=13.1;controls.enableZoom=true;controls.zoomSpeed=.6;controls.mouseButtons={LEFT:THREE.MOUSE.ROTATE,MIDDLE:THREE.MOUSE.DOLLY,RIGHT:THREE.MOUSE.ROTATE};controls.touches={ONE:THREE.TOUCH.ROTATE,TWO:THREE.TOUCH.DOLLY_ROTATE};controls.update();
   controls.addEventListener('start',()=>{canvas.classList.add('dragging');rotating=0;focusReframeAt=0;});
   controls.addEventListener('end',()=>canvas.classList.remove('dragging'));
-  const resize=()=>{const w=stage.clientWidth,h=stage.clientHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.fov=document.body.classList.contains('cover-view')&&innerWidth>850?30:32;camera.updateProjectionMatrix();focusController?.resize();};
+  const resize=()=>{const w=stage.clientWidth,h=stage.clientHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.fov=document.body.classList.contains('exploring')&&innerWidth>1050?29:document.body.classList.contains('cover-view')&&innerWidth>850?30:32;camera.updateProjectionMatrix();focusController?.resize();};
   new ResizeObserver(resize).observe(stage);resize();
   new GLTFLoader().load('./assets/titere-articulado.glb',initModel,undefined,onModelError);
   canvas.addEventListener('webglcontextlost',(e)=>{e.preventDefault();onModelError(new Error('Se perdió el contexto WebGL'));});
@@ -112,7 +113,7 @@ function makeHotspots(){
     const joint=joints.get(name);if(!joint)continue;
     const anchor=new THREE.Object3D();anchor.position.fromArray(offset);joint.add(anchor);
     const hit=new THREE.Mesh(new THREE.SphereGeometry(.1,10,8),new THREE.MeshBasicMaterial({visible:false}));Object.assign(hit.userData,{zone,anchorKey:id});anchor.add(hit);
-    const el=document.createElement('button');el.type='button';el.className='hotspot';el.style.setProperty('--zone-color',zones[zone].color);el.setAttribute('aria-label',id==='manos_D'?'Explorar Manos, mano derecha':`Explorar ${zones[zone].name}`);el.setAttribute('aria-pressed','false');el.innerHTML=`<span class="hotspot-core"><b></b></span><span class="hotspot-label">${zones[zone].symbol} ${id==='manos_D'?'Mano derecha':zones[zone].name}</span>`;el.hidden=true;el.addEventListener('pointerdown',e=>{if(e.pointerType!=='touch'&&focusController?.phase==='open')startPartDrag(e,partForZone(zone,id),el);});el.addEventListener('pointermove',movePartDrag);el.addEventListener('pointerup',endPartDrag);el.addEventListener('pointercancel',endPartDrag);el.addEventListener('lostpointercapture',endPartDrag);el.addEventListener('click',()=>{if(suppressZoneClick){suppressZoneClick=false;return;}selectZone(zone,id);});$('#hotspots').append(el);
+    const el=document.createElement('button');el.type='button';el.className='hotspot';el.style.setProperty('--zone-color',zones[zone].color);el.style.setProperty('--zone-wash',`url('./assets/mancha-${zones[zone].wash}.svg')`);el.setAttribute('aria-label',id==='manos_D'?'Explorar Manos, mano derecha':`Explorar ${zones[zone].name}`);el.setAttribute('aria-pressed','false');el.innerHTML=`<span class="hotspot-core"><b></b></span><span class="hotspot-label">${zones[zone].symbol} ${id==='manos_D'?'Mano derecha':zones[zone].name}</span>`;el.hidden=true;el.addEventListener('pointerdown',e=>{if(e.pointerType!=='touch'&&focusController?.phase==='open')startPartDrag(e,partForZone(zone,id),el);});el.addEventListener('pointermove',movePartDrag);el.addEventListener('pointerup',endPartDrag);el.addEventListener('pointercancel',endPartDrag);el.addEventListener('lostpointercapture',endPartDrag);el.addEventListener('click',()=>{if(suppressZoneClick){suppressZoneClick=false;return;}selectZone(zone,id);});$('#hotspots').append(el);
     hotspotObjects.set(id,{zone,anchor,hit,el,position:new THREE.Vector3(),screen:{x:0,y:0}});
   }
 }
@@ -160,7 +161,7 @@ function renderZone(id){
   const quoted=z.testimony?.verified===true&&z.testimony.text&&z.testimony.source?z.testimony:id==='cabeza'?coverQuote:{text:voices[z.quote].text,source:`${voices[z.quote].name} · ejemplo conceptual`,verified:false};
   panel.classList.add('glass-panel');panel.classList.remove('chart-leaving');panel.setAttribute('role','region');panel.removeAttribute('aria-modal');panel.setAttribute('aria-labelledby','glass-title');panel.inert=true;
   panel.innerHTML=`<div class="editorial-panel-top"><button id="return-body" class="body-return">← <span>Volver al cuerpo</span></button><span class="zone-counter">${index>=0?`${index+1} / 5`:'Recorrido complementario'}</span><button id="close-zone" class="editorial-close" aria-label="Cerrar información de la zona">×</button></div>
-    <div class="editorial-zone-heading"><span class="zone-illustration" style="--wash-color:${z.color}">${zoneIcon(id)}</span><div><h2 id="glass-title">${id==='pecho'?'Pecho':z.name}</h2><p class="editorial-subtitle">${z.subtitle}</p></div></div>
+    <div class="editorial-zone-heading"><span class="zone-illustration" style="--wash-color:${z.color}">${zoneIcon(id)}</span><div><h2 id="glass-title">${renderTitle(id,id==='pecho'?'Pecho':z.name)}</h2><p class="editorial-subtitle">${z.subtitle}</p></div></div>
     <p class="editorial-description">${z.description} Una lectura de las experiencias subjetivas reportadas al pensar o hablar de esta decisión.</p>
     <blockquote class="editorial-quote" style="--wash-color:${z.color}"><p>“${quoted.text}”</p><cite>${quoted.source||'Entrevista verificada'}</cite></blockquote>
     <div class="data-tabs" role="tablist" aria-label="Resultados de ${z.name}"><button id="tab-sensations" type="button" role="tab" aria-selected="true" aria-controls="data-sensations" tabindex="0">Sensaciones</button><button id="tab-context" type="button" role="tab" aria-selected="false" aria-controls="data-context" tabindex="-1">Decisión y emociones</button></div>
@@ -183,7 +184,7 @@ function renderZone(id){
   $('#chart-help').onclick=showSources;$('#close-zone').onclick=()=>requestCloseFocus();$('#return-body').onclick=()=>{resetPose();requestCloseFocus(undefined,{overview:true});};
 }
 function updateFreeGuide(){
-  $('#welcome-panel').innerHTML=`<p class="small-label">EL CUERPO COMO MAPA</p><h2>${state.visited.size?'Tu recorrido<br>continúa.':'Gira, descubre<br>y acércate.'}</h2><p>${state.visited.size?'Las huellas que descubriste permanecen. Elige otra luz para seguir conectando el cuerpo.':'Selecciona una luz del cuerpo. Acércate a sus sensaciones, mueve las piezas y cambia de zona sin cerrar la ventana.'}</p><div class="color-key">${zoneIds.map(id=>`<span><i style="--c:${zones[id].color}"></i>${zones[id].symbol} ${zones[id].name}</span>`).join('')}</div><p class="sample-note">Encuesta, n = 27 · Experiencias subjetivas.<br>Las manchas no representan relaciones médicas.</p>`;
+  $('#welcome-panel').innerHTML=`<p class="small-label">EL CUERPO COMO MAPA</p><h2>${renderTitle(state.visited.size?'continue':'explore',state.visited.size?'Tu recorrido continúa.':'Gira, descubre y acércate')}</h2><p class="welcome-description">${state.visited.size?'Las huellas que descubriste permanecen. Elige otra luz para seguir conectando el cuerpo.':'Elige una luz, mueve el títere y sigue las conexiones para descubrir qué hay detrás de cada zona.'}</p><h3 class="exploration-invitation">${renderTitle('invitation','Explora lo que una generación siente, incluso cuando no siempre puede decirlo.')}</h3><div class="color-key">${zoneIds.map(id=>`<span><i style="--c:${zones[id].color}"></i>${zones[id].symbol} ${zones[id].name}</span>`).join('')}</div><p class="sample-note"><span>Encuesta, n = 27 participantes</span><span>Los datos muestran experiencias, emociones y sensaciones personales; no representan relaciones médicas.</span></p>`;
 }
 function requestCloseFocus(afterClose,{overview=false}={}){
   endPartDrag();clearTimeout(zoneRenderTimer);zoneRenderToken++;focusReframeAt=0;
