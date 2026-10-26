@@ -35,7 +35,7 @@ setPoseValue(pose,'mano_D','dedos',80);assert.ok(jointAngles(pose).Dedo_D_0.x>0)
 assert.equal(partForMesh('Antebrazo_I'),'brazo_I');assert.equal(partForMesh('Falange_distal_D_0'),'mano_D');assert.equal(partForMesh('Hilo_0'),null);
 console.log('Verificado: 8 partes articulables, límites de giro, selección de piezas, dedos y control independiente de ambos lados.');
 
-// Fidelidad cuantitativa: cada longitud representa su porcentaje en escala 0–100.
+// Fidelidad cuantitativa: los valores se conservan al cambiar su representación.
 const {sensationsChart,contextGroups}=await import('../dist/charts.js');
 for(const [id,zone] of Object.entries(zones)){
  const html=sensationsChart(id);
@@ -47,16 +47,17 @@ for(const [id,zone] of Object.entries(zones)){
 assert.deepEqual(contextGroups('estomago').find(g=>g.title==='Emociones').rows.map(r=>r.value),[59.3,40.7]);
 assert.deepEqual(contextGroups('estomago').find(g=>g.title==='Factores de decisión').rows.map(r=>r.value),[40.7]);
 assert.deepEqual(contextGroups('boca'),[]);
-console.log('Verificado: porcentajes exactos de las columnas; preguntas separadas; sin completar distribuciones ni inventar cifras.');
+console.log('Verificado: porcentajes exactos; preguntas separadas; sin completar distribuciones ni inventar cifras.');
 
-const {organicColumns,renderZoneChart}=await import('../dist/organic-chart.js');
+const {organicBubbles,renderZoneChart}=await import('../dist/organic-chart.js');
 for(const [id,zone] of Object.entries(zones)){
- const columns=organicColumns(id);assert.deepEqual(columns.map(c=>c.value),expected[id]);
- for(const c of columns){assert.ok(Math.abs(c.height-c.value/100*240)<.0011);assert.ok(c.marks.every(m=>m.y-m.radius>=-.001&&m.y+m.radius<=c.height+.001));assert.ok(c.grains.every(m=>m.y>=0&&m.y<=c.height+.001));}
+ const bubbles=organicBubbles(id);assert.deepEqual(bubbles.map(c=>c.value),expected[id]);
+ for(const b of bubbles){assert.ok(Math.abs(b.radius*b.radius/(95*95)*100-b.value)<1e-10,'El área, no el diámetro, codifica el porcentaje');assert.ok(b.x-b.radius>0&&b.x+b.radius<420,'El círculo no se recorta');}
  assert.equal(renderZoneChart(id),renderZoneChart(id),'Las marcas tienen un seed estable');
  assert.ok(!renderZoneChart(id).includes('chart-track'));
  assert.ok(renderZoneChart(id).includes('n = 27'));
- assert.deepEqual(organicColumns(id,{plotHeight:400}).map(c=>c.height),expected[id].map(v=>Math.round(v*4*1000)/1000));
+ assert.deepEqual([...renderZoneChart(id).matchAll(/data-radius="([0-9.]+)"/g)].map(m=>Number(m[1])),bubbles.map(b=>b.radius));
 }
+const areaExample=organicBubbles({name:'Prueba de escala',palette:['#000'],sensations:[['A',25],['B',100]]});assert.equal(areaExample[1].radius/areaExample[0].radius,2,'Cuatro veces el área debe duplicar el radio');
 const {mainZoneIds}=await import('../dist/data.js');assert.equal(mainZoneIds.length,5);assert.equal(new Set(mainZoneIds).size,5);assert.ok(zones.boca);
-console.log('Verificado: escala vertical lineal 0–100 %, marcas dentro de cada altura, semillas estables, paletas por zona y cinco capítulos sin eliminar Boca.');
+console.log('Verificado: círculos con área proporcional en escala común 0–100 %, porcentajes accesibles, textura estable, paletas por zona y cinco capítulos sin eliminar Boca.');

@@ -16,7 +16,8 @@ titles={
  'invitation':['Explora lo que una generación siente,','incluso cuando no siempre puede decirlo.'],
  'cabeza':['Cabeza'],'pecho':['Pecho'],'estomago':['Estómago'],'boca':['Boca'],'manos':['Manos'],'piernas':['Piernas'],
  'move':['Dale tu propio','movimiento.'], 'zones':['Zonas del cuerpo'],
- 'connections':['Distintas partes,','una misma decisión.']
+ 'connections':['Distintas partes,','una misma decisión.'],
+ 'sensations':['Lo que se siente']
 }
 def kern(first,second):
  total=0

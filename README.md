@@ -24,9 +24,9 @@ El panel presenta título editorial, subtítulo, descripción, voz identificada,
 
 `dist/data.js` es la fuente de porcentajes, muestra, contenidos y paletas. Encuesta n = 27. No se completan las distribuciones ni se agregan datos. «Vacío» se conserva como categoría original. Las sensaciones son reportes subjetivos, sin afirmar relaciones médicas. Los pies no tienen un resultado independiente.
 
-`dist/organic-chart.js` ofrece `renderZoneChart(zone)`: todas las sensaciones de una zona se muestran como columnas de pigmento, puntos y trazos, con una escala lineal de 0 a 100 %. La altura es exactamente porcentaje/100 × 240 px. Un clip limita las marcas a esa altura. La semilla depende de la zona y de la sensación, por lo que la textura no cambia entre renderizados. Las marcas son textura, no recuentos de personas; una tabla desplegable ofrece todos los valores en texto.
+`dist/organic-chart.js` ofrece `renderZoneChart(zone)` y `organicBubbles(zone)`: todas las sensaciones aparecen como círculos sobre un paisaje de manchas. El área representa el porcentaje con una escala común: radio = 95 × raíz(porcentaje/100). La semilla depende de la zona y de la sensación, por lo que la textura no cambia entre renderizados. Las gotas son textura, no recuentos de personas; una descripción accesible y una tabla desplegable ofrecen todos los valores en texto.
 
-Los porcentajes aparecen encima y los nombres se leen verticalmente debajo de cada columna. Cada zona usa una familia cromática. Las columnas bajan al cambiar de capítulo y crecen desde la base al abrir el siguiente, con transición de 700 ms. `prefers-reduced-motion` omite el movimiento.
+Los porcentajes permanecen dentro de los círculos y los nombres se leen en horizontal. Cada zona usa una familia cromática. `ink-map.css` integra el título Dunbar, el fondo de pigmento y el hallazgo, sin ejes ni tarjetas individuales. Los pigmentos aparecen progresivamente al cambiar de capítulo; `prefers-reduced-motion` omite el movimiento.
 
 `dist/charts.js` mantiene los resultados de otras preguntas en «Decisión y emociones», separados según su pregunta original. `dist/zone-icons.js` dibuja los iconos locales de las zonas.
 
@@ -46,7 +46,7 @@ Arrastrar horizontalmente gira la vista 360°, con damping y límite vertical. L
 
 ## Verificación
 
-Los scripts comprueban identidad binaria del GLB, articulaciones reales, límites, datos exactos, encuadres en 360°, cambio directo durante el zoom, retorno completo, movimiento reducido, alturas verticales, marcas contenidas, semillas estables y memoria acotada. Se ejecuta el módulo OrbitControls original con eventos de scroll, trackpad y dos dedos para verificar pinch in/out y giro táctil. Esa prueba por eventos no sustituye una comprobación física en una pantalla táctil.
+Los scripts comprueban identidad binaria del GLB, articulaciones reales, límites, datos exactos, encuadres en 360°, cambio directo durante el zoom, retorno completo, movimiento reducido, áreas proporcionales, círculos sin recortes, semillas estables y memoria acotada. Se ejecuta el módulo OrbitControls original con eventos de scroll, trackpad y dos dedos para verificar pinch in/out y giro táctil. Esa prueba por eventos no sustituye una comprobación física en una pantalla táctil.
 
 No hay audio automático, analítica ni almacenamiento de datos personales. Three.js se distribuye localmente con su licencia MIT en `dist/vendor/`.
 
