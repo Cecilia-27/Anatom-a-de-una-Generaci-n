@@ -42,7 +42,7 @@ body.exploring .hotspot:hover:before,body.exploring .hotspot:focus-visible:befor
 body.exploring #welcome-panel{padding-top:clamp(65px,9svh,120px);min-height:calc(100svh - 170px)}
 #zone-panel .editorial-zone-heading>div{min-width:0;flex:1}
 #zone-panel .editorial-zone-heading h2{width:100%;max-width:100%}
-#zone-panel .editorial-zone-heading h2 img{object-fit:contain;object-position:left center;max-width:100%;height:auto;max-height:62px}
+#zone-panel .editorial-zone-heading h2 img{object-fit:contain;object-position:left center;max-width:100%;height:auto;max-height:calc(62px + var(--zone-type-step,0px))}
 body .context-area p,body .editorial p{overflow-wrap:break-word;word-break:normal}
 #zone-panel .organic-plot{min-width:0;overflow:visible}
 #zone-panel .ink-label{max-width:none;height:auto;min-height:121px;white-space:normal;max-height:none}

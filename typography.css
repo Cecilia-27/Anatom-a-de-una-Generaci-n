@@ -6,3 +6,6 @@
 body{font-family:var(--sans)}
 /* Párrafos de todas las etapas; los encabezados conservan su jerarquía editorial. */
 body p,body.exploring p,#zone-panel p,#zone-panel p.editorial-description,#zone-panel p.editorial-subtitle,#zone-panel .editorial-quote p,#zone-panel p.editorial-finding,#zone-panel p.editorial-method,#zone-panel p.organic-key{font-family:var(--sans);font-weight:400;font-style:normal}
+
+/* Un punto adicional en la lectura de cada zona, sin cambiar el resto de la experiencia. */
+#zone-panel{--zone-type-step:1pt;font-size:calc(14px + var(--zone-type-step))}
