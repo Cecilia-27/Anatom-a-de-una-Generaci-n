@@ -1,0 +1,28 @@
+/* Las ventanas continúan la identidad rosa, blanca y ligera de la portada. */
+#info-dialog{--dialog-pink:#f50046;width:min(760px,calc(100% - 40px));max-width:760px;max-height:88svh;padding:0;border:1px solid #f5bccd;border-radius:25px;color:#e12c5c;background:#fffdfb;box-shadow:0 18px 80px #c73b6220;overflow:hidden;outline:none}
+#info-dialog::backdrop{background:#95536324;backdrop-filter:blur(9px)}
+#dialog-content{position:relative;isolation:isolate;padding:48px 52px 40px;max-height:calc(88svh - 2px);overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#efacc2 #fff7fa;scroll-padding:32px}
+#dialog-content:before{content:'';position:absolute;top:0;right:0;width:72%;height:310px;background:radial-gradient(ellipse at 85% 0%,#ffd5e370,transparent 65%);z-index:-1;pointer-events:none}
+#info-dialog .dialog-close{position:absolute;z-index:2;right:18px;top:18px;width:34px;height:34px;border:1px solid #f2b4c7;border-radius:50%;background:#fffaf9ef;color:#ea285f;font:400 26px/1 var(--sans);box-shadow:0 3px 12px #ec4e7810}
+#info-dialog .dialog-close:hover{background:#ffe8ef;transform:rotate(8deg)}
+#info-dialog button:focus-visible,#info-dialog a:focus-visible,#info-dialog summary:focus-visible{outline:2px solid #f50046;outline-offset:4px}
+#info-dialog .dialog-eyebrow{font:400 11px/1.5 var(--sans);letter-spacing:1.4px;color:#e32e61;margin:0 40px 26px 0}
+#info-dialog h2{font:600 clamp(32px,3.2vw,46px)/1.06 var(--sans);letter-spacing:-1.1px;color:#f50046;margin:0 0 24px;max-width:570px}
+#info-dialog .dialog-brand-title{max-width:510px;line-height:0;margin-bottom:30px}
+#info-dialog .dialog-brand-title img{display:block;width:100%;height:auto}
+#info-dialog p{font:400 16px/1.55 var(--sans);color:#a25671;margin:0 0 18px}
+#info-dialog h3{font:600 19px/1.3 var(--sans);color:#ed225b;margin:27px 0 13px}
+#info-dialog .about-marks{gap:9px;margin:25px 0 30px}
+#info-dialog .about-marks span{font:400 12px/1.3 var(--sans);padding:8px 12px;background:#fff4f7;border:1px solid #f7ccda;border-radius:20px;color:#d7466d}
+#info-dialog .source-note{font:400 12px/1.5 var(--sans)!important;color:#bc7b91!important;border-top:1px solid #f5d5df;padding-top:20px;margin-top:28px}
+#info-dialog .voice-quote{position:relative;isolation:isolate;font:400 clamp(28px,3.1vw,42px)/1.18 var(--sans);letter-spacing:-.5px;color:#ee245b;margin:32px 0 29px;padding:32px 15px 33px;min-height:0}
+#info-dialog .voice-quote:before{content:'';position:absolute;inset:0 -12px;z-index:-1;background:radial-gradient(ellipse at 30% 50%,#ffbfd36b,transparent 74%),radial-gradient(ellipse at 70% 50%,#ffe1c86b,transparent 75%);filter:url(#watercolor);border-radius:43% 57% 46% 54% / 55% 41% 59% 45%;pointer-events:none}
+#info-dialog .voice-name{font:400 16px/1.5 var(--sans);color:#cf496f}
+#info-dialog .voice-controls{display:flex;align-items:center;justify-content:space-between;gap:20px;max-width:230px;margin:30px 0 25px}
+#info-dialog .voice-controls .round-button{width:42px;height:42px;border:1px solid #f0b4c6;color:#f50046;background:#fff8fa;font:400 25px var(--sans)}
+#info-dialog .voice-controls .round-button:hover{background:#ffe9f0}
+#info-dialog .voice-controls>span{font:400 14px var(--sans);color:#c76e8a}
+#info-dialog .voice-disclaimer{font:400 12px/1.5 var(--sans);color:#b67f92;margin:28px 0 0;padding-top:20px;border-top:1px solid #f5d5df}
+@media(max-width:560px){#info-dialog{width:calc(100% - 24px);border-radius:20px;max-height:90svh}#dialog-content{padding:49px 25px 28px;max-height:calc(90svh - 2px)}#info-dialog .dialog-close{top:13px;right:13px}#info-dialog .dialog-eyebrow{font-size:10px;letter-spacing:.8px;margin-bottom:25px}#info-dialog h2{font-size:32px}#info-dialog p{font-size:15px;line-height:1.55}#info-dialog .voice-quote{font-size:30px;padding:25px 5px}#info-dialog .about-marks span{font-size:11px}#info-dialog .voice-disclaimer{font-size:12px}}
+
+#dialog-content:focus-visible{outline:2px solid #f5004650;outline-offset:-5px}

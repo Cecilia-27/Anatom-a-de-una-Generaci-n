@@ -10,13 +10,13 @@ body.cover-view:before{display:none}
 .cover-view .nav-dot,.cover-view #nav-about span{display:none}
 .cover-view .experience{position:relative;isolation:isolate;max-width:none;margin:0;padding:0 3.5% 0 7.2%;grid-template-columns:48% 52%;min-height:calc(100svh - 76px)}
 .cover-view .cover-art{display:block;position:fixed;inset:0;z-index:-3;pointer-events:none;overflow:hidden;background:#fff}
-.cover-view .cover-art:before{content:'';position:absolute;inset:-3%;background:url('./assets/portada-manchas.svg') center/cover no-repeat;animation:cover-wash-drift 22s ease-in-out infinite alternate;transform-origin:78% 48%}
-.cover-pigment{position:absolute;display:block;filter:blur(38px);border-radius:48% 52% 62% 38% / 42% 65% 35% 58%;opacity:.28;animation:cover-pigment-drift 17s ease-in-out infinite alternate}
-.pigment-aqua{width:34vw;height:62vh;left:45%;top:27%;background:radial-gradient(ellipse,#4ff0ed 5%,#3cd9ff88 42%,transparent 72%);animation-duration:21s}
+.cover-view .cover-art:before{content:'';position:absolute;inset:-3%;background:url('./assets/portada-manchas.svg') center/cover no-repeat;animation:cover-wash-drift 28s ease-in-out -7s infinite alternate;transform-origin:78% 48%}
+.cover-pigment{position:absolute;display:block;filter:blur(38px);border-radius:48% 52% 62% 38% / 42% 65% 35% 58%;opacity:.43;animation:cover-pigment-drift 24s ease-in-out infinite alternate}
+.pigment-aqua{width:34vw;height:62vh;left:45%;top:27%;background:radial-gradient(ellipse,#4ff0ed 5%,#3cd9ff88 42%,transparent 72%);animation-duration:26s}
 .pigment-coral{width:26vw;height:67vh;right:1%;top:13%;background:radial-gradient(ellipse,#f50046 6%,#ff548a88 45%,transparent 72%);animation-delay:-8s}
-.pigment-gold{width:30vw;height:40vh;right:6%;bottom:-7%;background:radial-gradient(ellipse,#ffcb4099 7%,#ffb86088 45%,transparent 72%);animation-duration:24s;animation-delay:-12s}
-@keyframes cover-wash-drift{from{transform:translate3d(-.8%,.5%,0) scale(1.025)}to{transform:translate3d(1%,-.9%,0) scale(1.065)}}
-@keyframes cover-pigment-drift{from{transform:translate3d(-3%,2%,0) rotate(-5deg) scale(.96)}to{transform:translate3d(7%,-7%,0) rotate(8deg) scale(1.12)}}
+.pigment-gold{width:30vw;height:40vh;right:6%;bottom:-7%;background:radial-gradient(ellipse,#ffcb4099 7%,#ffb86088 45%,transparent 72%);animation-duration:30s;animation-delay:-12s}
+@keyframes cover-wash-drift{from{transform:translate3d(-2%,1.5%,0) scale(1.07)}to{transform:translate3d(3%,-3%,0) scale(1.16)}}
+@keyframes cover-pigment-drift{from{transform:translate3d(-10%,8%,0) rotate(-9deg) scale(.94)}to{transform:translate3d(16%,-17%,0) rotate(13deg) scale(1.28)}}
 body.flow-paused .cover-art:before,body.flow-paused .cover-pigment{animation-play-state:paused}
 .cover-view .cover-rail{display:flex;position:absolute;left:3.3%;top:0;width:28px;height:52%;min-height:360px;align-items:center;flex-direction:column;gap:15px;z-index:2;pointer-events:none}
 .cover-view .cover-rail-line{display:block;flex:1;width:2px;min-height:0;background:var(--cover-red);margin-bottom:3px}
@@ -61,3 +61,9 @@ body.flow-paused .cover-art:before,body.flow-paused .cover-pigment{animation-pla
 @media(prefers-reduced-motion:reduce){.cover-view .cover-art:before,.cover-pigment{animation:none!important}}
 
 @media(min-width:1051px){.cover-view #intro-copy .description span{display:block;white-space:nowrap}}
+
+/* Ajustes de portada: más aire bajo el título y acceso a modos tras comenzar. */
+.cover-view #intro-copy{margin-top:clamp(24px,2.4vw,50px)}
+.cover-view .interaction-switch{display:none}
+.cover-view .pigment-toggle{top:12px}
+@media(max-width:560px){.cover-view #intro-copy{margin-top:14px}.cover-view .pigment-toggle{top:8px}}
