@@ -24,7 +24,7 @@ export {renderZoneChart} from './organic-chart.js';
 export {renderZoneChart as sensationsChart} from './organic-chart.js';
 export function contextCharts(zoneId){
   const groups=contextGroups(zoneId);
-  return `<div class="context-intro"><span class="chart-eyebrow">OTRAS PREGUNTAS DE LA ENCUESTA</span><h3>La decisión en contexto</h3><p>Lee cada grupo por separado: factores, preocupaciones y emociones son preguntas distintas.</p></div>
-    ${groups.length?groups.map((group,index)=>`<section class="context-chart-group" aria-labelledby="context-group-${index}"><h4 id="context-group-${index}">${group.title}</h4>${group.rows.map(({value,label})=>`<div class="context-chart-row"><p>${escape(label)}</p><strong>${value}<small> %</small></strong></div>`).join('')}</section>`).join(''):'<p class="chart-empty">No se proporcionaron porcentajes adicionales para este tema. Puedes explorar las sensaciones reportadas en la otra pestaña.</p>'}
+  return `<div class="context-intro"><span class="chart-eyebrow">OTRAS PREGUNTAS DE LA ENCUESTA</span><h3>La decisión en contexto</h3><p>Lee cada grupo por separado: factores, preocupaciones y emociones son preguntas distintas. El área del círculo representa el porcentaje.</p></div>
+    ${groups.length?groups.map((group,index)=>`<section class="context-chart-group" aria-labelledby="context-group-${index}"><h4 id="context-group-${index}">${group.title}</h4>${group.rows.map(({value,label})=>`<div class="context-chart-row" style="--context-size:${88*Math.sqrt(value/100)}px"><p>${escape(label)}</p><strong>${value}<small> %</small></strong></div>`).join('')}</section>`).join(''):'<p class="chart-empty">No se proporcionaron porcentajes adicionales para este tema. Puedes explorar las sensaciones reportadas en la otra pestaña.</p>'}
     <p class="context-method">Encuesta, n = 27${groups.length?' · Los porcentajes se leen por separado y no se suman.':''}</p>`;
 }
