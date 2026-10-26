@@ -53,3 +53,5 @@ No hay audio automático, analítica ni almacenamiento de datos personales. Thre
 ### Portada y tipografía
 
 La portada utiliza los trazados del título y subtítulo originales de `assets-interaccion`, con el título en dos líneas y “de una” junto a ANATOMÍA. No se simula Dunbar con otra fuente. Los párrafos usan League Spartan Regular, servida localmente; los controles disponen de los pesos SemiBold y Bold de la misma familia. Las manchas de la portada se animan mediante transformaciones lentas en capas detrás del modelo. El botón existente de pausa también las detiene y `prefers-reduced-motion` elimina esos movimientos.
+
+La portada oculta el selector Explorar datos/Mover el cuerpo; ambos modos siguen disponibles después de comenzar. La introducción dura 14 segundos y amplía los movimientos de los pivotes rígidos, seguida de una oscilación lenta con entrada gradual. Las ventanas de opiniones y proyecto comparten la identidad rosa y League Spartan, con desplazamiento interior accesible, cierre fijo y el título original trazado en la ventana del proyecto.
