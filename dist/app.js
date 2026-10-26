@@ -4,7 +4,7 @@ import { OrbitControls } from './vendor/OrbitControls.js';
 import { zones, voices, mainZoneIds, coverQuote } from './data.js';
 import { bodyParts, partOrder, createPose, setPoseValue, jointAngles, partForMesh } from './pose.js';
 import { renderZoneChart, contextCharts } from './charts.js';
-import { FocusController, bodyBounds, regionBounds } from './focus.js';
+import { FocusController, bodyBounds, regionBounds, restoreOrbitView } from './focus.js';
 import { PigmentSystem } from './pigments.js';
 import { zoneStories, pigmentFactors } from './experience.js';
 import {zoneIcon} from './zone-icons.js';
@@ -100,7 +100,7 @@ function initModel(gltf){
   model.traverse((o)=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;o.material=o.material.clone();modelMeshes.push(o);originalColors.set(o.uuid,{color:o.material.color.clone(),muted:o.material.color.clone().lerp(new THREE.Color('#b7a99e'),.42)});}if(o.name){joints.set(o.name,o);baseRotations.set(o.name,o.quaternion.clone());}});
   const bones=[];model.traverse(o=>{if(o.isBone)bones.push(o.name);});
   console.info('GLB inspeccionado',{bones,clips:gltf.animations.map(c=>c.name),articulaciones:[...joints.keys()].filter(n=>/^(Cabeza|Torso|Cintura|Hombro|Codo|Muneca|Dedo|Pierna|Rodilla)/.test(n))});
-  makeHotspots();createIntro(gltf.animations);ready=true;introStart=performance.now()/1000;startTime=introStart;
+  makeHotspots();createIntro(gltf.animations);ready=true;$('#reset-view').disabled=false;introStart=performance.now()/1000;startTime=introStart;
   const bounds=bodyBounds(modelMeshes),height=bounds.getSize(new THREE.Vector3()).y;
   const shadowExtent=height*1.8;Object.assign(keyLight.shadow.camera,{left:-shadowExtent,right:shadowExtent,top:shadowExtent,bottom:-shadowExtent});keyLight.shadow.camera.updateProjectionMatrix();
   pigments=new PigmentSystem({scene,box:bounds,getAnchor:zone=>getZoneHotspot(zone)?.anchor});
@@ -251,7 +251,8 @@ function handleFocusPhase(phase,id,side='right'){
   if(active&&!document.body.classList.contains('focus-active'))focusScroll=scrollY;
   document.body.classList.toggle('focus-active',active);document.body.classList.toggle('panel-left',active&&side==='left');document.body.classList.remove('panel-ready');document.body.classList.toggle('focus-exit',phase==='zooming-out');
   $('.site-header').inert=false;$('.editorial').inert=false;$('.site-footer').inert=false;
-  for(const selector of ['#mode-data','#mode-pose','#rotate-left','#rotate-right','#reset-view'])$(selector).disabled=(selector==='#mode-pose'&&!ready)||(['#mode-data','#mode-pose','#reset-view'].includes(selector)?active:active&&phase!=='open');
+  for(const selector of ['#mode-data','#mode-pose','#rotate-left','#rotate-right'])$(selector).disabled=(selector==='#mode-pose'&&!ready)||(['#mode-data','#mode-pose'].includes(selector)?active:active&&phase!=='open');
+  $('#reset-view').disabled=!ready;
   hotspotObjects.forEach(({el})=>el.disabled=phase==='zooming-out');canvas.tabIndex=phase==='open'||!active?0:-1;canvas.setAttribute('aria-label',active?'Títere en detalle. Arrastra una pieza para articularla o el fondo para girar. Selecciona otra luz para cambiar de zona.':'Títere 3D. Arrastra para girar o usa las flechas izquierda y derecha del teclado.');
   $('#focus-status').hidden=!active||phase==='open';$('#focus-status').textContent=phase==='zooming-out'?'Volviendo al cuerpo…':`Acercándonos a ${zones[id]?.name.toLowerCase()||'la zona'}…`;
   if(phase==='zooming-in'){panel.inert=true;if(!panel.childElementCount)panel.hidden=true;}
@@ -428,7 +429,17 @@ function updateJointHandles(){
 
 function rotate(amount){if(!controls||(focusController?.busy&&(focusController.phase!=='open'||focusController.animation)))return;rotating+=amount;announce(amount<0?'Girando a la izquierda.':'Girando a la derecha.');}
 $('#rotate-left').onclick=()=>rotate(-Math.PI/6);$('#rotate-right').onclick=()=>rotate(Math.PI/6);
-$('#reset-view').onclick=()=>{if(!controls||focusController?.busy)return;rotating=0;camera.position.set(.65,2.93,12.1);controls.target.copy(target);controls.update();announce('Vista inicial restaurada.');};
+$('#reset-view').onclick=()=>{
+  if(!controls||!ready)return;
+  endPartDrag();rotating=0;pointerStart=null;dragged=false;introAction?.stop();
+  resetPose();focusReframeAt=0;
+  const restore=()=>{
+    restoreOrbitView({camera,controls,position:new THREE.Vector3(.65,2.93,12.1),target,reduced});
+    announce('Vista inicial restaurada. Se conserva tu recorrido.');
+  };
+  if(focusController?.busy)requestCloseFocus(restore,{overview:true});
+  else restore();
+};
 canvas.addEventListener('keydown',(e)=>{if(e.key==='ArrowLeft'||e.key==='ArrowRight'){e.preventDefault();rotate(e.key==='ArrowLeft'?-Math.PI/8:Math.PI/8);}if(e.key==='Home'){e.preventDefault();$('#reset-view').click();}});
 canvas.addEventListener('pointerdown',e=>{pointerStart={x:e.clientX,y:e.clientY};dragged=false;});
 canvas.addEventListener('pointermove',e=>{if(pointerStart&&Math.hypot(e.clientX-pointerStart.x,e.clientY-pointerStart.y)>6)dragged=true;});

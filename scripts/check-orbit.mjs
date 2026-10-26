@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import * as THREE from '../dist/vendor/three.module.js';
+import {restoreOrbitView} from '../dist/focus.js';
 // Prueba de eventos sobre OrbitControls real, sin navegador ni dependencias extra.
 const source=(await readFile(new URL('../dist/vendor/OrbitControls.js',import.meta.url),'utf8')).replace("from 'three'",`from '${new URL('../dist/vendor/three.module.js',import.meta.url).href}'`);
 const {OrbitControls}=await import(`data:text/javascript;base64,${Buffer.from(source).toString('base64')}`);
@@ -26,4 +27,17 @@ for(let i=0;i<100;i++)wheel(-300);assert.ok(distance()>=orbit.minDistance-1e-8);
 for(let i=0;i<100;i++)wheel(300);assert.ok(distance()<=orbit.maxDistance+1e-8);
 // El gesto de zoom de trackpad llega como wheel + ctrlKey.
 const trackpadDistance=distance();event('wheel',{deltaY:-30,deltaMode:0,clientX:300,clientY:380,ctrlKey:true});assert.ok(distance()<trackpadDistance);
+// Restablecer mientras queda inercia no debe volver a girar la cámara en el siguiente frame.
+orbit.enableDamping=true;orbit.dampingFactor=.05;
+touch('pointerdown',4,220,300);touch('pointermove',4,440,300);touch('pointerup',4,440,300);
+const initialPosition=new THREE.Vector3(.65,2.93,12.1),initialTarget=new THREE.Vector3(0,2.65,0);
+restoreOrbitView({camera,controls:orbit,position:initialPosition,target:initialTarget});
+const restored=camera.position.clone();
+for(let i=0;i<120;i++)orbit.update();
+assert.ok(camera.position.distanceTo(restored)<1e-8,'La inercia anterior no altera la vista restaurada');
+assert.ok(orbit.target.distanceTo(initialTarget)<1e-8);
+assert.ok(Math.abs(distance()-initialPosition.distanceTo(initialTarget))<1e-8);
+assert.equal(orbit.enabled,true);assert.equal(orbit.enableZoom,true);assert.equal(orbit.enableDamping,true);
+restoreOrbitView({camera,controls:orbit,position:initialPosition,target:initialTarget,reduced:true});
+assert.equal(orbit.enableDamping,false);assert.equal(orbit.enabled,true);
 orbit.dispose();console.log('Verificado: pinch in/out por eventos de dos dedos, giro táctil, scroll, trackpad y límites del OrbitControls original.');

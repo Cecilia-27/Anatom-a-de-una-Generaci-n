@@ -68,6 +68,17 @@ const overviewPosition=new THREE.Vector3(.65,2.93,12.1),overviewTarget=new THREE
 focus.getOverview=()=>({position:overviewPosition,target:overviewTarget});focus.select('cabeza');focus.update(8);focus.update(8.016);focus.update(9.02);focus.close(undefined,{overview:true});focus.update(10);focus.update(10.86);
 assert.ok(camera.position.distanceTo(overviewPosition)<1e-9);assert.ok(controls.target.distanceTo(overviewTarget)<1e-9);
 
+// Vista inicial interrumpe un acercamiento o un regreso sin perder el control de cámara.
+let resets=0;
+camera.position.set(3,3,5);focus.select('pecho');focus.update(11);focus.update(11.016);focus.update(11.3);
+focus.close(()=>resets++,{overview:true});focus.update(11.4);focus.update(12.26);
+assert.equal(focus.phase,'free');assert.equal(resets,1);assert.ok(camera.position.distanceTo(overviewPosition)<1e-9);
+camera.position.set(-4,3,6);focus.select('manos');focus.update(13);focus.update(13.016);focus.update(14.02);
+focus.close();focus.update(15);focus.update(15.3);
+focus.close(()=>resets++,{overview:true});focus.update(15.31);focus.update(16.17);focus.update(17);
+assert.equal(focus.phase,'free');assert.equal(resets,2);assert.equal(controls.enabled,true);
+assert.ok(camera.position.distanceTo(overviewPosition)<1e-9);assert.ok(controls.target.distanceTo(overviewTarget)<1e-9);
+
 // La animación conserva dos flujos vivos, memoria acotada y pausa real.
 const scene=new THREE.Scene(),anchorNames={cabeza:'Cabeza',boca:'Cabeza',pecho:'Torso',estomago:'Torso',manos:'Muneca_I',piernas:'Rodilla_D'};
 const anchors=Object.fromEntries(Object.entries(anchorNames).map(([id,name])=>[id,nodes.find(n=>n.name===name)]));
