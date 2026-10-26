@@ -79,3 +79,9 @@ Los controles están debajo del visor en flujo normal. El encabezado reserva esp
 `opinions-data.js` conserva cuatro posturas, sus edades, frases principales y temas. `opinions.js` abre desde Las opiniones una órbita de cuatro partículas, sin el antiguo carrusel modal. Cada partícula abre una ventana no modal con una frase principal y un tema a la vez. En escritorio se sitúa junto al cuerpo; en móvil se coloca debajo, sin cubrir partículas. El giro, los datos y la postura del títere se conservan.
 
 `opinion-layout.js` calcula posiciones y separación entre etiquetas; las pruebas recorren una vuelta completa en varios anchos. El movimiento se detiene al enfocar, pasar el cursor, abrir una opinión, pausar manchas o solicitar movimiento reducido. Escape y el botón de cierre devuelven el foco a la partícula.
+
+## Contexto de México en la portada
+
+El botón `context-mexico` abre el texto proporcionado por la autora, sin añadir estadísticas. Conserva el cierre y el retorno de foco de las ventanas existentes, y permite desplazamiento interno en pantallas pequeñas. Los títulos usan trazados de Dunbar Low Bold y la lectura League Spartan Regular.
+
+La silueta local `assets/mexico-contexto.svg` procede de Natural Earth 1:110m, Admin 0 Countries, geometría ADM0_A3=MEX, proyectada para el icono. Fuente: https://github.com/nvkelso/natural-earth-vector/blob/master/geojson/ne_110m_admin_0_countries.geojson. Datos cartográficos de dominio público: https://www.naturalearthdata.com/about/terms-of-use/. No requiere recursos externos durante la navegación.

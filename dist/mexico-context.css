@@ -1,0 +1,34 @@
+/* Un acceso secundario al contexto; la portada conserva el cuerpo y el inicio como protagonistas. */
+.mexico-invite{display:none}
+body.cover-view #intro-copy .description{margin-bottom:16px}
+body.cover-view #context-mexico{display:flex;position:relative;isolation:isolate;align-items:center;gap:14px;max-width:100%;width:fit-content;text-align:left;margin:0 0 26px;padding:8px 12px 8px 3px;min-height:68px;border:0;border-radius:18px;background:none;color:#df164f;font-family:var(--sans);cursor:pointer}
+#context-mexico:before{content:'';position:absolute;inset:0 -8px;z-index:-1;pointer-events:none;background:radial-gradient(ellipse at 26% 54%,#f5004613,transparent 70%);filter:url(#watercolor);border-radius:40% 50% 42% 48%}
+.mexico-invite-map{display:grid;place-items:center;flex:0 0 76px;width:76px;height:54px}
+.mexico-invite-map img{display:block;width:100%;height:100%;object-fit:contain;transition:transform .4s}
+.mexico-invite-copy{display:flex;flex-direction:column;gap:6px;min-width:0}
+.mexico-invite-copy strong{font:600 17px/1.12 var(--sans);letter-spacing:-.2px;color:#db1450}
+.mexico-invite-copy>span{font:400 13px/1.3 var(--sans);color:#b65c78}
+.mexico-invite-copy>span>span{display:inline-block;margin-left:5px}
+body.cover-view #context-mexico:hover{background:#fff7fa70}
+#context-mexico:hover .mexico-invite-map img{transform:rotate(-3deg) scale(1.04)}
+#context-mexico:hover .mexico-invite-copy>span{text-decoration:underline;text-underline-offset:4px}
+#context-mexico:focus-visible{outline:2px solid #d61854;outline-offset:5px}
+.mexico-context-heading{display:flex;align-items:center;gap:24px;margin:0 0 24px}
+.mexico-dialog-map{display:block;flex:0 0 100px;width:100px;position:relative;isolation:isolate}
+.mexico-dialog-map:before{content:'';position:absolute;inset:-25px -20px;z-index:-1;background:radial-gradient(ellipse,#ffb7d044,transparent 70%);filter:url(#watercolor);pointer-events:none}
+.mexico-dialog-map img{display:block;width:100%;height:auto}
+.mexico-context-heading>div{min-width:0;flex:1}
+#info-dialog .mexico-context-heading .dialog-eyebrow{margin:0 30px 18px 0;font-size:10px;letter-spacing:.8px;line-height:1.5}
+#info-dialog .mexico-context-heading h2{margin:0;line-height:0;max-width:420px}
+.mexico-dialog-title{display:block;width:100%;height:auto}
+#info-dialog .mexico-context-content>p{font:400 17px/1.55 var(--sans);color:#996079;margin:0 0 20px}
+#info-dialog .mexico-context-content .mexico-question-intro{margin:23px 0 8px;font-size:15px;color:#ae718a}
+#info-dialog .mexico-context-content p.mexico-question{position:relative;isolation:isolate;margin:0 0 24px;padding:17px 8px;font:600 21px/1.3 var(--sans);color:#de1b54}
+.mexico-question:before{content:'';position:absolute;z-index:-1;inset:0 -12px;border-radius:30% 40% 36% 44%;background:radial-gradient(ellipse at 35% 50%,#ffbfd336,transparent 72%),radial-gradient(ellipse at 72% 50%,#ffd58326,transparent 70%);filter:url(#watercolor);pointer-events:none}
+#info-dialog .mexico-context-content p:last-child{margin-bottom:0}
+@media(max-width:1050px){body.cover-view #context-mexico{margin-bottom:24px}}
+@media(max-width:560px){body.cover-view #context-mexico{gap:12px;margin-bottom:27px;padding-left:0}.mexico-invite-map{width:65px;flex-basis:65px;height:49px}.mexico-invite-copy strong{font-size:16px}.mexico-invite-copy>span{font-size:13px}.mexico-context-heading{gap:16px;margin-bottom:23px;align-items:center}.mexico-dialog-map{width:65px;flex-basis:65px}#info-dialog .mexico-context-heading .dialog-eyebrow{font-size:9px;letter-spacing:.2px;margin-right:18px;margin-bottom:12px}#info-dialog .mexico-context-content>p{font-size:16px;line-height:1.5}#info-dialog .mexico-context-content p.mexico-question{font-size:19px;line-height:1.35;padding:15px 3px}}
+@media(prefers-reduced-motion:reduce){.mexico-invite-map img{transition:none}#context-mexico:hover .mexico-invite-map img{transform:none}}
+.mexico-invite-copy strong{display:block;width:170px;max-width:100%;line-height:0}
+.mexico-invite-copy strong img{display:block;width:100%;height:auto}
+@media(max-width:560px){.mexico-invite-copy strong{width:155px}}
