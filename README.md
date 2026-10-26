@@ -49,3 +49,7 @@ Arrastrar horizontalmente gira la vista 360°, con damping y límite vertical. L
 Los scripts comprueban identidad binaria del GLB, articulaciones reales, límites, datos exactos, encuadres en 360°, cambio directo durante el zoom, retorno completo, movimiento reducido, alturas verticales, marcas contenidas, semillas estables y memoria acotada. Se ejecuta el módulo OrbitControls original con eventos de scroll, trackpad y dos dedos para verificar pinch in/out y giro táctil. Esa prueba por eventos no sustituye una comprobación física en una pantalla táctil.
 
 No hay audio automático, analítica ni almacenamiento de datos personales. Three.js se distribuye localmente con su licencia MIT en `dist/vendor/`.
+
+### Portada y tipografía
+
+La portada utiliza los trazados del título y subtítulo originales de `assets-interaccion`, con el título en dos líneas y “de una” junto a ANATOMÍA. No se simula Dunbar con otra fuente. Los párrafos usan League Spartan Regular, servida localmente; los controles disponen de los pesos SemiBold y Bold de la misma familia. Las manchas de la portada se animan mediante transformaciones lentas en capas detrás del modelo. El botón existente de pausa también las detiene y `prefers-reduced-motion` elimina esos movimientos.

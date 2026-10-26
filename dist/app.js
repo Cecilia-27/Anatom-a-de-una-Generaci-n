@@ -70,7 +70,7 @@ try {
   controls=new OrbitControls(camera,canvas);controls.target.copy(target);controls.enableDamping=!reduced;controls.dampingFactor=.075;controls.enablePan=false;controls.rotateSpeed=.52;controls.minPolarAngle=Math.PI/2-.025;controls.maxPolarAngle=Math.PI/2-.025;controls.minDistance=11.65;controls.maxDistance=13.1;controls.enableZoom=true;controls.zoomSpeed=.6;controls.mouseButtons={LEFT:THREE.MOUSE.ROTATE,MIDDLE:THREE.MOUSE.DOLLY,RIGHT:THREE.MOUSE.ROTATE};controls.touches={ONE:THREE.TOUCH.ROTATE,TWO:THREE.TOUCH.DOLLY_ROTATE};controls.update();
   controls.addEventListener('start',()=>{canvas.classList.add('dragging');rotating=0;focusReframeAt=0;});
   controls.addEventListener('end',()=>canvas.classList.remove('dragging'));
-  const resize=()=>{const w=stage.clientWidth,h=stage.clientHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.fov=document.body.classList.contains('cover-view')&&innerWidth>850?28:32;camera.updateProjectionMatrix();focusController?.resize();};
+  const resize=()=>{const w=stage.clientWidth,h=stage.clientHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.fov=document.body.classList.contains('cover-view')&&innerWidth>850?30:32;camera.updateProjectionMatrix();focusController?.resize();};
   new ResizeObserver(resize).observe(stage);resize();
   new GLTFLoader().load('./assets/titere-articulado.glb',initModel,undefined,onModelError);
   canvas.addEventListener('webglcontextlost',(e)=>{e.preventDefault();onModelError(new Error('Se perdió el contexto WebGL'));});
@@ -88,7 +88,7 @@ function initModel(gltf){
   controls.minDistance=height*.55;controls.maxDistance=height*2.8;
   console.info('Encuadres calculados desde el GLB',{bodyBounds:bounds.getSize(new THREE.Vector3()).toArray()});
   initArticulation();$('#mode-pose').disabled=false;
-  $('#stage-status').hidden=true;document.body.classList.add('model-ready');$('#start').disabled=false;$('#start').innerHTML='Comenzar <span aria-hidden="true">→</span>';
+  $('#stage-status').hidden=true;document.body.classList.add('model-ready');$('#start').disabled=false;$('#start').innerHTML='comenzar interacción <span aria-hidden="true">⟶</span>';
   requestAnimationFrame(frame);
 }
 
