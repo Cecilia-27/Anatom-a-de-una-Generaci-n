@@ -1,6 +1,12 @@
 import * as THREE from './vendor/three.module.js';
 
 export const easeInOutCubic=t=>t<.5?4*t*t*t:1-((-2*t+2)**3)/2;
+export function restoreOrbitView({camera,controls,position,target,reduced=false}){
+  // Vacía la inercia anterior antes de colocar la cámara: no debe arrastrar la nueva vista.
+  controls.enabled=false;controls.enableDamping=false;controls.update();
+  camera.position.copy(position);controls.target.copy(target);controls.update();
+  controls.enableDamping=!reduced;controls.enabled=true;
+}
 export function bodyBounds(meshes){
   const box=new THREE.Box3();
   for(const mesh of meshes)if(!/^(Hilo|Cruz)/.test(mesh.name))box.union(new THREE.Box3().setFromObject(mesh));
@@ -87,7 +93,7 @@ export class FocusController{
   }
   close(afterClose,{overview=false}={}){
     if(!this.busy){afterClose?.();return;}
-    if(this.phase==='zooming-out')return;
+    if(this.phase==='zooming-out'&&!overview){if(afterClose)this.afterClose=afterClose;return;}
     this.freezeOrbit();this.afterClose=afterClose;this.pending=0;this.phase='zooming-out';
     const destination=overview&&this.getOverview?this.getOverview():this.saved;
     this.animation={start:null,duration:.85,fromPosition:this.camera.position.clone(),fromTarget:this.controls.target.clone(),toPosition:destination.position.clone(),toTarget:destination.target.clone(),fromStrength:this.strength};
