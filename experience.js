@@ -8,14 +8,14 @@ export const zoneStories={
   boca:{concepts:['Conversaciones','Presión externa','Justificar la decisión','Comentarios sociales'],insight:'El hormigueo es la segunda categoría con mayor porcentaje reportado en la boca.'}
 };
 export const pigmentFactors={
-  'Familia':{color:'#e83e75',route:['boca','pecho','cabeza'],side:-1,height:.76},
-  'Economía':{color:'#eab34b',route:['cabeza','estomago','manos'],side:1,height:.70},
-  'Tiempo':{color:'#9a71cc',route:['cabeza','manos','piernas'],side:1,height:.27},
-  'Bienestar emocional':{color:'#559bd3',route:['cabeza','pecho','estomago'],side:1,height:.51},
-  'Proyecto personal':{color:'#70a693',route:['cabeza','manos','piernas'],side:-1,height:.48},
-  'Pareja':{color:'#c97eae',route:['pecho','boca','manos'],side:-1,height:.32},
-  'Estudios / trabajo':{color:'#8885cf',route:['cabeza','manos','piernas'],side:-1,height:.61},
-  'Futuro':{color:'#6d9fc7',route:['cabeza','estomago'],side:1,height:.83},
-  'Cuidados':{color:'#7ca885',route:['manos','pecho','piernas'],side:-1,height:.39},
-  'Presiones sociales':{color:'#dc6d88',route:['boca','cabeza','pecho'],side:1,height:.63}
+  'Familia':{color:'#f50046',route:['boca','pecho','cabeza'],side:-1,height:.76},
+  'Economía':{color:'#ffcb32',route:['cabeza','estomago','manos'],side:1,height:.70},
+  'Tiempo':{color:'#a044b5',route:['cabeza','manos','piernas'],side:1,height:.27},
+  'Bienestar emocional':{color:'#3ab4ed',route:['cabeza','pecho','estomago'],side:1,height:.51},
+  'Proyecto personal':{color:'#9f42b2',route:['cabeza','manos','piernas'],side:-1,height:.48},
+  'Pareja':{color:'#e72574',route:['pecho','boca','manos'],side:-1,height:.32},
+  'Estudios / trabajo':{color:'#9651bd',route:['cabeza','manos','piernas'],side:-1,height:.61},
+  'Futuro':{color:'#9f42b2',route:['cabeza','estomago'],side:1,height:.83},
+  'Cuidados':{color:'#3ab4ed',route:['manos','pecho','piernas'],side:-1,height:.39},
+  'Presiones sociales':{color:'#f50046',route:['boca','cabeza','pecho'],side:1,height:.63}
 };
