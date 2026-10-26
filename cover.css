@@ -73,3 +73,7 @@ body.flow-paused .cover-art:before,body.flow-paused .cover-pigment{animation-pla
 .cover-view .interaction-switch{display:none}
 .cover-view .pigment-toggle{top:12px}
 @media(max-width:560px){.cover-view #intro-copy{margin-top:14px}.cover-view .pigment-toggle{top:8px}}
+
+/* Más espacio de lectura dentro de la columna, sin escalar ni desplazar las letras. */
+body.cover-view #intro-copy{min-width:0}
+body.cover-view #intro-copy .description{max-width:100%;padding-right:clamp(8px,1vw,16px);line-height:1.3}
