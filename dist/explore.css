@@ -95,9 +95,9 @@ body:not(.cover-view) .joint-handle:hover,body:not(.cover-view) .joint-handle[ar
 body:not(.cover-view) .joint-name{background:#fff9fc;border-color:#f2c9d9;color:#cf2556;border-radius:14px}
 body:not(.cover-view) .articulation-panel h2{font-size:30px}
 body:not(.cover-view) .articulation-panel h2 em{color:#ed1a59;font-weight:500}
-body:not(.cover-view) .part-picker{color:#c7446c;font-size:11px}
-body:not(.cover-view) .part-picker select{color:#ba2a57;background:#fff5f9;border-color:#f2cddc;border-radius:10px;font-size:12px}
-body:not(.cover-view) .joint-control{color:#b53f65;font-size:11px}
+body:not(.cover-view) .part-picker{color:#c7446c;font-size:calc(11px + var(--zone-type-step,0px))}
+body:not(.cover-view) .part-picker select{color:#ba2a57;background:#fff5f9;border-color:#f2cddc;border-radius:10px;font-size:calc(12px + var(--zone-type-step,0px))}
+body:not(.cover-view) .joint-control{color:#b53f65;font-size:calc(11px + var(--zone-type-step,0px))}
 body:not(.cover-view) .joint-control output{color:#b9738d}
 body:not(.cover-view) .joint-control input{accent-color:#f50046}
 body:not(.cover-view) .pose-reset{color:#df2058;border-color:#f0c6d5;border-radius:24px;padding:12px 16px}

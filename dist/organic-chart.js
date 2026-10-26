@@ -29,8 +29,8 @@ export function renderZoneChart(zoneInput,options={}){
     <circle class="sensation-area" r="${b.radius}" fill="${b.color}" fill-opacity=".22" stroke="${b.color}" stroke-opacity=".38" stroke-width=".7"/>
     <ellipse cx="${round(-b.radius*.24)}" cy="${round(b.radius*.15)}" rx="${round(b.radius*.53)}" ry="${round(b.radius*.67)}" fill="${b.color}" opacity=".12" filter="url(#wash-${key})"/>
     ${b.grains.map(g=>`<circle cx="${g.x}" cy="${g.y}" r="${g.radius}" fill="${b.color}" opacity="${g.opacity}"/>`).join('')}</g>
-    <text class="sensation-value" text-anchor="middle" dy=".35em" font-size="${i===0?32:b.radius<22?17:22}">${b.value}<tspan class="sensation-unit">%</tspan></text>
-    <text class="sensation-name" text-anchor="middle" y="${round(b.radius+24)}">${lines.map((line,j)=>`<tspan x="0" dy="${j?17:0}">${escape(line)}</tspan>`).join('')}</text>
+    <text class="sensation-value" text-anchor="middle" dy=".35em" font-size="${i===0?32:b.radius<22?17:22}" style="font-size:calc(${i===0?32:b.radius<22?17:22}px + var(--zone-type-step,0px))">${b.value}<tspan class="sensation-unit">%</tspan></text>
+    <text class="sensation-name" text-anchor="middle" y="${round(b.radius+24)}">${lines.map((line,j)=>`<tspan x="0" dy="${j?19:0}">${escape(line)}</tspan>`).join('')}</text>
    </g>`;}).join('')}
   </svg>
   <p class="map-reading"><span aria-hidden="true">◯</span> Área del círculo = porcentaje.<br><span class="map-reading-note">Las manchas acompañan la lectura. Los valores no se suman.</span></p>
