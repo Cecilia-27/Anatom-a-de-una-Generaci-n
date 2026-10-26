@@ -16,7 +16,7 @@ export class PigmentSystem{
     this.box=box.clone();this.height=box.getSize(new THREE.Vector3()).y;this.getAnchor=getAnchor;this.active=[];this.memories=new Map();this.texture=texture||makePigmentTexture();this.max=2200;this.flowTime=0;this.lastTime=null;
     this.positions=new Float32Array(this.max*3);this.colors=new Float32Array(this.max*3);this.alpha=new Float32Array(this.max);this.sizes=new Float32Array(this.max);
     const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(this.positions,3).setUsage(THREE.DynamicDrawUsage));g.setAttribute('aColor',new THREE.BufferAttribute(this.colors,3).setUsage(THREE.DynamicDrawUsage));g.setAttribute('aAlpha',new THREE.BufferAttribute(this.alpha,1).setUsage(THREE.DynamicDrawUsage));g.setAttribute('aSize',new THREE.BufferAttribute(this.sizes,1).setUsage(THREE.DynamicDrawUsage));g.setDrawRange(0,0);
-    this.material=new THREE.ShaderMaterial({transparent:true,depthWrite:false,depthTest:false,toneMapped:false,uniforms:{uMap:{value:this.texture},uSizeFactor:{value:1000}},vertexShader:`attribute vec3 aColor;attribute float aAlpha;attribute float aSize;uniform float uSizeFactor;varying vec3 vColor;varying float vAlpha;void main(){vec4 mv=modelViewMatrix*vec4(position,1.0);gl_Position=projectionMatrix*mv;gl_PointSize=clamp(aSize*uSizeFactor/max(.1,-mv.z),1.,180.);vColor=aColor;vAlpha=aAlpha;}`,fragmentShader:`uniform sampler2D uMap;varying vec3 vColor;varying float vAlpha;void main(){float alpha=texture2D(uMap,gl_PointCoord).a*vAlpha;if(alpha<.003)discard;gl_FragColor=vec4(vColor,alpha);}`});
+    this.material=new THREE.ShaderMaterial({transparent:true,depthWrite:false,depthTest:true,toneMapped:false,uniforms:{uMap:{value:this.texture},uSizeFactor:{value:1000}},vertexShader:`attribute vec3 aColor;attribute float aAlpha;attribute float aSize;uniform float uSizeFactor;varying vec3 vColor;varying float vAlpha;void main(){vec4 mv=modelViewMatrix*vec4(position,1.0);gl_Position=projectionMatrix*mv;gl_PointSize=clamp(aSize*uSizeFactor/max(.1,-mv.z),1.,180.);vColor=aColor;vAlpha=aAlpha;}`,fragmentShader:`uniform sampler2D uMap;varying vec3 vColor;varying float vAlpha;void main(){float alpha=texture2D(uMap,gl_PointCoord).a*vAlpha;if(alpha<.003)discard;gl_FragColor=vec4(vColor,alpha);}`});
     this.points=new THREE.Points(g,this.material);this.points.frustumCulled=false;this.points.renderOrder=5;scene.add(this.points);
     this.halo=new THREE.Sprite(new THREE.SpriteMaterial({map:this.texture,transparent:true,opacity:0,depthWrite:false,depthTest:false,toneMapped:false}));this.halo.renderOrder=4;scene.add(this.halo);
     this.point=new THREE.Vector3();this.offset=new THREE.Vector3();this.count=0;
@@ -52,6 +52,7 @@ export class PigmentSystem{
       const age=this.flowTime-track.started;if(age<0&&!reduced)continue;
       const f=pigmentFactors[track.label],progress=reduced?.56:((Math.max(0,age)%5.6)/5.6),color=this.color(track.label);
       const points=[this.sourcePoint(track.label),...f.route.map(zone=>this.getAnchor(zone)?.getWorldPosition(new THREE.Vector3())).filter(Boolean)];if(points.length<2)continue;
+      const behind=camera.getWorldDirection(new THREE.Vector3()).multiplyScalar(this.height*.13);for(const p of points)p.add(behind);
       const curve=new THREE.CatmullRomCurve3(points,false,'centripetal');
       for(let i=0;i<f.route.length;i++)if((age>5.6||progress>=(i+1)/(f.route.length+1))&&!track.visited.has(i)){track.visited.add(i);this.remember(track.label,f.route[i]);}
       // Un rastro de pigmento legible permanece bajo el flujo, también durante el zoom.
@@ -67,7 +68,7 @@ export class PigmentSystem{
         const t=(progress-seed.trail*.28+1)%1;curve.getPoint(t,this.point);
         const spread=this.height*(.023+.012*Math.sin(t*Math.PI));
         this.point.x+=seed.x*spread+(reduced?0:Math.sin(this.flowTime*.8+seed.phase)*spread*.16);this.point.y+=seed.y*spread;this.point.z+=seed.z*spread;
-        this.emit(this.point,color,appear*.38*seed.alpha,this.height*.074*seed.size);
+        this.emit(this.point,color,appear*.28*seed.alpha,this.height*.074*seed.size);
       }
       for(const seed of track.grains){
         const t=(progress+seed.trail*.55)%1;curve.getPoint(t,this.point);

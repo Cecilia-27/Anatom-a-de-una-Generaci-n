@@ -49,8 +49,8 @@ export function calculateFocusFrame({box,bodyHeight,cameraPosition,cameraTarget,
 }
 
 export class FocusController{
-  constructor({camera,controls,bodyHeight,getBox,getReduced,getMobile,onPhase,onVisual}){
-    Object.assign(this,{camera,controls,bodyHeight,getBox,getReduced,getMobile,onPhase,onVisual});
+  constructor({camera,controls,bodyHeight,getBox,getReduced,getMobile,getOverview,onPhase,onVisual}){
+    Object.assign(this,{camera,controls,bodyHeight,getBox,getReduced,getMobile,getOverview,onPhase,onVisual});
     this.phase='free';this.selected=null;this.strength=0;this.saved=null;this.animation=null;this.pending=0;this.afterClose=null;
   }
   get busy(){return this.phase!=='free';}
@@ -71,7 +71,7 @@ export class FocusController{
   }
   openOrbit(){
     const distance=this.camera.position.distanceTo(this.controls.target);
-    this.controls.minDistance=distance*.8;this.controls.maxDistance=distance*1.25;
+    this.controls.minDistance=Math.max(this.bodyHeight*.35,distance*.55);this.controls.maxDistance=Math.max(this.saved.maxDistance||0,distance*1.55);
     this.controls.enabled=true;this.controls.enableDamping=!this.getReduced();
   }
   plan(){return calculateFocusFrame({box:this.getBox(this.selected),bodyHeight:this.bodyHeight,cameraPosition:this.saved.target.clone().add(this.viewDirection),cameraTarget:this.saved.target,fov:this.camera.fov,aspect:this.camera.aspect,panelSide:this.panelSide,mobile:this.getMobile()});}
@@ -85,11 +85,12 @@ export class FocusController{
     if(this.phase==='open')this.reframe();
     else if(this.phase==='zooming-in'){this.pending=2;this.animation=null;}
   }
-  close(afterClose){
+  close(afterClose,{overview=false}={}){
     if(!this.busy){afterClose?.();return;}
     if(this.phase==='zooming-out')return;
     this.freezeOrbit();this.afterClose=afterClose;this.pending=0;this.phase='zooming-out';
-    this.animation={start:null,duration:.85,fromPosition:this.camera.position.clone(),fromTarget:this.controls.target.clone(),toPosition:this.saved.position.clone(),toTarget:this.saved.target.clone(),fromStrength:this.strength};
+    const destination=overview&&this.getOverview?this.getOverview():this.saved;
+    this.animation={start:null,duration:.85,fromPosition:this.camera.position.clone(),fromTarget:this.controls.target.clone(),toPosition:destination.position.clone(),toTarget:destination.target.clone(),fromStrength:this.strength};
     this.onPhase(this.phase,this.selected,this.panelSide);
   }
   update(time){
