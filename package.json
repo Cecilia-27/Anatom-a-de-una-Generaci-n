@@ -6,6 +6,6 @@
   "scripts": {
     "dev": "node scripts/serve.mjs",
     "start": "node scripts/serve.mjs",
-    "check": "node --check dist/opinions.js && node --check dist/opinions-data.js && node --check dist/opinion-layout.js && node --check dist/app.js && node --check dist/data.js && node --check dist/pose.js && node --check dist/motion.js && node --check dist/titles.js && node --check dist/viewport.js && node --check dist/charts.js && node --check dist/organic-chart.js && node --check dist/zone-icons.js && node --check dist/focus.js && node --check dist/pigments.js && node --check dist/experience.js && node scripts/check.mjs && node scripts/check-focus.mjs && node scripts/check-orbit.mjs && node scripts/check-motion.mjs && node scripts/check-viewport.mjs && node scripts/check-opinions.mjs"
+    "check": "node --check dist/particle-sound.js && node --check dist/opinions.js && node --check dist/opinions-data.js && node --check dist/opinion-layout.js && node --check dist/app.js && node --check dist/data.js && node --check dist/pose.js && node --check dist/motion.js && node --check dist/titles.js && node --check dist/viewport.js && node --check dist/charts.js && node --check dist/organic-chart.js && node --check dist/zone-icons.js && node --check dist/focus.js && node --check dist/pigments.js && node --check dist/experience.js && node scripts/check.mjs && node scripts/check-focus.mjs && node scripts/check-orbit.mjs && node scripts/check-motion.mjs && node scripts/check-viewport.mjs && node scripts/check-opinions.mjs && node scripts/check-sound.mjs"
   }
 }
