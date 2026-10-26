@@ -11,6 +11,8 @@ import {zoneIcon} from './zone-icons.js';
 import {addAmbientMotion} from './motion.js';
 import {renderTitle} from './titles.js';
 import {viewportMetrics,stageFromNdc,ndcFromStage} from './viewport.js';
+import {OpinionOrbit} from './opinions.js';
+import {opinionSource} from './opinions-data.js';
 
 const $ = (s) => document.querySelector(s);
 const zoneIds = Object.keys(zones);
@@ -20,19 +22,18 @@ let reduced = media.matches;
 const announce = (message) => { $('#announcement').textContent = message; };
 const dialog = $('#info-dialog');
 let lastFocus;
-function openDialog(html){lastFocus=document.activeElement;$('#dialog-content').innerHTML=html;$('#dialog-content').scrollTop=0;$('#dialog-content').querySelector('h2')?.setAttribute('id','dialog-title');dialog.showModal();dialog.querySelector('.dialog-close').focus();}
+let opinionOrbit;
+function openDialog(html){opinionOrbit?.closeWindow(false);lastFocus=document.activeElement;$('#dialog-content').innerHTML=html;$('#dialog-content').scrollTop=0;$('#dialog-content').querySelector('h2')?.setAttribute('id','dialog-title');dialog.showModal();dialog.querySelector('.dialog-close').focus();}
 function closeDialog(){dialog.close();lastFocus?.focus();}
 $('.dialog-close').addEventListener('click',closeDialog);
 dialog.addEventListener('click',(e)=>{if(e.target===dialog){const r=dialog.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)closeDialog();}});
 dialog.addEventListener('cancel',()=>{requestAnimationFrame(()=>lastFocus?.focus());});
 
-function showSources(){openDialog(`<p class="dialog-eyebrow">ACERCA DE LOS DATOS</p><h2>Escuchar lo que<br>el cuerpo cuenta.</h2><p>Esta experiencia presenta los resultados proporcionados de una encuesta de <strong>27 personas</strong> sobre la decisión de tener, postergar o no tener hijos.</p><h3>Cómo leer los porcentajes</h3><p>Los factores, preocupaciones y emociones corresponden a las opciones reportadas en la encuesta. Se presentan de forma independiente y no deben sumarse como una distribución de la población. La muestra describe a las personas participantes; no representa a toda la Generación Z.</p><h3>Sensaciones, sin interpretaciones médicas</h3><p>Los porcentajes corporales son <strong>sensaciones reportadas en la encuesta</strong>. No prueban que una emoción cause un síntoma en una parte del cuerpo. «Vacío» se conserva como categoría original, sin asignarle una interpretación adicional. Se muestran únicamente las categorías y porcentajes proporcionados, sin completar las distribuciones.</p><p>Las manchas y los hilos que conectan zonas son recorridos narrativos de exploración, no relaciones estadísticas ni mecanismos fisiológicos. Los pies no tienen un dato independiente.</p><h3>Las voces</h3><p>Los cuatro comentarios están identificados como <strong>ejemplos conceptuales proporcionados</strong>. No se presentan como transcripciones verificadas de entrevistas.</p>`);}
+function showSources(){openDialog(`<p class="dialog-eyebrow">ACERCA DE LOS DATOS</p><h2>Escuchar lo que<br>el cuerpo cuenta.</h2><p>Esta experiencia presenta los resultados proporcionados de una encuesta de <strong>27 personas</strong> sobre la decisión de tener, postergar o no tener hijos.</p><h3>Cómo leer los porcentajes</h3><p>Los factores, preocupaciones y emociones corresponden a las opciones reportadas en la encuesta. Se presentan de forma independiente y no deben sumarse como una distribución de la población. La muestra describe a las personas participantes; no representa a toda la Generación Z.</p><h3>Sensaciones, sin interpretaciones médicas</h3><p>Los porcentajes corporales son <strong>sensaciones reportadas en la encuesta</strong>. No prueban que una emoción cause un síntoma en una parte del cuerpo. «Vacío» se conserva como categoría original, sin asignarle una interpretación adicional. Se muestran únicamente las categorías y porcentajes proporcionados, sin completar las distribuciones.</p><p>Las manchas y los hilos que conectan zonas son recorridos narrativos de exploración, no relaciones estadísticas ni mecanismos fisiológicos. Los pies no tienen un dato independiente.</p><h3>Las voces</h3><p>Las opiniones reúnen los fragmentos y adaptaciones proporcionados para esta experiencia. Damian y Rodrigo aparecen como fragmentos de entrevista; Fabiola y Gabriel se identifican como <strong>frases adaptadas de entrevista</strong>. La frase del boceto que acompaña a Cabeza conserva su identificación como ejemplo conceptual.</p>`);}
 $('#sources').addEventListener('click',showSources);
 $('#nav-about').addEventListener('click',()=>openDialog(`<p class="dialog-eyebrow">SOBRE EL PROYECTO</p><h2 class="dialog-brand-title" aria-label="Anatomía de una Generación"><img src="./assets/portada-titulo.svg" width="865.21" height="253.99" alt=""></h2><p>Una decisión que atraviesa el cuerpo.</p><p>Una exploración interactiva sobre cómo la Generación Z vive la decisión de tener, postergar o no tener hijos. Emociones, presiones sociales, economía y proyectos personales se encuentran alrededor de un mismo cuerpo.</p><div class="about-marks"><span>Visualización de datos</span><span>Narrativa generacional</span><span>Exploración 3D</span></div><h3>Cómo explorar</h3><p>Comienza el recorrido y elige una de las seis zonas. Arrastra el títere horizontalmente para girarlo, usa los botones ↶ / ↷ o las flechas del teclado al enfocar el modelo. Con Tab puedes recorrer los puntos; con Enter o espacio abrir sus datos.</p><p>En «Mover el cuerpo», selecciona una parte y arrástrala o ajusta sus controles. Puedes flexionar codos, muñecas, dedos, rodillas y tobillos. La postura se conserva al regresar a los datos y puedes restablecerla en cualquier momento.</p><p>Tras descubrir tres zonas podrás ver una vista conjunta y continuar explorando. El movimiento se reduce automáticamente si tu dispositivo así lo solicita.</p><p class="source-note">Modelo original: titere-articulado.glb · encuesta, n = 27.</p>`));
-function voiceContent(){const v=voices[state.voice];return `<p class="dialog-eyebrow">LAS OPINIONES · ${v.stance.toUpperCase()}</p><h2 id="dialog-title">Hay muchas formas<br>de imaginarlo.</h2><blockquote class="voice-quote">“${v.text}”</blockquote><div class="voice-name" style="--voice-color:${v.color}">${v.name}</div><div class="voice-controls"><button class="round-button" data-voice-step="-1" aria-label="Voz anterior">←</button><span>${state.voice+1} / ${voices.length}</span><button class="round-button" data-voice-step="1" aria-label="Siguiente voz">→</button></div><p class="voice-disclaimer">Ejemplo conceptual proporcionado para el prototipo. No es una transcripción verificada de entrevista.</p>`;}
-function showVoices(index=state.voice){state.voice=index;openDialog(voiceContent());}
+function showVoices(){navigateChapter('explore',()=>opinionOrbit.setActive(true));}
 $('#nav-voices').addEventListener('click',()=>showVoices());
-$('#dialog-content').addEventListener('click',(e)=>{const b=e.target.closest('[data-voice-step]');if(!b)return;state.voice=(state.voice+Number(b.dataset.voiceStep)+voices.length)%voices.length;$('#dialog-content').innerHTML=voiceContent();$('#dialog-content').querySelector(`[data-voice-step="${b.dataset.voiceStep}"]`).focus();});
 
 const stage = $('#scene-viewport'), stageSection=$('#stage'), canvas = $('#body-canvas'), sceneCanvas=$('#scene-canvas');
 let sceneFrame=viewportMetrics(1,1);
@@ -132,6 +133,7 @@ function makeHotspots(){
 }
 
 function begin(){
+  opinionOrbit?.setActive(false);
   if(motionMode)setMotionMode(false);
   const firstVisit=!state.started;
   document.body.classList.remove('cover-view');document.body.classList.add('exploring');
@@ -153,10 +155,11 @@ function updateChapterNavigation(page){
     button.querySelector('img').src=seenPages.has(button.dataset.page)?'./assets/portada-indicador.svg':'./assets/portada-indicador-contorno.svg';
   });
 }
-function navigateChapter(page){
+function navigateChapter(page,afterNavigate){
   const token=++navigationToken;
   const navigate=()=>{
     if(token!==navigationToken)return;
+    opinionOrbit?.setActive(false);
     if(motionMode)setMotionMode(false);
     if(page==='home'){
       state.closing=false;state.selected=null;selectedAnchorKey=null;highlightZone(null);rotating=0;
@@ -170,6 +173,7 @@ function navigateChapter(page){
       begin();
       if(page==='zones'){updateChapterNavigation('zones');requestAnimationFrame(()=>{const heading=$('#zone-navigation-title');heading.tabIndex=-1;heading.focus({preventScroll:true});$('#zone-navigation').scrollIntoView({behavior:reduced?'instant':'smooth',block:'start'});});}
     }
+    afterNavigate?.();
   };
   if(focusController?.phase==='zooming-out')focusController.afterClose=navigate;
   else if(focusController?.busy)requestCloseFocus(navigate);
@@ -183,6 +187,7 @@ function partForZone(id,key=id){return id==='cabeza'||id==='boca'?'cabeza':id===
 function zoneForPart(part){return part==='cabeza'?['cabeza','cabeza']:part==='torso'?['pecho','pecho']:part.startsWith('pierna')?['piernas','piernas']:['manos',part.endsWith('_D')?'manos_D':'manos'];}
 function canArticulate(){return motionMode||focusController?.phase==='open';}
 function selectZone(id,anchorKey=id){
+  opinionOrbit?.setActive(false);
   if(focusController?.phase==='zooming-out')return;
   if(focusController?.busy&&state.selected===id&&selectedAnchorKey===anchorKey)return;
   endPartDrag();
@@ -205,7 +210,7 @@ function selectZone(id,anchorKey=id){
 
 function renderZone(id){
   const z=zones[id],story=zoneStories[id],panel=$('#zone-panel'),index=mainZoneIds.indexOf(id);
-  const quoted=z.testimony?.verified===true&&z.testimony.text&&z.testimony.source?z.testimony:id==='cabeza'?coverQuote:{text:voices[z.quote].text,source:`${voices[z.quote].name} · ejemplo conceptual`,verified:false};
+  const quoted=z.testimony?.verified===true&&z.testimony.text&&z.testimony.source?z.testimony:id==='cabeza'?coverQuote:{text:voices[z.quote].text,source:opinionSource(voices[z.quote]),verified:false};
   panel.classList.add('glass-panel');panel.classList.remove('chart-leaving');panel.setAttribute('role','region');panel.removeAttribute('aria-modal');panel.setAttribute('aria-labelledby','glass-title');panel.inert=true;
   panel.innerHTML=`<div class="editorial-panel-top"><button id="return-body" class="body-return">← <span>Volver al cuerpo</span></button><span class="zone-counter">${index>=0?`${index+1} / 5`:'Recorrido complementario'}</span><button id="close-zone" class="editorial-close" aria-label="Cerrar información de la zona">×</button></div>
     <div class="editorial-zone-heading"><span class="zone-illustration" style="--wash-color:${z.color}">${zoneIcon(id)}</span><div><h2 id="glass-title">${renderTitle(id,id==='pecho'?'Pecho':z.name)}</h2><p class="editorial-subtitle">${z.subtitle}</p></div></div>
@@ -307,7 +312,7 @@ function updateEdges(time){
     if(elapsed>2.4)edge.active=false;
   }
 }
-function showConclusion(){if(state.visited.size<3)return;if(focusController?.busy){requestCloseFocus(()=>showConclusion());return;}if(motionMode)setMotionMode(false);state.closing=true;$('#zone-panel').hidden=true;$('#welcome-panel').hidden=true;$('#closing-panel').hidden=false;$('#chapter-number').textContent='03 / 03';$('#chapter-label').textContent='Distintas partes, una misma decisión';hotspotObjects.forEach(({el})=>el.classList.remove('dim'));highlightZone(null);announce('Vista general. Distintas partes, una misma decisión. Tus conexiones permanecen visibles.');if(innerWidth<=850)$('#closing-panel').scrollIntoView({behavior:reduced?'instant':'smooth',block:'start'});}
+function showConclusion(){if(state.visited.size<3)return;opinionOrbit?.setActive(false);if(focusController?.busy){requestCloseFocus(()=>showConclusion());return;}if(motionMode)setMotionMode(false);state.closing=true;$('#zone-panel').hidden=true;$('#welcome-panel').hidden=true;$('#closing-panel').hidden=false;$('#chapter-number').textContent='03 / 03';$('#chapter-label').textContent='Distintas partes, una misma decisión';hotspotObjects.forEach(({el})=>el.classList.remove('dim'));highlightZone(null);announce('Vista general. Distintas partes, una misma decisión. Tus conexiones permanecen visibles.');if(innerWidth<=850)$('#closing-panel').scrollIntoView({behavior:reduced?'instant':'smooth',block:'start'});}
 function resume(){if(focusController?.busy){requestCloseFocus();return;}if(motionMode)setMotionMode(false);state.closing=false;$('#chapter-number').textContent=state.started?'02 / 03':'01 / 03';$('#chapter-label').textContent='Descubrir lo que nos atraviesa';$('#closing-panel').hidden=true;$('#zone-panel').hidden=true;$('#welcome-panel').hidden=false;updateFreeGuide();}
 $('#conclusion').onclick=showConclusion;$('#continue').onclick=resume;
 $('#zone-buttons').innerHTML=mainZoneIds.map(id=>`<button type="button" data-zone-nav="${id}" aria-label="Explorar ${zones[id].name} desde zonas del cuerpo" aria-pressed="false" style="--wash-color:${zones[id].color}"><span class="zone-nav-icon">${zoneIcon(id)}</span><span>${id==='pecho'?'Pecho':zones[id].name}</span><small class="zone-visited">Explorada</small></button>`).join('');
@@ -334,6 +339,7 @@ function initArticulation(){
   renderJointControls();
 }
 function setMotionMode(enabled){
+  if(enabled)opinionOrbit?.setActive(false);
   if(focusController?.busy)return;
   if(enabled&&!ready)return;
   endPartDrag();motionMode=enabled;document.body.classList.toggle('moving-body',enabled);document.body.classList.toggle('cover-view',!enabled&&!state.started);
@@ -463,6 +469,8 @@ function frame(ms){
 media.addEventListener('change',e=>{reduced=e.matches;if(controls)controls.enableDamping=!reduced;if(reduced){introAction?.stop();if(!motionMode&&!poseChanged)for(const [name,q] of baseRotations)joints.get(name)?.quaternion.copy(q);}else{introStart=performance.now()/1000-INTRO_DURATION-1;startTime=introStart;}});
 $('#pigment-toggle').onclick=()=>{flowPaused=!flowPaused;document.body.classList.toggle('flow-paused',flowPaused);$('#pigment-toggle').setAttribute('aria-pressed',String(flowPaused));$('#pigment-toggle').textContent=flowPaused?'▷ Reanudar manchas':'Ⅱ Pausar manchas';};
 function makeFallback(){for(const [i,id] of zoneIds.entries()){const el=document.createElement('button');el.className='quote-bubble';el.style.cssText=`position:absolute;left:15%;top:${12+i*11}%;width:70%;pointer-events:auto`;el.textContent=`${zones[id].symbol} ${zones[id].name}`;el.onclick=()=>selectZone(id);$('#hotspots').append(el);}$('#stage-status').hidden=true;}
+
+opinionOrbit=new OpinionOrbit({stage,context:document.querySelector('.context-area'),getPaused:()=>flowPaused,getObstacles:()=>[...hotspotObjects.values()].filter(h=>!h.el.hidden&&h.el.style.display!=='none').map(h=>({x:h.screen.x,y:h.screen.y,width:44,height:44})),announce,onSelect:index=>state.voice=index});
 
 // Diagnóstico de la experiencia sin datos personales.
 window.anatomia={get state(){return {ready,started:state.started,selected:state.selected,visited:[...state.visited],connections:state.edges.size,reducedMotion:reduced,focusPhase:focusController?.phase||'free',pigmentMemories:pigments?.memories.size||0};}};
