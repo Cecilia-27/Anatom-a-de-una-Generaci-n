@@ -100,3 +100,12 @@ body.exploring #welcome-panel>p.welcome-description:not(.small-label):not(.sampl
  body.exploring #welcome-panel h2{width:82%;max-width:620px;margin-bottom:clamp(42px,3.8vw,68px)}
  body.exploring #welcome-panel .exploration-invitation{width:79%;max-width:590px;margin-left:7%;margin-right:5%}
 }
+/* Portada: pausa discreta sobre el fondo y vista inicial bajo el giro, sin franja. */
+body.cover-view .body-stage{grid-template-rows:minmax(360px,1fr) auto;position:relative}
+body.cover-view .scene-topbar.scene-toolbar{position:absolute;inset:0;display:block;width:100%;height:100%;align-self:stretch;padding:0;background:none;border-radius:0;pointer-events:none}
+body.cover-view .scene-topbar .scene-actions{display:contents}
+body.cover-view .scene-topbar .pigment-toggle{position:absolute;inset:12px 0 auto auto;pointer-events:auto;font:400 13px/1.25 var(--sans);min-height:40px;padding:10px 14px;background:#ffffffa6;border:1px solid #f5004620;border-radius:22px;color:#c12957;white-space:nowrap}
+body.cover-view .scene-topbar .reset-view{position:absolute;inset:auto 0 0;pointer-events:auto;justify-self:center;width:max-content;max-width:100%;margin:0 auto;font:400 12px/1.3 var(--sans);min-height:34px;padding:7px 12px;border:0;background:none;box-shadow:none;color:#bf1546}
+body.cover-view .scene-toolbar:not(.scene-topbar){padding-bottom:42px}
+body.cover-view .scene-topbar .reset-view:hover{background:#ffffff35}
+@media(max-width:560px){body.cover-view .scene-topbar .pigment-toggle{top:8px;font-size:12px}body.cover-view .scene-topbar .reset-view{font-size:12px}}
