@@ -12,7 +12,7 @@ import {addAmbientMotion} from './motion.js';
 import {renderTitle} from './titles.js';
 import {viewportMetrics,stageFromNdc,ndcFromStage} from './viewport.js';
 import {OpinionOrbit} from './opinions.js?v=20261026-sound';
-import {ParticleSound} from './particle-sound.js?v=20261026-crystal';
+import {ParticleSound} from './particle-sound.js?v=20261026-recorded';
 import {opinionSource} from './opinions-data.js';
 
 const $ = (s) => document.querySelector(s);
@@ -41,11 +41,11 @@ $('#nav-voices').addEventListener('click',()=>showVoices());
 const stage = $('#scene-viewport'), stageSection=$('#stage'), canvas = $('#body-canvas'), sceneCanvas=$('#scene-canvas');
 let soundEnabled=true;
 try{soundEnabled=localStorage.getItem('anatomia-particle-sound')!=='off';}catch{}
-const sound=new ParticleSound({enabled:soundEnabled,onState:({enabled,supported,ready})=>{
-  const button=$('#sound-toggle');button.disabled=!supported;button.setAttribute('aria-pressed',String(enabled));button.textContent=enabled?'♪ Sonido':'♩ Silenciado';button.setAttribute('aria-label',supported?(enabled?'Silenciar efectos de sonido':'Activar efectos de sonido'):'Sonido no disponible en este navegador');button.title=!enabled?'Efectos de sonido silenciados.':ready?'Ambiente de cristales activo. Pulsa para silenciarlo.':'El ambiente de cristales comienza con la exploración.';
+const sound=new ParticleSound({enabled:soundEnabled,onState:({enabled,supported,ready,loading,error})=>{
+  const button=$('#sound-toggle');button.disabled=!supported;button.setAttribute('aria-pressed',String(enabled));button.textContent=enabled?'♪ Sonido':'♩ Silenciado';button.setAttribute('aria-label',supported?(enabled?'Silenciar efectos de sonido':'Activar efectos de sonido'):'Sonido no disponible en este navegador');button.setAttribute('aria-busy',String(loading));button.title=!enabled?'Efectos de sonido silenciados.':loading?'Cargando los audios de referencia…':error?'No se pudieron cargar los audios. Pulsa para reintentar.':ready?'Audios de referencia activos. Pulsa para silenciarlos.':'El sonido comienza con la exploración.';
 }});
 sound.notify();
-$('#sound-toggle').onclick=()=>{const enabled=!sound.enabled;sound.setEnabled(enabled);try{localStorage.setItem('anatomia-particle-sound',enabled?'on':'off');}catch{}announce(enabled?'Efectos de sonido activados.':'Efectos de sonido silenciados.');};
+$('#sound-toggle').onclick=()=>{if(sound.error&&sound.enabled){sound.unlock();announce('Volviendo a cargar los audios.');return;}const enabled=!sound.enabled;sound.setEnabled(enabled);try{localStorage.setItem('anatomia-particle-sound',enabled?'on':'off');}catch{}announce(enabled?'Efectos de sonido activados.':'Efectos de sonido silenciados.');};
 document.addEventListener('visibilitychange',()=>sound.setVisible(!document.hidden));
 let sceneFrame=viewportMetrics(1,1);
 function pointerPosition(event){const rect=canvas.getBoundingClientRect(),p=ndcFromStage({x:event.clientX-rect.left,y:event.clientY-rect.top},sceneFrame);pointer.set(p.x,p.y);}
