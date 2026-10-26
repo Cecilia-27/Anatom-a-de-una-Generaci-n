@@ -84,7 +84,7 @@ try {
     sceneFrame=viewportMetrics(w,h,Math.max(0,rect.left-12),Math.max(0,innerWidth-rect.right-12),54,70);
     renderer.setSize(sceneFrame.renderWidth,sceneFrame.renderHeight,false);
     Object.assign(sceneCanvas.style,{left:`${-sceneFrame.left}px`,top:`${-sceneFrame.top}px`,width:`${sceneFrame.renderWidth}px`,height:`${sceneFrame.renderHeight}px`});
-    camera.fov=document.body.classList.contains('exploring')&&innerWidth>1050?26:document.body.classList.contains('cover-view')&&innerWidth>850?27:32;
+    camera.fov=document.body.classList.contains('exploring')&&innerWidth>1050?25.5:document.body.classList.contains('cover-view')&&innerWidth>850?27:32;
     camera.setViewOffset(w,h,-sceneFrame.left,-sceneFrame.top,sceneFrame.renderWidth,sceneFrame.renderHeight);camera.updateProjectionMatrix();focusController?.resize();
   };
   new ResizeObserver(resize).observe(stage);resize();
