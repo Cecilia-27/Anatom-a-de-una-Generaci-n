@@ -31,11 +31,11 @@ export class PigmentSystem{
     }
   }
   remember(label,zone){const key=`${label}:${zone}`;if(!this.memories.has(key))this.memories.set(key,{label,zone,seeds:seeds(key,20)});}
-  color(label){return new THREE.Color(pigmentFactors[label].color).convertLinearToSRGB();}
-  emit(p,color,alpha,size){if(this.count>=this.max)return;const i=this.count++;this.positions.set([p.x,p.y,p.z],i*3);this.colors.set([color.r,color.g,color.b],i*3);this.alpha[i]=alpha;this.sizes[i]=size;}
+  color(label){return new THREE.Color(pigmentFactors[label].color).lerp(new THREE.Color('#ffffff'),.18).convertLinearToSRGB();}
+  emit(p,color,alpha,size){if(this.count>=this.max)return;alpha*=.4;const i=this.count++;this.positions.set([p.x,p.y,p.z],i*3);this.colors.set([color.r,color.g,color.b],i*3);this.alpha[i]=alpha;this.sizes[i]=size;}
   highlight(zone,color,strength,time,reduced=false){
     const anchor=zone?this.getAnchor(zone):null;this.halo.visible=!!anchor&&strength>.001;
-    if(!anchor)return;anchor.getWorldPosition(this.halo.position);this.halo.material.color.set(color);this.halo.material.opacity=strength*.82;
+    if(!anchor)return;anchor.getWorldPosition(this.halo.position);this.halo.material.color.set(color);this.halo.material.opacity=strength*.48;
     const size=this.height*(zone==='manos'?.12:zone==='piernas'?.24:.19)*(reduced?1:1+Math.sin(time*.8)*.025);this.halo.scale.set(size,size,1);
   }
   update(time,camera,renderer,{visible=true,reduced=false,paused=false}={}){
@@ -43,7 +43,7 @@ export class PigmentSystem{
     if(visible&&!paused&&!reduced)this.flowTime+=delta;
     this.points.visible=visible;if(!visible){this.halo.visible=false;return;}this.count=0;
     if(reduced)for(const track of this.active)for(const zone of pigmentFactors[track.label].route)this.remember(track.label,zone);
-    this.material.uniforms.uSizeFactor.value=renderer.domElement.height/(2*Math.tan(THREE.MathUtils.degToRad(camera.fov/2)));
+    this.material.uniforms.uSizeFactor.value=renderer.domElement.height*Math.abs(camera.projectionMatrix.elements[5])/2;
     for(const memory of this.memories.values()){
       const anchor=this.getAnchor(memory.zone);if(!anchor)continue;const color=this.color(memory.label);
       for(const seed of memory.seeds){this.offset.set(seed.x*this.height*.028,seed.y*this.height*.027,seed.z*this.height*.008);this.point.copy(this.offset);anchor.localToWorld(this.point);this.emit(this.point,color,.16*seed.alpha,this.height*.067*seed.size);}
