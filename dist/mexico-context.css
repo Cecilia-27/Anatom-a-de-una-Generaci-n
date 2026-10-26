@@ -29,6 +29,6 @@ body.cover-view #context-mexico:hover{background:#fff7fa70}
 @media(max-width:1050px){body.cover-view #context-mexico{margin-bottom:24px}}
 @media(max-width:560px){body.cover-view #context-mexico{gap:12px;margin-bottom:27px;padding-left:0}.mexico-invite-map{width:65px;flex-basis:65px;height:49px}.mexico-invite-copy strong{font-size:16px}.mexico-invite-copy>span{font-size:13px}.mexico-context-heading{gap:16px;margin-bottom:23px;align-items:center}.mexico-dialog-map{width:65px;flex-basis:65px}#info-dialog .mexico-context-heading .dialog-eyebrow{font-size:9px;letter-spacing:.2px;margin-right:18px;margin-bottom:12px}#info-dialog .mexico-context-content>p{font-size:16px;line-height:1.5}#info-dialog .mexico-context-content p.mexico-question{font-size:19px;line-height:1.35;padding:15px 3px}}
 @media(prefers-reduced-motion:reduce){.mexico-invite-map img{transition:none}#context-mexico:hover .mexico-invite-map img{transform:none}}
-.mexico-invite-copy strong{display:block;width:170px;max-width:100%;line-height:0}
+.mexico-invite-copy strong{display:block;width:210px;max-width:100%;line-height:0}
 .mexico-invite-copy strong img{display:block;width:100%;height:auto}
-@media(max-width:560px){.mexico-invite-copy strong{width:155px}}
+@media(max-width:560px){.mexico-invite-copy strong{width:185px}}

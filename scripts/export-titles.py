@@ -18,7 +18,7 @@ titles={
  'move':['Dale tu propio','movimiento.'], 'zones':['Zonas del cuerpo'],
  'connections':['Distintas partes,','una misma decisión.'],
  'sensations':['Lo que se siente'],
- 'mexico-context':['¿Qué está cambiando','en México?'],
+ 'mexico-context':['¿Qué hay detrás de la','baja natalidad en México?'],
  'opinion-guide':['Una decisión.','Cuatro formas de vivirla.'],
  'opinion-damian':['Decidir no tener'],
  'opinion-rodrigo':['Querer, pero','no ahora'],
