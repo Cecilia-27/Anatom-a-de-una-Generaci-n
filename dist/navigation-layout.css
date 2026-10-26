@@ -93,3 +93,10 @@ body.exploring #journey #conclusion:focus-visible{outline:2px solid #b80037;outl
 @media(min-width:1800px){body .scene-topbar .interaction-switch button,body .scene-topbar .pigment-toggle,body .scene-topbar .reset-view{font-size:16px;min-height:46px}body.exploring #journey #conclusion{font-size:18px;min-height:58px;margin-top:26px}}
 @media(max-width:560px){body .scene-topbar .scene-actions{gap:9px 10px}body .scene-topbar .interaction-switch button{font-size:14px;min-height:42px;padding:10px 13px}body .scene-topbar .pigment-toggle,body .scene-topbar .reset-view{font-size:14px;padding:10px 12px;min-height:42px}body .scene-topbar.scene-toolbar{padding-bottom:18px}body.exploring #journey #conclusion{font-size:16px;margin-top:22px;min-height:54px;padding:15px 18px}}
 @media(max-width:360px){body .scene-topbar .interaction-switch button{font-size:12px;padding:10px 9px}body .scene-topbar .pigment-toggle,body .scene-topbar .reset-view{font-size:12px;padding:10px 9px}}
+/* La guía conserva el mismo contenido y la composición de la referencia al volver de una zona. */
+body.exploring #welcome-panel>p.welcome-description:not(.small-label):not(.sample-note){color:#f50046}
+@media(min-width:1051px){
+ body.exploring #welcome-panel .small-label{margin-bottom:36px}
+ body.exploring #welcome-panel h2{width:82%;max-width:620px;margin-bottom:clamp(42px,3.8vw,68px)}
+ body.exploring #welcome-panel .exploration-invitation{width:79%;max-width:590px;margin-left:7%;margin-right:5%}
+}
