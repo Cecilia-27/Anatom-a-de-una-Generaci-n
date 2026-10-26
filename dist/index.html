@@ -18,6 +18,7 @@
   <link rel="stylesheet" href="./dialogs.css">
   <link rel="stylesheet" href="./exploration.css">
   <link rel="stylesheet" href="./reference.css">
+  <link rel="stylesheet" href="./navigation-layout.css">
   <script type="importmap">{"imports":{"three":"./vendor/three.module.js"}}</script>
   <script type="module" src="./app.js"></script>
 </head>
@@ -33,9 +34,10 @@
     <nav aria-label="Navegación principal"><button id="nav-explore" class="nav-link active">Explora el cuerpo <span class="nav-dot"></span></button><button id="nav-voices" class="nav-link">Las opiniones</button><button id="nav-about" class="nav-link">Sobre el proyecto <span aria-hidden="true">↗</span></button></nav>
     <span class="header-note"><span>Un cuerpo.</span><span>Muchas formas de sentir.</span></span>
   </header>
+  <nav class="chapter-navigation" aria-label="Pantallas de la experiencia"><span class="chapter-navigation-line" aria-hidden="true"></span><button type="button" data-page="home" aria-label="Ir a la portada" aria-current="page"><img src="./assets/portada-indicador.svg" alt=""><span class="chapter-navigation-label">01 · Portada</span></button><button type="button" data-page="explore" aria-label="Ir a la exploración" disabled><img src="./assets/portada-indicador-contorno.svg" alt=""><span class="chapter-navigation-label">02 · Exploración</span></button><button type="button" data-page="zones" aria-label="Ir a las zonas del cuerpo" disabled><img src="./assets/portada-indicador-contorno.svg" alt=""><span class="chapter-navigation-label">03 · Zonas del cuerpo</span></button></nav>
   <main id="main" class="experience">
     <div class="cover-art" aria-hidden="true"><span class="cover-pigment pigment-aqua"></span><span class="cover-pigment pigment-coral"></span><span class="cover-pigment pigment-gold"></span></div>
-    <div class="cover-rail" aria-hidden="true"><span class="cover-rail-line"></span><img src="./assets/portada-indicador.svg" alt=""><img src="./assets/portada-indicador-contorno.svg" alt=""><img src="./assets/portada-indicador-contorno.svg" alt=""></div>
+
     <section class="editorial" aria-labelledby="main-title">
       <nav class="chapter-rail" aria-label="Recorrido del proyecto"><a href="./"><i></i><span>01</span>Inicio</a><button id="rail-explore" aria-current="step"><i></i><span>02</span>Exploración</button><button id="rail-zones"><i></i><span>03</span>Zonas</button><button id="rail-voices"><i></i><span>04</span>Las voces</button><button id="rail-connections" disabled><i></i><span>05</span>Conexiones</button></nav>
       <p class="eyebrow"><span></span> UN RETRATO DE LA GENERACIÓN Z</p>
@@ -47,20 +49,26 @@
       <p class="editorial-footnote"><span class="small-star">✳</span> No hay una sola manera<br>de imaginar el futuro.</p>
     </section>
     <section class="body-stage" id="stage" aria-label="Exploración del cuerpo en tres dimensiones">
+      <div class="scene-viewport" id="scene-viewport">
+      <canvas id="scene-canvas" aria-hidden="true"></canvas>
       <div class="wash wash-blue" aria-hidden="true"></div><div class="wash wash-coral" aria-hidden="true"></div><div class="wash wash-green" aria-hidden="true"></div>
       <div class="orbit-sketch" aria-hidden="true"><svg viewBox="0 0 500 650"><path d="M250 57C58 59 40 517 222 581C421 648 472 169 313 78"/><path d="m305 68 9 11-14 4"/><path class="sketch-dash" d="M67 392c42-42 279-65 372 8"/></svg></div>
       <span class="stage-number" aria-hidden="true">FIG. 01 — UN CUERPO EN EXPLORACIÓN</span>
-      <div class="interaction-switch" role="group" aria-label="Modo de interacción"><button id="mode-data" aria-pressed="true">Explorar datos</button><button id="mode-pose" aria-pressed="false" disabled>Mover el cuerpo <span aria-hidden="true">✧</span></button></div>
+
       <canvas id="body-canvas" tabindex="0" aria-label="Títere 3D. Arrastra para girar o usa las flechas izquierda y derecha del teclado."></canvas>
       <svg id="connection-overlay" class="connection-overlay" aria-hidden="true"><path id="panel-connection"/></svg>
       <div id="hotspots" class="hotspots" aria-label="Zonas del cuerpo"></div>
       <div id="joint-handles" class="joint-handles" aria-label="Partes que puedes mover" hidden></div>
       <div id="factors" class="factors" aria-hidden="true"></div>
       <div class="stage-status" id="stage-status" role="status">El cuerpo está por despertar…</div>
-      <button class="pigment-toggle" id="pigment-toggle" aria-pressed="false">Ⅱ Pausar manchas</button>
+
       <div class="focus-status" id="focus-status" role="status" hidden>Acercándonos a la zona…</div>
+      </div>
+      <div class="scene-toolbar">
       <div class="rotation-controls"><button id="rotate-left" class="round-button" aria-label="Girar el cuerpo a la izquierda"><span class="rotation-glyph" aria-hidden="true">↶</span><svg class="cover-rotation-arrow" viewBox="0 0 100 50" aria-hidden="true"><path d="M95 6C-15 13-15 29 70 40m-10-9 10 9-14 2"/></svg></button><div><span class="degrees">360°</span><span class="drag-hint">Arrastra para girar</span></div><button id="rotate-right" class="round-button" aria-label="Girar el cuerpo a la derecha"><span class="rotation-glyph" aria-hidden="true">↷</span><svg class="cover-rotation-arrow" viewBox="0 0 100 50" aria-hidden="true"><path d="M95 6C-15 13-15 29 70 40m-10-9 10 9-14 2"/></svg></button></div>
-      <button class="reset-view" id="reset-view" aria-label="Volver a la vista frontal">↺ <span>Vista inicial</span></button>
+
+        <div class="scene-actions"><div class="interaction-switch" role="group" aria-label="Modo de interacción"><button id="mode-data" aria-pressed="true">Explorar datos</button><button id="mode-pose" aria-pressed="false" disabled>Mover el cuerpo <span aria-hidden="true">✧</span></button></div><button class="pigment-toggle" id="pigment-toggle" aria-pressed="false">Ⅱ Pausar manchas</button><button class="reset-view" id="reset-view" aria-label="Volver a la vista frontal">↺ <span>Vista inicial</span></button></div>
+      </div>
     </section>
     <aside class="context-area" aria-label="Información de la zona seleccionada">
       <section id="articulation-panel" class="articulation-panel" aria-labelledby="pose-title" hidden>

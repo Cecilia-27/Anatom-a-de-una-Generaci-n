@@ -67,3 +67,9 @@ La portada oculta el selector Explorar datos/Mover el cuerpo; ambos modos siguen
 `reference.css` adapta la pantalla al nuevo boceto: marcador 02, recorrido lateral de manchas, relato abajo a la izquierda, cuerpo central y lectura a la derecha. Los títulos fijos son trazados reales de Dunbar Low Bold, exportados por `scripts/export-titles.py` desde la fuente local, sin distribuir el archivo de fuente. `titles.js` conserva el texto accesible de cada encabezado. Los párrafos mantienen League Spartan Regular.
 
 Los cuatro SVG originales de manchas (morado, amarillo, azul y rosa) se reutilizan alrededor de los hotspots existentes. Los colores de zonas, recorridos y gráficas se coordinan con esa paleta; las manchas pulsan suavemente, responden a la pausa y se detienen con movimiento reducido. Las cifras y rutas narrativas no cambian. Los porcentajes usan una variante oscura de su color para conservar legibilidad.
+
+### Navegación y continuidad visual
+
+Las tres manchas laterales son botones fijos para Portada, Exploración y Zonas del cuerpo. Comparten posición y tamaño entre vistas; volver a la portada no recarga la página ni borra visitas, conexiones o postura. La zona de dibujo (`scene-canvas`) tiene márgenes más amplios y un borde difuso; el área de interacción (`body-canvas`) conserva su encuadre. `viewport.js` transforma las coordenadas de puntos y selección, con pruebas de proyección y rayos en `check-viewport.mjs`. La sombra se calcula con un área proporcional al tamaño real del GLB.
+
+Los controles están debajo del visor en flujo normal. El encabezado reserva espacio para su frase y el panel de datos mantiene desplazamiento normal. Los factores y etiquetas ajustan su posición y pueden envolver texto. Las manchas conservan sus tonos con menor intensidad; la pausa sigue afectando solo al ambiente.
