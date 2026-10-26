@@ -73,3 +73,23 @@ body.exploring.focus-active .editorial:before{content:'';position:absolute;inset
 body.exploring #zone-panel.glass-panel{background:#fffffff5;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
 body.exploring.focus-active .scene-toolbar{background:radial-gradient(ellipse at center,#fffffff2 35%,#ffffffb0 60%,transparent 84%)}
 @media(max-width:1050px){body.exploring.focus-active .editorial:before{display:none}}
+/* Controles arriba, giro abajo: ambos tienen espacio propio fuera del dibujo. */
+body.cover-view .body-stage,body.exploring:not(.cover-view) .body-stage,body.exploring:not(.cover-view).focus-active .body-stage{grid-template-rows:auto minmax(360px,1fr) auto}
+body .scene-topbar.scene-toolbar{padding:4px 0 18px;gap:0;align-self:start;background:linear-gradient(to bottom,#ffffffed,#ffffffdc 80%,transparent);border-radius:18px;z-index:7}
+body .scene-topbar .scene-actions{display:grid;grid-template-columns:max-content max-content;justify-content:center;align-items:stretch;gap:10px 12px;width:100%;min-width:0}
+body .scene-topbar .interaction-switch{grid-column:1/-1;justify-self:center;display:flex;align-items:stretch;gap:3px;background:#fff8fb;border:1px solid #f3b9cb;border-radius:30px;padding:4px;box-shadow:0 3px 12px #e9376b08}
+body .scene-topbar .interaction-switch button{font:400 15px/1.25 var(--sans);color:#db245b;min-height:42px;padding:10px 17px;border-radius:24px;display:flex;align-items:center;justify-content:center;gap:8px}
+body .scene-topbar .interaction-switch button[aria-pressed=true]{font-weight:600;background:#f50046;color:#fff;box-shadow:0 2px 9px #f500461a}
+body .scene-topbar .pigment-toggle,body.exploring.focus-active .scene-topbar .pigment-toggle,body.exploring.focus-active:not(.panel-left) .scene-topbar .pigment-toggle,body .scene-topbar .reset-view{font:400 15px/1.25 var(--sans);color:#d92860;min-height:42px;margin:0;padding:10px 14px;border:1px solid #f1c7d5;background:#fff;border-radius:24px;white-space:normal;align-self:stretch;text-align:center;display:flex;align-items:center;justify-content:center;gap:5px}
+body .scene-topbar .reset-view span{margin:0}
+body .scene-topbar button:hover{background:#fff0f6}
+body .scene-topbar .interaction-switch button[aria-pressed=true]:hover{background:#df0041}
+body.cover-view .scene-topbar .interaction-switch{display:none}
+body .scene-toolbar:not(.scene-topbar){padding-top:18px;padding-bottom:12px;gap:0}
+body.exploring #journey .progress-track{margin-bottom:0;flex-shrink:0}
+body.exploring #journey #conclusion{position:static;inset:auto;transform:none;display:flex;align-items:center;justify-content:space-between;gap:10px;margin:24px 0 4px;padding:16px 20px;min-height:54px;width:100%;max-width:100%;border:1px solid #f50046;border-radius:30px;background:#f50046;color:#fff;font:400 16px/1.3 var(--sans);text-align:left;white-space:normal;text-decoration:none;box-shadow:0 5px 20px #f5004614}
+body.exploring #journey #conclusion:hover{background:#de0040;border-color:#de0040;box-shadow:0 6px 23px #f5004620}
+body.exploring #journey #conclusion:focus-visible{outline:2px solid #b80037;outline-offset:5px}
+@media(min-width:1800px){body .scene-topbar .interaction-switch button,body .scene-topbar .pigment-toggle,body .scene-topbar .reset-view{font-size:16px;min-height:46px}body.exploring #journey #conclusion{font-size:18px;min-height:58px;margin-top:26px}}
+@media(max-width:560px){body .scene-topbar .scene-actions{gap:9px 10px}body .scene-topbar .interaction-switch button{font-size:14px;min-height:42px;padding:10px 13px}body .scene-topbar .pigment-toggle,body .scene-topbar .reset-view{font-size:14px;padding:10px 12px;min-height:42px}body .scene-topbar.scene-toolbar{padding-bottom:18px}body.exploring #journey #conclusion{font-size:16px;margin-top:22px;min-height:54px;padding:15px 18px}}
+@media(max-width:360px){body .scene-topbar .interaction-switch button{font-size:12px;padding:10px 9px}body .scene-topbar .pigment-toggle,body .scene-topbar .reset-view{font-size:12px;padding:10px 9px}}
