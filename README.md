@@ -18,7 +18,7 @@ La portada conserva sus SVG originales y `cover.css`. `editorial.css` adapta la 
 
 Los cinco botones inferiores llaman a la misma función `selectZone` de los hotspots: Cabeza, Pecho, Estómago, Manos y Piernas. Boca sigue disponible como recorrido complementario. Se conservan las seis zonas visitadas y el progreso; tras tres se habilita la vista de conexiones.
 
-El panel presenta título editorial, subtítulo, descripción, voz identificada, gráfica y acceso a las articulaciones. La frase del boceto y las voces conceptuales se identifican explícitamente; no se presentan como entrevistas verificadas. Una transcripción requiere texto, fuente y `verified: true`.
+El panel presenta título editorial, subtítulo, descripción, voz identificada, gráfica y acceso a las articulaciones. La frase del boceto conserva su etiqueta conceptual. Las opiniones usan los 37 fragmentos proporcionados por la autora, con nombre y edad; Fabiola y Gabriel se identifican como frases adaptadas de entrevista.
 
 ## Datos y visualización
 
@@ -73,3 +73,9 @@ Los cuatro SVG originales de manchas (morado, amarillo, azul y rosa) se reutiliz
 Las tres manchas laterales son botones fijos para Portada, Exploración y Zonas del cuerpo. Comparten posición y tamaño entre vistas; volver a la portada no recarga la página ni borra visitas, conexiones o postura. La zona de dibujo (`scene-canvas`) tiene márgenes más amplios y un borde difuso; el área de interacción (`body-canvas`) conserva su encuadre. `viewport.js` transforma las coordenadas de puntos y selección, con pruebas de proyección y rayos en `check-viewport.mjs`. La sombra se calcula con un área proporcional al tamaño real del GLB.
 
 Los controles están debajo del visor en flujo normal. El encabezado reserva espacio para su frase y el panel de datos mantiene desplazamiento normal. Los factores y etiquetas ajustan su posición y pueden envolver texto. Las manchas conservan sus tonos con menor intensidad; la pausa sigue afectando solo al ambiente.
+
+## Opiniones alrededor del cuerpo
+
+`opinions-data.js` conserva cuatro posturas, sus edades, frases principales y temas. `opinions.js` abre desde Las opiniones una órbita de cuatro partículas, sin el antiguo carrusel modal. Cada partícula abre una ventana no modal con una frase principal y un tema a la vez. En escritorio se sitúa junto al cuerpo; en móvil se coloca debajo, sin cubrir partículas. El giro, los datos y la postura del títere se conservan.
+
+`opinion-layout.js` calcula posiciones y separación entre etiquetas; las pruebas recorren una vuelta completa en varios anchos. El movimiento se detiene al enfocar, pasar el cursor, abrir una opinión, pausar manchas o solicitar movimiento reducido. Escape y el botón de cierre devuelven el foco a la partícula.

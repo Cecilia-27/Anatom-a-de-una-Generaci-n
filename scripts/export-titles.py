@@ -17,7 +17,12 @@ titles={
  'cabeza':['Cabeza'],'pecho':['Pecho'],'estomago':['Estómago'],'boca':['Boca'],'manos':['Manos'],'piernas':['Piernas'],
  'move':['Dale tu propio','movimiento.'], 'zones':['Zonas del cuerpo'],
  'connections':['Distintas partes,','una misma decisión.'],
- 'sensations':['Lo que se siente']
+ 'sensations':['Lo que se siente'],
+ 'opinion-guide':['Una decisión.','Cuatro formas de vivirla.'],
+ 'opinion-damian':['Decidir no tener'],
+ 'opinion-rodrigo':['Querer, pero','no ahora'],
+ 'opinion-fabiola':['Querer, pero','sentirse preparada'],
+ 'opinion-gabriel':['Postergar para','construir primero']
 }
 def kern(first,second):
  total=0
