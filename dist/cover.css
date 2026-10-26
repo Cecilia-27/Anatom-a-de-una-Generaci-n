@@ -10,13 +10,19 @@ body.cover-view:before{display:none}
 .cover-view .nav-dot,.cover-view #nav-about span{display:none}
 .cover-view .experience{position:relative;isolation:isolate;max-width:none;margin:0;padding:0 3.5% 0 7.2%;grid-template-columns:48% 52%;min-height:calc(100svh - 76px)}
 .cover-view .cover-art{display:block;position:fixed;inset:0;z-index:-3;pointer-events:none;overflow:hidden;background:#fff}
-.cover-view .cover-art:before{content:'';position:absolute;inset:-3%;background:url('./assets/portada-manchas.svg') center/cover no-repeat;animation:cover-wash-drift 28s ease-in-out -7s infinite alternate;transform-origin:78% 48%}
-.cover-pigment{position:absolute;display:block;filter:blur(38px);border-radius:48% 52% 62% 38% / 42% 65% 35% 58%;opacity:.43;animation:cover-pigment-drift 24s ease-in-out infinite alternate}
-.pigment-aqua{width:34vw;height:62vh;left:45%;top:27%;background:radial-gradient(ellipse,#4ff0ed 5%,#3cd9ff88 42%,transparent 72%);animation-duration:26s}
-.pigment-coral{width:26vw;height:67vh;right:1%;top:13%;background:radial-gradient(ellipse,#f50046 6%,#ff548a88 45%,transparent 72%);animation-delay:-8s}
-.pigment-gold{width:30vw;height:40vh;right:6%;bottom:-7%;background:radial-gradient(ellipse,#ffcb4099 7%,#ffb86088 45%,transparent 72%);animation-duration:30s;animation-delay:-12s}
-@keyframes cover-wash-drift{from{transform:translate3d(-2%,1.5%,0) scale(1.07)}to{transform:translate3d(3%,-3%,0) scale(1.16)}}
-@keyframes cover-pigment-drift{from{transform:translate3d(-10%,8%,0) rotate(-9deg) scale(.94)}to{transform:translate3d(16%,-17%,0) rotate(13deg) scale(1.28)}}
+.cover-view .cover-art:before{content:'';position:absolute;inset:-7%;background:url('./assets/portada-manchas.svg') center/cover no-repeat;animation:cover-wash-drift 24s ease-in-out -7s infinite alternate;transform-origin:78% 48%}
+.cover-pigment{position:absolute;display:block;filter:blur(28px);border-radius:48% 52% 62% 38% / 42% 65% 35% 58%;opacity:.64;animation:cover-pigment-drift 19s ease-in-out -4s infinite}
+.pigment-aqua{width:34vw;height:62vh;left:45%;top:27%;background:radial-gradient(ellipse,#4ff0ed 5%,#3cd9ff88 42%,transparent 72%);animation-duration:21s;animation-delay:-6s}
+.pigment-coral{width:26vw;height:67vh;right:1%;top:13%;background:radial-gradient(ellipse,#f50046 6%,#ff548a88 45%,transparent 72%);animation-duration:19s;animation-delay:-11s;animation-direction:reverse}
+.pigment-gold{width:30vw;height:40vh;right:6%;bottom:-7%;background:radial-gradient(ellipse,#ffcb4099 7%,#ffb86088 45%,transparent 72%);animation-duration:23s;animation-delay:-16s}
+@keyframes cover-wash-drift{from{transform:translate3d(-4%,3%,0) rotate(-2deg) scale(1.1)}to{transform:translate3d(5%,-4%,0) rotate(3deg) scale(1.2)}}
+/* Cada pigmento recorre un bucle cerrado, se expande y cambia de contorno. */
+@keyframes cover-pigment-drift{
+  0%,100%{transform:translate3d(-22%,10%,0) rotate(-12deg) scale(.88,1.06);border-radius:48% 52% 62% 38% / 42% 65% 35% 58%;opacity:.52}
+  25%{transform:translate3d(5%,-24%,0) rotate(8deg) scale(1.12,.9);border-radius:65% 35% 42% 58% / 61% 38% 62% 39%;opacity:.76}
+  50%{transform:translate3d(29%,-5%,0) rotate(22deg) scale(.98,1.25);border-radius:37% 63% 57% 43% / 35% 58% 42% 65%;opacity:.63}
+  75%{transform:translate3d(6%,25%,0) rotate(-4deg) scale(1.23,1.02);border-radius:56% 44% 32% 68% / 64% 44% 56% 36%;opacity:.8}
+}
 body.flow-paused .cover-art:before,body.flow-paused .cover-pigment{animation-play-state:paused}
 .cover-view .cover-rail{display:flex;position:absolute;left:3.3%;top:0;width:28px;height:52%;min-height:360px;align-items:center;flex-direction:column;gap:15px;z-index:2;pointer-events:none}
 .cover-view .cover-rail-line{display:block;flex:1;width:2px;min-height:0;background:var(--cover-red);margin-bottom:3px}
